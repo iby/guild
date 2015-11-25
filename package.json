@@ -1,0 +1,19 @@
+{
+    "name": "@ianbytchek/guild",
+    "version": "0.0.0",
+    "description": "Gulp build tasks",
+    "main": "./source/index.js",
+    "dependencies": {
+        "gulp-awspublish": "*",
+        "gulp-concat": "*",
+        "gulp-less": "*",
+        "gulp-plumber": "*",
+        "gulp-postcss": "*",
+        "gulp-rename": "*",
+        "gulp-twig": "*",
+        "gulp-uglify": "*",
+        "gulp-util": "*",
+        "gulp-watch": "*",
+        "gulp-webpack": "*"
+    }
+}
