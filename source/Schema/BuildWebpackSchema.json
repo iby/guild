@@ -1,0 +1,9 @@
+{
+    "id": "/Build/Webpack",
+    "type": "object",
+    "properties": {
+        "configuration": {"type": "object"},
+        "source": {"$ref": "/Path"},
+        "destination": {"$ref": "/Path"}
+    }
+}

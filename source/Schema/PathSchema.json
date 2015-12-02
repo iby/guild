@@ -1,0 +1,15 @@
+{
+    "id": "/Path",
+    "type": [
+        {"$ref": "#/definitions/path"},
+        {
+            "type": "array",
+            "items": {"$ref": "#/definitions/path"}
+        }
+    ],
+    "definitions": {
+        "path": {
+            "type": "string"
+        }
+    }
+}

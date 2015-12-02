@@ -1,11 +1,20 @@
 {
-    "name": "@ianbytchek/guild",
-    "version": "0.0.0",
     "description": "Gulp build tasks",
-    "main": "./source/index.js",
+    "license": "MIT",
+    "main": "./source/guild.js",
+    "name": "@ianbytchek/guild",
+    "repository": "https://github.com/ianbytchek/guild",
+    "version": "0.0.0",
     "dependencies": {
+        "autoprefixer": "*",
+        "chalk": "*",
+        "crypto-js": "*",
+        "cssnano": "*",
+        "del": "*",
+        "gulp": "*",
         "gulp-awspublish": "*",
         "gulp-concat": "*",
+        "gulp-help": "*",
         "gulp-less": "*",
         "gulp-plumber": "*",
         "gulp-postcss": "*",
@@ -14,6 +23,13 @@
         "gulp-uglify": "*",
         "gulp-util": "*",
         "gulp-watch": "*",
-        "gulp-webpack": "*"
+        "jsonschema": "*",
+        "minimist": "*",
+        "moment": "*",
+        "postcss-discard-comments": "*",
+        "postcss-reporter": "*",
+        "run-sequence": "*",
+        "stylelint": "*",
+        "webpack-stream": "*"
     }
 }
