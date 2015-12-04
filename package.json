@@ -1,7 +1,7 @@
 {
     "description": "Gulp build tasks",
     "license": "MIT",
-    "main": "./source/guild.js",
+    "main": "./source/js/guild.js",
     "name": "@ianbytchek/guild",
     "repository": "https://github.com/ianbytchek/guild",
     "version": "0.0.0",

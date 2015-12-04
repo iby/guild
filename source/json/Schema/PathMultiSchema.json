@@ -1,5 +1,5 @@
 {
-    "id": "/Path",
+    "id": "/Path/Multi",
     "type": [
         {"$ref": "#/definitions/path"},
         {

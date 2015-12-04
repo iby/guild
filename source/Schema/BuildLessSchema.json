@@ -1,8 +1,0 @@
-{
-    "id": "/Build/Less",
-    "type": "object",
-    "properties": {
-        "source": {"$ref": "/Path"},
-        "destination": {"$ref": "/Path"}
-    }
-}

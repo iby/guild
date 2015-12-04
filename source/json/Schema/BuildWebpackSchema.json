@@ -3,7 +3,7 @@
     "type": "object",
     "properties": {
         "configuration": {"type": "object"},
-        "source": {"$ref": "/Path"},
-        "destination": {"$ref": "/Path"}
+        "source": {"$ref": "/Path/Uni"},
+        "destination": {"$ref": "/Path/Uni"}
     }
 }
