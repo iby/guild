@@ -22,7 +22,7 @@ function buildLess(gulp, configuration, parameters, cleanTasks, buildTasks) {
     var source = configuration['source'];
     var destination = configuration['destination'];
     var plugins = configuration['plugins'];
-    var index;
+    var pluginsGenerator = plugins instanceof Function ? plugins : function () { return plugins };
 
     // Postcss configuration.
 
@@ -40,15 +40,17 @@ function buildLess(gulp, configuration, parameters, cleanTasks, buildTasks) {
         require('postcss-reporter')()
     ];
 
-    // Normalise plugins.
-
-    (plugins == null || plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
-    (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.LESS);
-    (index = plugins.indexOf(Plugin.LESS)) >= 0 && plugins.splice(index, 1, less(), postcss(postcssConfiguration));
-
     buildTasks.push(Task.BUILD_LESS);
     gulp.task(Task.BUILD_LESS, false, function () {
         var pipeline = gulp.src(path.join(source, '**/*.less')).pipe(plumber());
+        var plugins = pluginsGenerator();
+        var index;
+
+        // Normalise plugins.
+
+        (plugins == null || plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
+        (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.LESS);
+        (index = plugins.indexOf(Plugin.LESS)) >= 0 && plugins.splice(index, 1, less(), postcss(postcssConfiguration));
 
         // Todo: is it ok that we don't use this anymore? Keep an eye on this for awhile.
 
@@ -77,17 +79,19 @@ function buildWebpack(gulp, configuration, parameters, cleanTasks, buildTasks) {
     var source = configuration['source'];
     var destination = configuration['destination'];
     var plugins = configuration['plugins'];
-    var index;
-
-    // Normalise plugins.
-
-    (plugins == null || plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
-    (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.WEBPACK);
-    (index = plugins.indexOf(Plugin.WEBPACK)) >= 0 && plugins.splice(index, 1, webpack(webpackConfiguration));
+    var pluginsGenerator = plugins instanceof Function ? plugins : function () { return plugins };
 
     buildTasks.push(Task.BUILD_WEBPACK);
     gulp.task(Task.BUILD_WEBPACK, function () {
         var pipeline = gulp.src(path.join(source, '**/*.js')).pipe(plumber());
+        var plugins = pluginsGenerator();
+        var index;
+
+        // Normalise plugins, todo: optimise when webpack is the only plugin with watch mode on…
+
+        (plugins == null || plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
+        (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.WEBPACK);
+        (index = plugins.indexOf(Plugin.WEBPACK)) >= 0 && plugins.splice(index, 1, webpack(webpackConfiguration));
 
         plugins.forEach(function (plugin) {
             pipeline = pipeline.pipe(plugin)
