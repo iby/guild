@@ -34,6 +34,7 @@
  * @property {Path} path
  */
 
+var DataType = require('./Constant/DataType');
 var Plugin = require('./Constant/Plugin');
 var Schema = require('./Constant/Schema');
 var SchemaValidator = require('./Validator/SchemaValidator');
@@ -57,7 +58,7 @@ var twig = require('gulp-twig');
  * @param {Array} cleanTasks
  * @param {Array} buildTasks
  */
-function buildLess(gulp, configuration, parameters, cleanTasks, buildTasks) {
+function createBuildLessTask(gulp, configuration, parameters, cleanTasks, buildTasks) {
     var lessConfiguration = configuration.less;
     var watch = parameters.watch;
     var source = lessConfiguration.source;
@@ -119,7 +120,7 @@ function buildLess(gulp, configuration, parameters, cleanTasks, buildTasks) {
  * @param {Array} cleanTasks
  * @param {Array} buildTasks
  */
-function buildTwig(gulp, configuration, parameters, cleanTasks, buildTasks) {
+function createBuildTwigTask(gulp, configuration, parameters, cleanTasks, buildTasks) {
     var twigConfiguration = configuration.twig;
     var watch = parameters.watch;
     var source = twigConfiguration.source;
@@ -160,7 +161,7 @@ function buildTwig(gulp, configuration, parameters, cleanTasks, buildTasks) {
  * @param {Array} cleanTasks
  * @param {Array} buildTasks
  */
-function buildWebpack(gulp, configuration, parameters, cleanTasks, buildTasks) {
+function createBuildWebpackTask(gulp, configuration, parameters, cleanTasks, buildTasks) {
     var webpackConfiguration = configuration.webpack;
     var watch = parameters.watch;
     var source = webpackConfiguration.source;
@@ -230,12 +231,9 @@ function buildClean(gulp, path, cleanTask, registeredTasks) {
 function build(gulp, configuration, parameters) {
     var buildConfiguration = configuration.build;
     var pathConfiguration = configuration.path;
-    var includeLess = buildConfiguration.less != null;
-    var includeTwig = buildConfiguration.twig != null;
-    var includeWebpack = buildConfiguration.webpack != null;
     var validator = new SchemaValidator();
 
-    // Inject stuff into dependency configuration.
+    // Inject stuff into build configuration.
 
     buildConfiguration.path = pathConfiguration;
 
@@ -246,33 +244,30 @@ function build(gulp, configuration, parameters) {
         production: 'Build for production, will minify and strip everything it can. Very slow.',
         watch: 'Watch files for changes to re-run.'
     };
+    var taskOptions = {
+        less: 'Build less sources.',
+        twig: 'Build twig sources.',
+        webpack: 'Build js sources with webpack.'
+    };
 
     // Fixme: schema allows to pass path arrays, but this will fail when we join them. This must be handled separately.
 
     var cleanTasks = [];
     var buildTasks = [];
-    var map = {};
-
-    includeLess && (map.less = function () {
-        validator.validate(buildConfiguration.less, Schema.BUILD_LESS, {throwError: true});
-        buildLess(gulp, buildConfiguration, parameters, cleanTasks, buildTasks);
-        options.less = 'Build less sources.';
-    });
-
-    includeTwig && (map.twig = function () {
-        validator.validate(buildConfiguration.twig, Schema.BUILD_TWIG, {throwError: true});
-        buildTwig(gulp, buildConfiguration, parameters, cleanTasks, buildTasks);
-        options.twig = 'Build twig sources.';
-    });
-
-    includeWebpack && (map.webpack = function () {
-        validator.validate(buildConfiguration.webpack, Schema.BUILD_WEBPACK, {throwError: true});
-        buildWebpack(gulp, buildConfiguration, parameters, cleanTasks, buildTasks);
-        options.webpack = 'Build js sources with webpack.';
-    });
+    var generators = {
+        less: createBuildLessTask,
+        twig: createBuildTwigTask,
+        webpack: createBuildWebpackTask
+    };
 
     Object.keys(buildConfiguration).forEach(function (key) {
-        map[key] == null || map[key]();
+        var generator = generators[key];
+        var schema = Schema['BUILD_' + key.toUpperCase()];
+
+        if (generator != null && schema != null && validator.validate(buildConfiguration[key], schema, {throwError: true})) {
+            generator(gulp, buildConfiguration, parameters, cleanTasks, buildTasks);
+            options[key] = taskOptions[key];
+        }
     });
 
     gulp.task(Task.BUILD, description, function (callback) {

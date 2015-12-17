@@ -73,9 +73,10 @@ function getGlobExtension(path) {
  * @param {Gulp} gulp
  * @param {DependencyConfiguration} configuration
  * @param {Object} parameters
- * @param {Array} buildTasks
+ * @param {Array} cleanTasks
+ * @param {Array} dependencyTasks
  */
-function dependencyNormalise(gulp, configuration, parameters, buildTasks) {
+function createDependencyNormaliseTask(gulp, configuration, parameters, cleanTasks, dependencyTasks) {
 
     /**
      * @name NormaliseTarget
@@ -87,7 +88,7 @@ function dependencyNormalise(gulp, configuration, parameters, buildTasks) {
     var normaliseConfiguration = configuration.normalise;
     var pathConfiguration = configuration.path;
 
-    buildTasks.push(Task.DEPENDENCY_NORMALISE);
+    dependencyTasks.push(Task.DEPENDENCY_NORMALISE);
     gulp.task(Task.DEPENDENCY_NORMALISE, false, function () {
         var streams = [];
 
@@ -169,8 +170,9 @@ function dependencyNormalise(gulp, configuration, parameters, buildTasks) {
  * @param {DependencyConfiguration} configuration
  * @param {Object} parameters
  * @param {Array} cleanTasks
+ * @param {Array} dependencyTasks
  */
-function dependencyClean(gulp, configuration, parameters, cleanTasks) {
+function createDependencyCleanTask(gulp, configuration, parameters, cleanTasks, dependencyTasks) {
     var cleanConfiguration = configuration.clean;
     var pathConfiguration = configuration.path;
     var target = cleanConfiguration;
@@ -214,23 +216,27 @@ function normalise(gulp, configuration, parameters) {
         production: 'Build for production, will minify and strip everything it can. Very slow.',
         watch: 'Watch files for changes to re-run.'
     };
+    var taskOptions = {
+        clean: 'Clean dependencies.',
+        normalise: 'Normalise dependencies.'
+    };
 
     var cleanTasks = [];
     var dependencyTasks = [];
+    var generators = {
+        clean: createDependencyCleanTask,
+        normalise: createDependencyNormaliseTask
+    };
 
-    // Clean
+    Object.keys(dependencyConfiguration).forEach(function (key) {
+        var generator = generators[key];
+        var schema = Schema['DEPENDENCY_' + key.toUpperCase()];
 
-    if (clean && validator.validate(dependencyConfiguration.clean, Schema.DEPENDENCY_CLEAN, {throwError: true})) {
-        dependencyClean(gulp, dependencyConfiguration, parameters, cleanTasks);
-        options.clean = 'Clean dependencies.';
-    }
-
-    // Normalise
-
-    if (normalise && validator.validate(dependencyConfiguration.normalise, Schema.DEPENDENCY_NORMALISE, {throwError: true})) {
-        dependencyNormalise(gulp, dependencyConfiguration, parameters, dependencyTasks);
-        options.normalise = 'Normalise dependencies.';
-    }
+        if (generator != null && schema != null && validator.validate(dependencyConfiguration[key], schema, {throwError: true})) {
+            generator(gulp, dependencyConfiguration, parameters, cleanTasks, dependencyTasks);
+            options[key] = taskOptions[key];
+        }
+    });
 
     gulp.task(Task.DEPENDENCY, description, function (callback) {
         var tasks = [];
