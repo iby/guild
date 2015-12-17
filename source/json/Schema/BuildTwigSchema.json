@@ -1,0 +1,9 @@
+{
+    "id": "/Build/Twig",
+    "type": "object",
+    "properties": {
+        "data": {"type": "object"},
+        "source": {"$ref": "/Path/Uni"},
+        "destination": {"$ref": "/Path/Uni"}
+    }
+}

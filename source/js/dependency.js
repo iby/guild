@@ -216,7 +216,7 @@ function normalise(gulp, configuration, parameters) {
     };
 
     var cleanTasks = [];
-    var buildTasks = [];
+    var dependencyTasks = [];
 
     // Clean
 
@@ -228,14 +228,15 @@ function normalise(gulp, configuration, parameters) {
     // Normalise
 
     if (normalise && validator.validate(dependencyConfiguration.normalise, Schema.DEPENDENCY_NORMALISE, {throwError: true})) {
-        dependencyNormalise(gulp, dependencyConfiguration, parameters, buildTasks);
+        dependencyNormalise(gulp, dependencyConfiguration, parameters, dependencyTasks);
         options.normalise = 'Normalise dependencies.';
     }
 
     gulp.task(Task.DEPENDENCY, description, function (callback) {
         var tasks = [];
+
         cleanTasks.length > 0 && tasks.push(cleanTasks);
-        buildTasks.length > 0 && tasks.push.apply(tasks, buildTasks);
+        dependencyTasks.length > 0 && tasks.push.apply(tasks, dependencyTasks);
 
         if (tasks.length === 0) {
             throw new Error('No tasks were configured, make sure your configuration is correct.');

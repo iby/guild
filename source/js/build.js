@@ -3,6 +3,7 @@
 /**
  * @name BuildConfiguration
  * @property {LessConfiguration} less
+ * @property {TwigConfiguration} twig
  * @property {WebpackConfiguration} webpack
  * @property {Path} path
  */
@@ -11,6 +12,15 @@
  * @name LessConfiguration
  * @property {String} source
  * @property {String} destination
+ * @property {Array} plugins
+ * @property {Path} path
+ */
+
+/**
+ * @name TwigConfiguration
+ * @property {String} source
+ * @property {String} destination
+ * @property {*} data
  * @property {Array} plugins
  * @property {Path} path
  */
@@ -37,6 +47,7 @@ var postcss = require('gulp-postcss');
 var sequence = require('run-sequence');
 var util = require('gulp-util');
 var webpack = require('webpack-stream');
+var twig = require('gulp-twig');
 
 /**
  * @param {Gulp} gulp
@@ -98,6 +109,47 @@ function buildLess(gulp, configuration, parameters, cleanTasks, buildTasks) {
 
     buildClean(gulp, path.join(destination, '*'), Task.BUILD_CLEAN_LESS, cleanTasks);
     watch && buildWatch(gulp, path.join(source, '**/*'), Task.BUILD_LESS_WATCH, [Task.BUILD_LESS], buildTasks);
+}
+
+/**
+ * @param {Gulp} gulp
+ * @param {BuildConfiguration} configuration
+ * @param {Object} parameters
+ * @param {Boolean} parameters.watch
+ * @param {Array} cleanTasks
+ * @param {Array} buildTasks
+ */
+function buildTwig(gulp, configuration, parameters, cleanTasks, buildTasks) {
+    var twigConfiguration = configuration.twig;
+    var watch = parameters.watch;
+    var source = twigConfiguration.source;
+    var destination = twigConfiguration.destination;
+    var plugins = twigConfiguration.plugins;
+    var pluginsGenerator = plugins instanceof Function ? plugins : function () { return plugins };
+
+    buildTasks.push(Task.BUILD_TWIG);
+    gulp.task(Task.BUILD_TWIG, false, function () {
+        var pipeline = gulp.src(path.join(source, '**/*.twig')).pipe(plumber());
+        var plugins = pluginsGenerator();
+        var index;
+
+        // Normalise plugins.
+
+        (plugins == null || plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
+        (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.TWIG);
+        (index = plugins.indexOf(Plugin.TWIG)) >= 0 && plugins.splice(index, 1, twig(twigConfiguration.data));
+
+        plugins.forEach(function (plugin) {
+            pipeline = pipeline.pipe(plugin)
+        });
+
+        return pipeline.pipe(gulp.dest(destination));
+    });
+
+    // Todo: must watch for js and css products or have an option for that.
+
+    buildClean(gulp, path.join(destination, '*'), Task.BUILD_CLEAN_TWIG, cleanTasks);
+    watch && buildWatch(gulp, path.join(source, '**/*'), Task.BUILD_TWIG_WATCH, [Task.BUILD_TWIG], buildTasks);
 }
 
 /**
@@ -179,6 +231,7 @@ function build(gulp, configuration, parameters) {
     var buildConfiguration = configuration.build;
     var pathConfiguration = configuration.path;
     var includeLess = buildConfiguration.less != null;
+    var includeTwig = buildConfiguration.twig != null;
     var includeWebpack = buildConfiguration.webpack != null;
     var validator = new SchemaValidator();
 
@@ -194,27 +247,47 @@ function build(gulp, configuration, parameters) {
         watch: 'Watch files for changes to re-run.'
     };
 
-    var cleanTasks = [];
-    var buildTasks = [];
-
     // Fixme: schema allows to pass path arrays, but this will fail when we join them. This must be handled separately.
 
-    // Less…
+    var cleanTasks = [];
+    var buildTasks = [];
+    var map = {};
 
-    if (includeLess && validator.validate(buildConfiguration.less, Schema.BUILD_LESS, {throwError: true})) {
+    includeLess && (map.less = function () {
+        validator.validate(buildConfiguration.less, Schema.BUILD_LESS, {throwError: true});
         buildLess(gulp, buildConfiguration, parameters, cleanTasks, buildTasks);
         options.less = 'Build less sources.';
-    }
+    });
 
-    // Webpack…
+    includeTwig && (map.twig = function () {
+        validator.validate(buildConfiguration.twig, Schema.BUILD_TWIG, {throwError: true});
+        buildTwig(gulp, buildConfiguration, parameters, cleanTasks, buildTasks);
+        options.twig = 'Build twig sources.';
+    });
 
-    if (includeWebpack && validator.validate(buildConfiguration.webpack, Schema.BUILD_WEBPACK, {throwError: true})) {
+    includeWebpack && (map.webpack = function () {
+        validator.validate(buildConfiguration.webpack, Schema.BUILD_WEBPACK, {throwError: true});
         buildWebpack(gulp, buildConfiguration, parameters, cleanTasks, buildTasks);
         options.webpack = 'Build js sources with webpack.';
-    }
+    });
+
+    Object.keys(buildConfiguration).forEach(function (key) {
+        map[key] == null || map[key]();
+    });
 
     gulp.task(Task.BUILD, description, function (callback) {
-        return sequence.use(gulp).apply(null, [cleanTasks].concat(buildTasks, [callback]));
+        var tasks = [];
+
+        cleanTasks.length > 0 && tasks.push(cleanTasks);
+        buildTasks.length > 0 && tasks.push.apply(tasks, buildTasks);
+
+        if (tasks.length === 0) {
+            throw new Error('No tasks were configured, make sure your configuration is correct.');
+        } else {
+            tasks.push(callback);
+        }
+
+        return sequence.use(gulp).apply(null, tasks);
     }, {options: options});
 }
 
