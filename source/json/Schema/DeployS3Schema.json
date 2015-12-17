@@ -1,0 +1,13 @@
+{
+    "id": "/Deploy/S3",
+    "type": [
+        "string",
+        "array",
+        {
+            "type": "object",
+            "properties": {
+                "source": {"$ref": "/Path/Uni"}
+            }
+        }
+    ]
+}

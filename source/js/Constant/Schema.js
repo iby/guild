@@ -7,7 +7,8 @@ var Schema = {
     BUILD_TWIG: '/Build/Twig',
     BUILD_WEBPACK: '/Build/Webpack',
     DEPENDENCY_CLEAN: '/Dependency/Clean',
-    DEPENDENCY_NORMALISE: '/Dependency/Normalise'
+    DEPENDENCY_NORMALISE: '/Dependency/Normalise',
+    DEPLOY_S3: '/Deploy/S3'
 };
 
 module.exports = Schema;

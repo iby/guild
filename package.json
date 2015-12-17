@@ -21,6 +21,7 @@
         "gulp-less": "*",
         "gulp-plumber": "*",
         "gulp-postcss": "*",
+        "gulp-rename": "*",
         "gulp-twig": "*",
         "gulp-uglify": "*",
         "gulp-util": "*",

@@ -1,15 +1,10 @@
 'use strict';
 
 /**
- * @name Guild
- * @property {Path} Path
- * @property {Plugin} Path
- */
-
-/**
  * @name GuildConfiguration
  * @property {BuildConfiguration} build
  * @property {DependencyConfiguration} dependency
+ * @property {DeployConfiguration} deploy
  * @property {Path} path
  */
 
@@ -41,10 +36,11 @@ function guild(gulp, configuration) {
 
     configuration = clone(configuration);
 
-    configuration[Task.DEPENDENCY] == null || require('./dependency')(gulp, configuration, parameters);
     configuration[Task.BUILD] == null || require('./build')(gulp, configuration, parameters);
+    configuration[Task.DEPENDENCY] == null || require('./dependency')(gulp, configuration, parameters);
+    configuration[Task.DEPLOY] == null || require('./deploy')(gulp, configuration, parameters);
 }
 
 module.exports = guild;
-module.exports.Plugin = Plugin;
 module.exports.Path = Path;
+module.exports.Plugin = Plugin;

@@ -14,6 +14,7 @@ function SchemaValidator() {
     validator.addSchema(require('../../json/Schema/BuildWebpackSchema.json'));
     validator.addSchema(require('../../json/Schema/DependencyCleanSchema.json'));
     validator.addSchema(require('../../json/Schema/DependencyNormaliseSchema.json'));
+    validator.addSchema(require('../../json/Schema/DeployS3Schema.json'));
     validator.addSchema(require('../../json/Schema/PathMultiSchema.json'));
     validator.addSchema(require('../../json/Schema/PathUniSchema.json'));
 

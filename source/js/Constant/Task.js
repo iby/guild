@@ -13,7 +13,9 @@ var Task = {
     BUILD_WEBPACK_WATCH: 'build-webpack-watch',
     DEPENDENCY: 'dependency',
     DEPENDENCY_CLEAN: 'dependency-clean',
-    DEPENDENCY_NORMALISE: 'dependency-normalise'
+    DEPENDENCY_NORMALISE: 'dependency-normalise',
+    DEPLOY: 'deploy',
+    DEPLOY_S3: 'deploy-s3'
 };
 
 module.exports = Task;

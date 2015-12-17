@@ -199,10 +199,10 @@ function createBuildWebpackTask(gulp, configuration, parameters, cleanTasks, bui
  * @param {String} path
  * @param {String} watchTask
  * @param {Array} runTasks
- * @param {Array} registeredTasks
+ * @param {Array} buildTasks
  */
-function buildWatch(gulp, path, watchTask, runTasks, registeredTasks) {
-    registeredTasks.push(watchTask);
+function buildWatch(gulp, path, watchTask, runTasks, buildTasks) {
+    buildTasks.push(watchTask);
     gulp.task(watchTask, false, function () {
         return gulp.watch(path, runTasks);
     });
@@ -214,10 +214,10 @@ function buildWatch(gulp, path, watchTask, runTasks, registeredTasks) {
  * @param {Gulp} gulp
  * @param {String} path
  * @param {String} cleanTask
- * @param {Array} registeredTasks
+ * @param {Array} cleanTasks
  */
-function buildClean(gulp, path, cleanTask, registeredTasks) {
-    registeredTasks.push(cleanTask);
+function buildClean(gulp, path, cleanTask, cleanTasks) {
+    cleanTasks.push(cleanTask);
     gulp.task(cleanTask, false, function (callback) {
         return del(path, {force: true}, callback);
     });
