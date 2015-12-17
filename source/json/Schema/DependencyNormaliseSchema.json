@@ -1,0 +1,14 @@
+{
+    "id": "/Dependency/Normalise",
+    "type": [
+        "string",
+        {
+            "type": "object",
+            "properties": {
+                "source": {"$ref": "/Path/Uni"},
+                "destination": {"$ref": "/Path/Uni"},
+                "plugins": {"type": "array"}
+            }
+        }
+    ]
+}

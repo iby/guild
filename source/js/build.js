@@ -1,5 +1,29 @@
 'use strict';
 
+/**
+ * @name BuildConfiguration
+ * @property {LessConfiguration} less
+ * @property {WebpackConfiguration} webpack
+ * @property {Path} path
+ */
+
+/**
+ * @name LessConfiguration
+ * @property {String} source
+ * @property {String} destination
+ * @property {Array} plugins
+ * @property {Path} path
+ */
+
+/**
+ * @name WebpackConfiguration
+ * @property {String} source
+ * @property {String} destination
+ * @property {Object} configuration
+ * @property {Array} plugins
+ * @property {Path} path
+ */
+
 var Plugin = require('./Constant/Plugin');
 var Schema = require('./Constant/Schema');
 var SchemaValidator = require('./Validator/SchemaValidator');
@@ -15,13 +39,19 @@ var util = require('gulp-util');
 var webpack = require('webpack-stream');
 
 /**
- *
+ * @param {Gulp} gulp
+ * @param {BuildConfiguration} configuration
+ * @param {Object} parameters
+ * @param {Boolean} parameters.watch
+ * @param {Array} cleanTasks
+ * @param {Array} buildTasks
  */
 function buildLess(gulp, configuration, parameters, cleanTasks, buildTasks) {
+    var lessConfiguration = configuration.less;
     var watch = parameters.watch;
-    var source = configuration['source'];
-    var destination = configuration['destination'];
-    var plugins = configuration['plugins'];
+    var source = lessConfiguration.source;
+    var destination = lessConfiguration.destination;
+    var plugins = lessConfiguration.plugins;
     var pluginsGenerator = plugins instanceof Function ? plugins : function () { return plugins };
 
     // Postcss configuration.
@@ -71,14 +101,19 @@ function buildLess(gulp, configuration, parameters, cleanTasks, buildTasks) {
 }
 
 /**
- *
+ * @param {Gulp} gulp
+ * @param {BuildConfiguration} configuration
+ * @param {Object} parameters
+ * @param {Boolean} parameters.watch
+ * @param {Array} cleanTasks
+ * @param {Array} buildTasks
  */
 function buildWebpack(gulp, configuration, parameters, cleanTasks, buildTasks) {
+    var webpackConfiguration = configuration.webpack;
     var watch = parameters.watch;
-    var webpackConfiguration = configuration['configuration'];
-    var source = configuration['source'];
-    var destination = configuration['destination'];
-    var plugins = configuration['plugins'];
+    var source = webpackConfiguration.source;
+    var destination = webpackConfiguration.destination;
+    var plugins = webpackConfiguration.plugins;
     var pluginsGenerator = plugins instanceof Function ? plugins : function () { return plugins };
 
     buildTasks.push(Task.BUILD_WEBPACK);
@@ -91,7 +126,7 @@ function buildWebpack(gulp, configuration, parameters, cleanTasks, buildTasks) {
 
         (plugins == null || plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
         (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.WEBPACK);
-        (index = plugins.indexOf(Plugin.WEBPACK)) >= 0 && plugins.splice(index, 1, webpack(webpackConfiguration));
+        (index = plugins.indexOf(Plugin.WEBPACK)) >= 0 && plugins.splice(index, 1, webpack(webpackConfiguration.configuration));
 
         plugins.forEach(function (plugin) {
             pipeline = pipeline.pipe(plugin)
@@ -107,11 +142,11 @@ function buildWebpack(gulp, configuration, parameters, cleanTasks, buildTasks) {
 /**
  * Creates and registers a watch task.
  *
- * @param gulp
- * @param path
- * @param watchTask
- * @param runTasks
- * @param registeredTasks
+ * @param {Gulp} gulp
+ * @param {String} path
+ * @param {String} watchTask
+ * @param {Array} runTasks
+ * @param {Array} registeredTasks
  */
 function buildWatch(gulp, path, watchTask, runTasks, registeredTasks) {
     registeredTasks.push(watchTask);
@@ -123,10 +158,10 @@ function buildWatch(gulp, path, watchTask, runTasks, registeredTasks) {
 /**
  * Creates and registers a clean task.
  *
- * @param gulp
- * @param path
- * @param cleanTask
- * @param registeredTasks
+ * @param {Gulp} gulp
+ * @param {String} path
+ * @param {String} cleanTask
+ * @param {Array} registeredTasks
  */
 function buildClean(gulp, path, cleanTask, registeredTasks) {
     registeredTasks.push(cleanTask);
@@ -135,12 +170,21 @@ function buildClean(gulp, path, cleanTask, registeredTasks) {
     });
 }
 
-//
-
+/**
+ * @param {Gulp} gulp
+ * @param {GuildConfiguration} configuration
+ * @param {Object} parameters
+ */
 function build(gulp, configuration, parameters) {
-    var includeLess = configuration.less != null;
-    var includeWebpack = configuration.webpack != null;
+    var buildConfiguration = configuration.build;
+    var pathConfiguration = configuration.path;
+    var includeLess = buildConfiguration.less != null;
+    var includeWebpack = buildConfiguration.webpack != null;
     var validator = new SchemaValidator();
+
+    // Inject stuff into dependency configuration.
+
+    buildConfiguration.path = pathConfiguration;
 
     // Gulp help stuff.
 
@@ -157,19 +201,19 @@ function build(gulp, configuration, parameters) {
 
     // Less…
 
-    if (includeLess && validator.validate(configuration.less, Schema.BUILD_LESS, {throwError: true})) {
-        buildLess(gulp, configuration.less, parameters, cleanTasks, buildTasks);
+    if (includeLess && validator.validate(buildConfiguration.less, Schema.BUILD_LESS, {throwError: true})) {
+        buildLess(gulp, buildConfiguration, parameters, cleanTasks, buildTasks);
         options.less = 'Build less sources.';
     }
 
     // Webpack…
 
-    if (includeWebpack && validator.validate(configuration.webpack, Schema.BUILD_WEBPACK, {throwError: true})) {
-        buildWebpack(gulp, configuration.webpack, parameters, cleanTasks, buildTasks);
+    if (includeWebpack && validator.validate(buildConfiguration.webpack, Schema.BUILD_WEBPACK, {throwError: true})) {
+        buildWebpack(gulp, buildConfiguration, parameters, cleanTasks, buildTasks);
         options.webpack = 'Build js sources with webpack.';
     }
 
-    gulp.task('build', description, function (callback) {
+    gulp.task(Task.BUILD, description, function (callback) {
         return sequence.use(gulp).apply(null, [cleanTasks].concat(buildTasks, [callback]));
     }, {options: options});
 }

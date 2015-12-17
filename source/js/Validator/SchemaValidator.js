@@ -2,6 +2,10 @@
 
 var Validator = require('jsonschema').Validator;
 
+/**
+ * @constructor
+ * @returns {Validator}
+ */
 function SchemaValidator() {
     var validator = new Validator();
 
@@ -9,6 +13,8 @@ function SchemaValidator() {
     validator.addSchema(require('../../json/Schema/PathMultiSchema.json'));
     validator.addSchema(require('../../json/Schema/BuildLessSchema.json'));
     validator.addSchema(require('../../json/Schema/BuildWebpackSchema.json'));
+    validator.addSchema(require('../../json/Schema/DependencyCleanSchema.json'));
+    validator.addSchema(require('../../json/Schema/DependencyNormaliseSchema.json'));
 
     return validator;
 }
