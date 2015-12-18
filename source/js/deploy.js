@@ -1,22 +1,16 @@
 'use strict';
 
-/**
- * @name DeployConfiguration
- * @property {*} s3
- * @property {Path} path
- */
-
 var DataType = require('./Constant/DataType');
 var Parameter = require('./Constant/Parameter');
 var Plugin = require('./Constant/Plugin');
 var Schema = require('./Constant/Schema');
 var SchemaValidator = require('./Validator/SchemaValidator');
 var Task = require('./Constant/Task');
+var TaskUtility = require('./Utility/TaskUtility');
 
 var awspublish = require('gulp-awspublish');
 var merge = require('merge-stream');
 var path = require('path');
-var plumber = require('gulp-plumber');
 var rename = require('gulp-rename');
 var sequence = require('run-sequence');
 var url = require('url');
@@ -29,19 +23,6 @@ var url = require('url');
  * @param {Array} deployTasks
  */
 function createDeployS3Task(gulp, configuration, parameters, cleanTasks, deployTasks) {
-
-    /**
-     * @name S3Target
-     * @property {String} source
-     * @property {String} plugins
-     * @property {String} accessKey
-     * @property {String} baseUrl
-     * @property {String} certificateAuthority
-     * @property {String} pathStyle
-     * @property {String} region
-     * @property {String} secretKey
-     */
-
     var s3Configuration = configuration.s3;
     var pathConfiguration = configuration.path;
 
@@ -130,7 +111,7 @@ function createDeployS3Task(gulp, configuration, parameters, cleanTasks, deployT
 
             sources.forEach(function (source) {
                 var base = path.join(configuration.path.product, 'html');
-                var pipeline = gulp.src(source, {base: base}).pipe(plumber());
+                var pipeline = gulp.src(source, {base: base}).pipe(TaskUtility.createPlumber());
 
                 pipeline = pipeline
                     .pipe(rename(function (path) { path.dirname = '/' + path.dirname }))

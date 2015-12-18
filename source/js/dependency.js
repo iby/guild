@@ -1,68 +1,19 @@
 'use strict';
 
-/**
- * @name DependencyConfiguration
- * @property {*} clean
- * @property {*} normalise
- * @property {Path} path
- */
-
 var DataType = require('./Constant/DataType');
 var Plugin = require('./Constant/Plugin');
 var Schema = require('./Constant/Schema');
 var SchemaValidator = require('./Validator/SchemaValidator');
 var Task = require('./Constant/Task');
+var TaskUtility = require('./Utility/TaskUtility');
 
 var concat = require('gulp-concat');
 var del = require('del');
-var glob = require('glob');
 var gulpif = require('gulp-if');
 var merge = require('merge-stream');
 var path = require('path');
-var plumber = require('gulp-plumber');
 var sequence = require('run-sequence');
 var uglify = require('gulp-uglify');
-
-/**
- * @param {Path} configuration
- * @param {String} path
- * @param {Boolean} [throwError]
- */
-function doesPathConfigurationExist(configuration, path, throwError) {
-    if (configuration == null || configuration[path] == null) {
-        if (throwError !== false) {
-            throw new Error('`path.' + path + '` must be configured to use simple target form.')
-        }
-        return false;
-    }
-
-    return true;
-}
-
-/**
- * @param {String|Array} path
- * @returns {String}
- */
-function getGlobExtension(path) {
-    var extension = null;
-    var paths = [];
-
-    paths = paths.concat(glob.sync(path));
-
-    for (var i = 0, n = paths.length; i < n; i++) {
-        var pathExtension = require('path').extname(path = paths[i]);
-
-        if (pathExtension === '') {
-            continue;
-        } else if (extension === null) {
-            extension = pathExtension;
-        } else if (extension !== pathExtension) {
-            return null;
-        }
-    }
-
-    return extension === null ? extension : extension.slice(1);
-}
 
 /**
  * @param {Gulp} gulp
@@ -72,14 +23,6 @@ function getGlobExtension(path) {
  * @param {Array} dependencyTasks
  */
 function createDependencyNormaliseTask(gulp, configuration, parameters, cleanTasks, dependencyTasks) {
-
-    /**
-     * @name NormaliseTarget
-     * @property {String} source
-     * @property {String} destination
-     * @property {Array} plugins
-     */
-
     var normaliseConfiguration = configuration.normalise;
     var pathConfiguration = configuration.path;
 
@@ -111,12 +54,12 @@ function createDependencyNormaliseTask(gulp, configuration, parameters, cleanTas
             // If we didn't get destination we shall use standard library path. Also make sure we
             // make a proper filename for our final dependency.
 
-            if (!path.isAbsolute(source) && doesPathConfigurationExist(pathConfiguration, 'dependency')) {
+            if (!path.isAbsolute(source) && TaskUtility.doesPathConfigurationExist(pathConfiguration, 'dependency')) {
                 source = path.join(pathConfiguration.dependency, source);
             }
 
-            if (destination == null && doesPathConfigurationExist(pathConfiguration, 'library')) {
-                destination = (extension = getGlobExtension(source)) == null ? pathConfiguration.library : path.join(pathConfiguration.library, extension);
+            if (destination == null && TaskUtility.doesPathConfigurationExist(pathConfiguration, 'library')) {
+                destination = (extension = TaskUtility.getGlobExtension(source)) == null ? pathConfiguration.library : path.join(pathConfiguration.library, extension);
                 basename = null;
             } else {
                 basename = path.basename(destination);
@@ -147,7 +90,7 @@ function createDependencyNormaliseTask(gulp, configuration, parameters, cleanTas
                 concat(filename)
             );
 
-            pipeline = gulp.src(source).pipe(plumber());
+            pipeline = gulp.src(source).pipe(TaskUtility.createPlumber());
 
             plugins.forEach(function (plugin) {
                 pipeline = pipeline.pipe(plugin);
@@ -174,7 +117,7 @@ function createDependencyCleanTask(gulp, configuration, parameters, cleanTasks, 
 
     if (target === false) {
         return;
-    } else if (target === true && doesPathConfigurationExist(pathConfiguration, 'library')) {
+    } else if (target === true && TaskUtility.doesPathConfigurationExist(pathConfiguration, 'library')) {
         target = path.join(pathConfiguration.library, '*');
     }
 

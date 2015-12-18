@@ -1,13 +1,5 @@
 'use strict';
 
-/**
- * @name GuildConfiguration
- * @property {BuildConfiguration} build
- * @property {DependencyConfiguration} dependency
- * @property {DeployConfiguration} deploy
- * @property {Path} path
- */
-
 var Task = require('./Constant/Task');
 var Path = require('./Configuration/Path');
 var Plugin = require('./Constant/Plugin');
@@ -36,8 +28,8 @@ function guild(gulp, configuration) {
 
     configuration = clone(configuration);
 
-    configuration[Task.BUILD] == null || require('./build')(gulp, configuration, parameters);
     configuration[Task.DEPENDENCY] == null || require('./dependency')(gulp, configuration, parameters);
+    configuration[Task.BUILD] == null || require('./build')(gulp, configuration, parameters);
     configuration[Task.DEPLOY] == null || require('./deploy')(gulp, configuration, parameters);
 }
 

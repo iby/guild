@@ -1,52 +1,17 @@
 'use strict';
 
-/**
- * @name BuildConfiguration
- * @property {LessConfiguration} less
- * @property {TwigConfiguration} twig
- * @property {WebpackConfiguration} webpack
- * @property {Path} path
- */
-
-/**
- * @name LessConfiguration
- * @property {String} source
- * @property {String} destination
- * @property {Array} plugins
- * @property {Path} path
- */
-
-/**
- * @name TwigConfiguration
- * @property {String} source
- * @property {String} destination
- * @property {*} data
- * @property {Array} plugins
- * @property {Path} path
- */
-
-/**
- * @name WebpackConfiguration
- * @property {String} source
- * @property {String} destination
- * @property {Object} configuration
- * @property {Array} plugins
- * @property {Path} path
- */
-
 var DataType = require('./Constant/DataType');
 var Plugin = require('./Constant/Plugin');
 var Schema = require('./Constant/Schema');
 var SchemaValidator = require('./Validator/SchemaValidator');
 var Task = require('./Constant/Task');
+var TaskUtility = require('./Utility/TaskUtility');
 
 var del = require('del');
 var less = require('gulp-less');
 var path = require('path');
-var plumber = require('gulp-plumber');
 var postcss = require('gulp-postcss');
 var sequence = require('run-sequence');
-var util = require('gulp-util');
 var webpack = require('webpack-stream');
 var twig = require('gulp-twig');
 
@@ -71,7 +36,7 @@ function createBuildLessTask(gulp, configuration, parameters, cleanTasks, buildT
     var postcssConfiguration = [
         require('postcss-discard-comments')({removeAll: true}),
         require('stylelint')({
-            "rules": {
+            rules: {
                 "property-no-vendor-prefix": true,
                 "selector-no-vendor-prefix": true,
                 "value-no-vendor-prefix": true
@@ -84,7 +49,7 @@ function createBuildLessTask(gulp, configuration, parameters, cleanTasks, buildT
 
     buildTasks.push(Task.BUILD_LESS);
     gulp.task(Task.BUILD_LESS, false, function () {
-        var pipeline = gulp.src(path.join(source, '**/*.less')).pipe(plumber());
+        var pipeline = gulp.src(path.join(source, '**/*.less')).pipe(TaskUtility.createPlumber());
         var plugins = pluginsGenerator();
         var index;
 
@@ -108,8 +73,8 @@ function createBuildLessTask(gulp, configuration, parameters, cleanTasks, buildT
         return pipeline.pipe(gulp.dest(destination));
     });
 
-    buildClean(gulp, path.join(destination, '*'), Task.BUILD_CLEAN_LESS, cleanTasks);
-    watch && buildWatch(gulp, path.join(source, '**/*'), Task.BUILD_LESS_WATCH, [Task.BUILD_LESS], buildTasks);
+    createBuildCleanTask(gulp, path.join(destination, '*'), Task.BUILD_CLEAN_LESS, cleanTasks);
+    watch && createBuildWatchTask(gulp, path.join(source, '**/*'), Task.BUILD_LESS_WATCH, [Task.BUILD_LESS], buildTasks);
 }
 
 /**
@@ -130,7 +95,7 @@ function createBuildTwigTask(gulp, configuration, parameters, cleanTasks, buildT
 
     buildTasks.push(Task.BUILD_TWIG);
     gulp.task(Task.BUILD_TWIG, false, function () {
-        var pipeline = gulp.src(path.join(source, '**/*.twig')).pipe(plumber());
+        var pipeline = gulp.src(path.join(source, '**/*.twig')).pipe(TaskUtility.createPlumber());
         var plugins = pluginsGenerator();
         var index;
 
@@ -149,8 +114,8 @@ function createBuildTwigTask(gulp, configuration, parameters, cleanTasks, buildT
 
     // Todo: must watch for js and css products or have an option for that.
 
-    buildClean(gulp, path.join(destination, '*'), Task.BUILD_CLEAN_TWIG, cleanTasks);
-    watch && buildWatch(gulp, path.join(source, '**/*'), Task.BUILD_TWIG_WATCH, [Task.BUILD_TWIG], buildTasks);
+    createBuildCleanTask(gulp, path.join(destination, '*'), Task.BUILD_CLEAN_TWIG, cleanTasks);
+    watch && createBuildWatchTask(gulp, path.join(source, '**/*'), Task.BUILD_TWIG_WATCH, [Task.BUILD_TWIG], buildTasks);
 }
 
 /**
@@ -171,7 +136,7 @@ function createBuildWebpackTask(gulp, configuration, parameters, cleanTasks, bui
 
     buildTasks.push(Task.BUILD_WEBPACK);
     gulp.task(Task.BUILD_WEBPACK, function () {
-        var pipeline = gulp.src(path.join(source, '**/*.js')).pipe(plumber());
+        var pipeline = gulp.src(path.join(source, '**/*.js')).pipe(TaskUtility.createPlumber());
         var plugins = pluginsGenerator();
         var index;
 
@@ -188,8 +153,23 @@ function createBuildWebpackTask(gulp, configuration, parameters, cleanTasks, bui
         return pipeline.pipe(gulp.dest(destination));
     });
 
-    buildClean(gulp, path.join(destination, '*'), Task.BUILD_CLEAN_WEBPACK, cleanTasks);
-    watch && buildWatch(gulp, path.join(source, '**/*'), Task.BUILD_WEBPACK_WATCH, [Task.BUILD_WEBPACK], buildTasks);
+    createBuildCleanTask(gulp, path.join(destination, '*'), Task.BUILD_CLEAN_WEBPACK, cleanTasks);
+    watch && createBuildWatchTask(gulp, path.join(source, '**/*'), Task.BUILD_WEBPACK_WATCH, [Task.BUILD_WEBPACK], buildTasks);
+}
+
+/**
+ * Creates and registers a clean task.
+ *
+ * @param {Gulp} gulp
+ * @param {String} path
+ * @param {String} cleanTask
+ * @param {Array} cleanTasks
+ */
+function createBuildCleanTask(gulp, path, cleanTask, cleanTasks) {
+    cleanTasks.push(cleanTask);
+    gulp.task(cleanTask, false, function (callback) {
+        return del(path, {force: true}, callback);
+    });
 }
 
 /**
@@ -201,25 +181,10 @@ function createBuildWebpackTask(gulp, configuration, parameters, cleanTasks, bui
  * @param {Array} runTasks
  * @param {Array} buildTasks
  */
-function buildWatch(gulp, path, watchTask, runTasks, buildTasks) {
+function createBuildWatchTask(gulp, path, watchTask, runTasks, buildTasks) {
     buildTasks.push(watchTask);
     gulp.task(watchTask, false, function () {
         return gulp.watch(path, runTasks);
-    });
-}
-
-/**
- * Creates and registers a clean task.
- *
- * @param {Gulp} gulp
- * @param {String} path
- * @param {String} cleanTask
- * @param {Array} cleanTasks
- */
-function buildClean(gulp, path, cleanTask, cleanTasks) {
-    cleanTasks.push(cleanTask);
-    gulp.task(cleanTask, false, function (callback) {
-        return del(path, {force: true}, callback);
     });
 }
 
