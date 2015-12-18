@@ -9,6 +9,7 @@ var path = require('path');
  */
 function Path(root) {
     return {
+        root: root,
         dependency: path.join(root, 'dependency'),
         documentation: path.join(root, 'documentation'),
         entrypoint: path.join(root, 'entrypoint'),

@@ -1,8 +1,13 @@
 {
     "id": "/Build/Less",
-    "type": "object",
-    "properties": {
-        "source": {"$ref": "/Path/Uni"},
-        "destination": {"$ref": "/Path/Uni"}
-    }
+    "type": [
+        "boolean",
+        {
+            "type": "object",
+            "properties": {
+                "source": {"$ref": "/Path/Uni"},
+                "destination": {"$ref": "/Path/Uni"}
+            }
+        }
+    ]
 }
