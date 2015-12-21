@@ -4,7 +4,7 @@
     "main": "./source/js/guild.js",
     "name": "@ianbytchek/guild",
     "repository": "https://github.com/ianbytchek/guild",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "dependencies": {
         "autoprefixer": "*",
         "chalk": "*",
