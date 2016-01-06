@@ -1,60 +1,54 @@
-'use strict';
+import {DataType} from './Constant/DataType';
+import {Dependency, Guild, NormaliseTarget} from './Configuration/Guild';
+import {GulpHelp} from 'gulp-help';
+import {ParsedArgs} from 'minimist';
+import {Path} from './Configuration/Path';
+import {Plugin} from './Constant/Plugin';
+import {Schema} from './Constant/Schema';
+import {TaskUtility} from './Utility/TaskUtility';
+import {Task} from './Constant/Task';
+import {Validator} from './Validator/Validator';
+import {Readable} from 'stream';
 
-var DataType = require('./Constant/DataType');
-var Plugin = require('./Constant/Plugin');
-var Schema = require('./Constant/Schema');
-var SchemaValidator = require('./Validator/SchemaValidator');
-var Task = require('./Constant/Task');
-var TaskUtility = require('./Utility/TaskUtility');
+import concat = require('gulp-concat');
+import del = require('del');
+import gulpif = require('gulp-if');
+import merge = require('merge-stream');
+import path = require('path');
+import sequence = require('run-sequence');
+import uglify = require('gulp-uglify');
 
-var concat = require('gulp-concat');
-var del = require('del');
-var gulpif = require('gulp-if');
-var merge = require('merge-stream');
-var path = require('path');
-var sequence = require('run-sequence');
-var uglify = require('gulp-uglify');
-
-/**
- * @param {Gulp} gulp
- * @param {DependencyConfiguration} configuration
- * @param {Object} parameters
- * @param {Array} cleanTasks
- * @param {Array} dependencyTasks
- */
-function createDependencyNormaliseTask(gulp, configuration, parameters, cleanTasks, dependencyTasks) {
+function createDependencyNormaliseTask(gulp:GulpHelp, configuration:Dependency, parameters:ParsedArgs, cleanTasks:string[], dependencyTasks:string[]) {
     var normaliseConfiguration = configuration.normalise;
     var pathConfiguration = configuration.path;
 
     dependencyTasks.push(Task.DEPENDENCY_NORMALISE);
     gulp.task(Task.DEPENDENCY_NORMALISE, false, function () {
-        var streams = [];
+        var streams:Readable[] = [];
 
         Object.keys(normaliseConfiguration).forEach(function (key) {
-
-            /** @type {NormaliseTarget} */
-            var target = normaliseConfiguration[key];
-            var source;
-            var destination;
-            var plugins;
-            var index;
-            var pipeline;
-            var basename;
-            var extension;
-            var filename;
+            var target:NormaliseTarget = normaliseConfiguration[key];
+            var source:string;
+            var destination:string;
+            var plugins:any[];
+            var index:number;
+            var pipeline:any;
+            var basename:string;
+            var extension:string;
+            var filename:string;
 
             if (typeof target === DataType.STRING) {
-                source = target;
+                source = <string>target;
             } else {
                 source = target.source;
                 destination = target.destination;
-                plugins = target.plugins;
+                plugins = <any[]>target.plugins;
             }
 
             // If we didn't get destination we shall use standard library path. Also make sure we
             // make a proper filename for our final dependency.
 
-            source = TaskUtility.normalisePath(pathConfiguration, 'dependency', source);
+            source = <string>TaskUtility.normalisePath(pathConfiguration, 'dependency', source);
 
             if (destination == null && TaskUtility.doesPathConfigurationExist(pathConfiguration, 'library')) {
                 destination = (extension = TaskUtility.getGlobExtension(source)) == null ? pathConfiguration.library : path.join(pathConfiguration.library, extension);
@@ -97,21 +91,17 @@ function createDependencyNormaliseTask(gulp, configuration, parameters, cleanTas
             streams.push(pipeline.pipe(gulp.dest(destination)));
         });
 
-        return merge(streams);
+        return merge.apply(null, streams);
     });
 }
 
-/**
- * @param {Gulp} gulp
- * @param {DependencyConfiguration} configuration
- * @param {Object} parameters
- * @param {Array} cleanTasks
- * @param {Array} dependencyTasks
- */
-function createDependencyCleanTask(gulp, configuration, parameters, cleanTasks, dependencyTasks) {
-    var cleanConfiguration = configuration.clean;
-    var pathConfiguration = configuration.path;
-    var target = cleanConfiguration;
+function createDependencyCleanTask(gulp:GulpHelp, configuration:Dependency, parameters:ParsedArgs, cleanTasks:string[], dependencyTasks:string[]) {
+
+    // fixme…
+
+    var cleanConfiguration:any = configuration.clean;
+    var pathConfiguration:Path = configuration.path;
+    var target:boolean|any = cleanConfiguration;
 
     if (target === false) {
         return;
@@ -123,23 +113,25 @@ function createDependencyCleanTask(gulp, configuration, parameters, cleanTasks, 
         throw new Error('No target configured.');
     }
 
+    // Todo: removed callback from here… watch if it breaks anything.
+
     cleanTasks.push(Task.DEPENDENCY_CLEAN);
-    gulp.task(Task.DEPENDENCY_CLEAN, function (callback) {
-        return del(target, {force: true}, callback);
+    gulp.task(Task.DEPENDENCY_CLEAN, function () {
+        return del(target, {force: true});
     });
 }
 
 /**
- * @param {Gulp} gulp
- * @param {GuildConfiguration} configuration
+ * @param {GulpHelp} gulp
+ * @param {Guild} configuration
  * @param {Object} parameters
  */
-function normalise(gulp, configuration, parameters) {
-    var dependencyConfiguration = configuration.dependency;
-    var pathConfiguration = configuration.path;
-    var clean = dependencyConfiguration.clean != null;
-    var normalise = dependencyConfiguration.normalise != null;
-    var validator = new SchemaValidator();
+export function dependency(gulp:GulpHelp, configuration:Guild, parameters:ParsedArgs) {
+    var dependencyConfiguration:Dependency = configuration.dependency;
+    var pathConfiguration:Path = configuration.path;
+    var clean:boolean = dependencyConfiguration.clean != null;
+    var normalise:boolean = dependencyConfiguration.normalise != null;
+    var validator:Validator = new Validator();
 
     // Inject stuff into dependency configuration.
 
@@ -147,26 +139,26 @@ function normalise(gulp, configuration, parameters) {
 
     // Gulp help stuff.
 
-    var description = 'Clean and build dependencies into local libraries.';
-    var options = {
+    var description:string = 'Clean and build dependencies into local libraries.';
+    var options:any = {
         production: 'Build for production, will minify and strip everything it can. Very slow.',
         watch: 'Watch files for changes to re-run.'
     };
-    var taskOptions = {
+    var taskOptions:any = {
         clean: 'Clean dependencies.',
         normalise: 'Normalise dependencies.'
     };
 
-    var cleanTasks = [];
-    var dependencyTasks = [];
-    var generators = {
+    var cleanTasks:string[] = [];
+    var dependencyTasks:string[] = [];
+    var generators:any = {
         clean: createDependencyCleanTask,
         normalise: createDependencyNormaliseTask
     };
 
     Object.keys(dependencyConfiguration).forEach(function (key) {
-        var generator = generators[key];
-        var schema = Schema['DEPENDENCY_' + key.toUpperCase()];
+        var generator:Function = generators[key];
+        var schema:string = (<any>Schema)['DEPENDENCY_' + key.toUpperCase()];
 
         if (generator != null && schema != null && validator.validate(dependencyConfiguration[key], schema, {throwError: true})) {
             generator(gulp, dependencyConfiguration, parameters, cleanTasks, dependencyTasks);
@@ -175,7 +167,7 @@ function normalise(gulp, configuration, parameters) {
     });
 
     gulp.task(Task.DEPENDENCY, description, function (callback) {
-        var tasks = [];
+        var tasks:any[] = [];
 
         cleanTasks.length > 0 && tasks.push(cleanTasks);
         dependencyTasks.length > 0 && tasks.push.apply(tasks, dependencyTasks);
@@ -189,5 +181,3 @@ function normalise(gulp, configuration, parameters) {
         return sequence.use(gulp).apply(null, tasks);
     }, {options: options});
 }
-
-module.exports = normalise;

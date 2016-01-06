@@ -7,6 +7,8 @@
           <resourceRoots>
             <path value="file://$PROJECT_DIR$/source/js" />
             <path value="file://$PROJECT_DIR$/source/json" />
+            <path value="file://$PROJECT_DIR$/source/ts" />
+            <path value="file://$PROJECT_DIR$/source/dts" />
           </resourceRoots>
         </entryData>
       </entry>

@@ -3,6 +3,8 @@
     <words>
       <w>gulpif</w>
       <w>jsonschema</w>
+      <w>typings</w>
+      <w>webserver</w>
     </words>
   </dictionary>
 </component>

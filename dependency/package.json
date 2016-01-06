@@ -1,7 +1,7 @@
 {
     "description": "Gulp build tasks",
     "license": "MIT",
-    "main": "./source/js/guild.js",
+    "main": "guild.js",
     "name": "@ianbytchek/guild",
     "repository": "https://github.com/ianbytchek/guild",
     "version": "0.0.1",
@@ -12,8 +12,8 @@
         "crypto-js": "*",
         "cssnano": "*",
         "del": "*",
-        "gulp": "*",
         "glob": "*",
+        "gulp": "*",
         "gulp-awspublish": "*",
         "gulp-concat": "*",
         "gulp-help": "*",

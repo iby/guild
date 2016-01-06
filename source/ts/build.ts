@@ -1,37 +1,40 @@
-'use strict';
+import {Build, Guild, Less, Twig, Webpack} from './Configuration/Guild';
+import {DataType} from './Constant/DataType';
+import {GulpHelp} from 'gulp-help';
+import {Parameter} from './Constant/Parameter';
+import {ParsedArgs} from 'minimist';
+import {Path} from './Configuration/Path';
+import {Plugin} from './Constant/Plugin';
+import {Schema} from './Constant/Schema';
+import {TaskUtility} from './Utility/TaskUtility';
+import {Task} from './Constant/Task';
+import {Validator} from './Validator/Validator';
 
-var DataType = require('./Constant/DataType');
-var Plugin = require('./Constant/Plugin');
-var Schema = require('./Constant/Schema');
-var SchemaValidator = require('./Validator/SchemaValidator');
-var Task = require('./Constant/Task');
-var TaskUtility = require('./Utility/TaskUtility');
-
-var clone = require('clone');
-var del = require('del');
-var less = require('gulp-less');
-var path = require('path');
-var postcss = require('gulp-postcss');
-var sequence = require('run-sequence');
-var twig = require('gulp-twig');
-var webpack = require('webpack-stream');
+import clone = require('clone');
+import del = require('del');
+import less = require('gulp-less');
+import path = require('path');
+import postcss = require('gulp-postcss');
+import sequence = require('run-sequence');
+import twig = require('gulp-twig');
+import webpack = require('webpack-stream');
 
 /**
- * @param {Gulp} gulp
- * @param {BuildConfiguration} configuration
+ * @param {GulpHelp} gulp
+ * @param {Build} configuration
  * @param {Object} parameters
  * @param {Boolean} parameters.watch
  * @param {Array} cleanTasks
  * @param {Array} buildTasks
  */
-function createBuildLessTask(gulp, configuration, parameters, cleanTasks, buildTasks) {
-    var lessConfiguration = configuration.less;
-    var pathConfiguration = configuration.path;
-    var watch = parameters.watch;
-    var source;
-    var destination;
-    var plugins;
-    var pluginsGenerator;
+function createBuildLessTask(gulp:GulpHelp, configuration:Build, parameters:ParsedArgs, cleanTasks:string[], buildTasks:string[]) {
+    var lessConfiguration:Less = configuration.less;
+    var pathConfiguration:Path = configuration.path;
+    var watch:boolean = parameters[Parameter.WATCH] === true;
+    var source:string;
+    var destination:string;
+    var plugins:any[]|Function;
+    var pluginsGenerator:Function;
 
     // Normalise configuration.
 
@@ -45,7 +48,9 @@ function createBuildLessTask(gulp, configuration, parameters, cleanTasks, buildT
     source == null && (source = 'less');
     destination == null && (destination = 'css');
     plugins == null && (plugins = []);
-    pluginsGenerator = plugins instanceof Function ? plugins : function () { return clone(plugins) };
+    pluginsGenerator = plugins instanceof Function ? plugins : function () {
+        return clone(plugins)
+    };
 
     // Postcss configuration.
 
@@ -68,43 +73,45 @@ function createBuildLessTask(gulp, configuration, parameters, cleanTasks, buildT
 
         // Normalise plugins.
 
-        var plugins = pluginsGenerator();
-        var index;
+        var plugins:any[] = pluginsGenerator();
+        var index:number;
 
         (plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
         (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.LESS);
         (index = plugins.indexOf(Plugin.LESS)) >= 0 && plugins.splice(index, 1, less(), postcss(postcssConfiguration));
 
-        var pipeline = gulp.src(TaskUtility.normaliseSourcePath(pathConfiguration, source, '**/*.less')).pipe(TaskUtility.createPlumber());
+        var pipeline:any = gulp.src(TaskUtility.normaliseSourcePath(pathConfiguration, source, '**/*.less')).pipe(TaskUtility.createPlumber());
 
         plugins.forEach(function (plugin) {
             pipeline = pipeline.pipe(plugin);
         });
 
-        return pipeline.pipe(gulp.dest(TaskUtility.normaliseDestinationPath(pathConfiguration, destination)));
+        return pipeline.pipe(gulp.dest(<any>TaskUtility.normaliseDestinationPath(pathConfiguration, destination)));
     });
 
-    createBuildCleanTask(gulp, TaskUtility.normaliseDestinationPath(pathConfiguration, destination, '*'), Task.BUILD_CLEAN_LESS, cleanTasks);
-    watch && createBuildWatchTask(gulp, TaskUtility.normaliseSourcePath(pathConfiguration, source, '**/*.less'), Task.BUILD_LESS_WATCH, [Task.BUILD_LESS], buildTasks);
+    // Fixme…
+
+    createBuildCleanTask(gulp, <any>TaskUtility.normaliseDestinationPath(pathConfiguration, destination, '*'), Task.BUILD_CLEAN_LESS, cleanTasks);
+    watch && createBuildWatchTask(gulp, <any>TaskUtility.normaliseSourcePath(pathConfiguration, source, '**/*.less'), Task.BUILD_LESS_WATCH, [Task.BUILD_LESS], buildTasks);
 }
 
 /**
- * @param {Gulp} gulp
- * @param {BuildConfiguration} configuration
+ * @param {GulpHelp} gulp
+ * @param {Build} configuration
  * @param {Object} parameters
  * @param {Boolean} parameters.watch
  * @param {Array} cleanTasks
  * @param {Array} buildTasks
  */
-function createBuildTwigTask(gulp, configuration, parameters, cleanTasks, buildTasks) {
-    var twigConfiguration = configuration.twig;
-    var pathConfiguration = configuration.path;
-    var watch = parameters.watch;
-    var source;
-    var destination;
-    var plugins;
-    var pluginsGenerator;
-    var data;
+function createBuildTwigTask(gulp:GulpHelp, configuration:Build, parameters:ParsedArgs, cleanTasks:string[], buildTasks:string[]) {
+    var twigConfiguration:Twig = configuration.twig;
+    var pathConfiguration:Path = configuration.path;
+    var watch:boolean = parameters[Parameter.WATCH] === true;
+    var source:string;
+    var destination:string;
+    var plugins:any[]|Function;
+    var pluginsGenerator:Function;
+    var data:any;
 
     // Normalise configuration.
 
@@ -121,51 +128,53 @@ function createBuildTwigTask(gulp, configuration, parameters, cleanTasks, buildT
     source == null && (source = 'twig');
     destination == null && (destination = 'html');
     plugins == null && (plugins = []);
-    pluginsGenerator = plugins instanceof Function ? plugins : function () { return clone(plugins) };
+    pluginsGenerator = plugins instanceof Function ? plugins : function () {
+        return clone(plugins)
+    };
 
     buildTasks.push(Task.BUILD_TWIG);
     gulp.task(Task.BUILD_TWIG, false, function () {
 
         // Normalise plugins.
 
-        var plugins = pluginsGenerator();
-        var index;
+        var plugins:any[] = pluginsGenerator();
+        var index:number;
 
         (plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
         (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.TWIG);
         (index = plugins.indexOf(Plugin.TWIG)) >= 0 && plugins.splice(index, 1, twig(data));
 
-        var pipeline = gulp.src(TaskUtility.normaliseSourcePath(pathConfiguration, source, '**/*.twig')).pipe(TaskUtility.createPlumber());
+        var pipeline:any = gulp.src(TaskUtility.normaliseSourcePath(pathConfiguration, source, '**/*.twig')).pipe(TaskUtility.createPlumber());
 
         plugins.forEach(function (plugin) {
-            pipeline = pipeline.pipe(plugin)
+            pipeline = pipeline.pipe(plugin);
         });
 
-        return pipeline.pipe(gulp.dest(TaskUtility.normaliseDestinationPath(pathConfiguration, destination)));
+        return pipeline.pipe(gulp.dest(<any>TaskUtility.normaliseDestinationPath(pathConfiguration, destination)));
     });
 
     // Todo: must watch for js and css products or have an option for that.
+    // Fixme…
 
-    createBuildCleanTask(gulp, TaskUtility.normaliseDestinationPath(pathConfiguration, destination, '*'), Task.BUILD_CLEAN_TWIG, cleanTasks);
-    watch && createBuildWatchTask(gulp, TaskUtility.normaliseSourcePath(pathConfiguration, source, '**/*.twig'), Task.BUILD_TWIG_WATCH, [Task.BUILD_TWIG], buildTasks);
+    createBuildCleanTask(gulp, <any>TaskUtility.normaliseDestinationPath(pathConfiguration, destination, '*'), Task.BUILD_CLEAN_TWIG, cleanTasks);
+    watch && createBuildWatchTask(gulp, <any>TaskUtility.normaliseSourcePath(pathConfiguration, source, '**/*.twig'), Task.BUILD_TWIG_WATCH, [Task.BUILD_TWIG], buildTasks);
 }
 
 /**
- * @param {Gulp} gulp
- * @param {BuildConfiguration} configuration
+ * @param {GulpHelp} gulp
+ * @param {Build} configuration
  * @param {Object} parameters
- * @param {Boolean} parameters.watch
  * @param {Array} cleanTasks
  * @param {Array} buildTasks
  */
-function createBuildWebpackTask(gulp, configuration, parameters, cleanTasks, buildTasks) {
-    var webpackConfiguration = configuration.webpack;
-    var pathConfiguration = configuration.path;
-    var watch = parameters.watch;
-    var source;
-    var destination;
-    var plugins;
-    var pluginsGenerator;
+function createBuildWebpackTask(gulp:GulpHelp, configuration:Build, parameters:ParsedArgs, cleanTasks:string[], buildTasks:string[]) {
+    var webpackConfiguration:Webpack = configuration.webpack;
+    var pathConfiguration:Path = configuration.path;
+    var watch:boolean = parameters[Parameter.WATCH] === true;
+    var source:string;
+    var destination:string;
+    var plugins:any[]|Function;
+    var pluginsGenerator:Function;
 
     // Normalise configuration.
 
@@ -181,15 +190,17 @@ function createBuildWebpackTask(gulp, configuration, parameters, cleanTasks, bui
     source == null && (source = 'js');
     destination == null && (destination = 'js');
     plugins == null && (plugins = []);
-    pluginsGenerator = plugins instanceof Function ? plugins : function () { return clone(plugins) };
+    pluginsGenerator = plugins instanceof Function ? plugins : function () {
+        return clone(plugins)
+    };
 
     buildTasks.push(Task.BUILD_WEBPACK);
     gulp.task(Task.BUILD_WEBPACK, function () {
 
         // Normalise plugins.
 
-        var plugins = pluginsGenerator();
-        var index;
+        var plugins:any[] = pluginsGenerator();
+        var index:number;
 
         // Normalise plugins, todo: optimise when webpack is the only plugin with watch mode on…
 
@@ -197,44 +208,46 @@ function createBuildWebpackTask(gulp, configuration, parameters, cleanTasks, bui
         (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.WEBPACK);
         (index = plugins.indexOf(Plugin.WEBPACK)) >= 0 && plugins.splice(index, 1, webpack(configuration));
 
-        var pipeline = gulp.src(TaskUtility.normaliseSourcePath(pathConfiguration, source, '**/*.js')).pipe(TaskUtility.createPlumber());
+        var pipeline:any = gulp.src(TaskUtility.normaliseSourcePath(pathConfiguration, source, '**/*.js')).pipe(TaskUtility.createPlumber());
 
         plugins.forEach(function (plugin) {
             pipeline = pipeline.pipe(plugin)
         });
 
-        return pipeline.pipe(gulp.dest(TaskUtility.normaliseDestinationPath(pathConfiguration, destination)));
+        return pipeline.pipe(gulp.dest(<any>TaskUtility.normaliseDestinationPath(pathConfiguration, destination)));
     });
 
-    createBuildCleanTask(gulp, TaskUtility.normaliseDestinationPath(pathConfiguration, destination, '*'), Task.BUILD_CLEAN_WEBPACK, cleanTasks);
-    watch && createBuildWatchTask(gulp, TaskUtility.normaliseSourcePath(pathConfiguration, source, '**/*.js'), Task.BUILD_WEBPACK_WATCH, [Task.BUILD_WEBPACK], buildTasks);
+    // Fixme…
+
+    createBuildCleanTask(gulp, <any>TaskUtility.normaliseDestinationPath(pathConfiguration, destination, '*'), Task.BUILD_CLEAN_WEBPACK, cleanTasks);
+    watch && createBuildWatchTask(gulp, <any>TaskUtility.normaliseSourcePath(pathConfiguration, source, '**/*.js'), Task.BUILD_WEBPACK_WATCH, [Task.BUILD_WEBPACK], buildTasks);
 }
 
 /**
  * Creates and registers a clean task.
  *
- * @param {Gulp} gulp
+ * @param {GulpHelp} gulp
  * @param {String} path
  * @param {String} cleanTask
  * @param {Array} cleanTasks
  */
-function createBuildCleanTask(gulp, path, cleanTask, cleanTasks) {
+function createBuildCleanTask(gulp:GulpHelp, path:string, cleanTask:string, cleanTasks:string[]) {
     cleanTasks.push(cleanTask);
-    gulp.task(cleanTask, false, function (callback) {
-        return del(path, {force: true}, callback);
+    gulp.task(cleanTask, false, function () {
+        return del(path, {force: true});
     });
 }
 
 /**
  * Creates and registers a watch task.
  *
- * @param {Gulp} gulp
+ * @param {GulpHelp} gulp
  * @param {String} path
  * @param {String} watchTask
  * @param {Array} runTasks
  * @param {Array} buildTasks
  */
-function createBuildWatchTask(gulp, path, watchTask, runTasks, buildTasks) {
+function createBuildWatchTask(gulp:GulpHelp, path:string, watchTask:string, runTasks:string[], buildTasks:string[]) {
     buildTasks.push(watchTask);
     gulp.task(watchTask, false, function () {
         return gulp.watch(path, runTasks);
@@ -242,14 +255,12 @@ function createBuildWatchTask(gulp, path, watchTask, runTasks, buildTasks) {
 }
 
 /**
- * @param {Gulp} gulp
- * @param {GuildConfiguration} configuration
- * @param {Object} parameters
+ * Creates build sub-tasks.
  */
-function build(gulp, configuration, parameters) {
-    var buildConfiguration = configuration.build;
-    var pathConfiguration = configuration.path;
-    var validator = new SchemaValidator();
+export function build(gulp:GulpHelp, configuration:Guild, parameters:ParsedArgs) {
+    var buildConfiguration:Build = configuration.build;
+    var pathConfiguration:Path = configuration.path;
+    var validator:Validator = new Validator();
 
     // Inject stuff into build configuration.
 
@@ -257,12 +268,12 @@ function build(gulp, configuration, parameters) {
 
     // Gulp help stuff.
 
-    var description = 'Clean and build target (js, css) sources, when no target is given, builds for everything.';
-    var options = {
+    var description:string = 'Clean and build target (js, css) sources, when no target is given, builds for everything.';
+    var options:any = {
         production: 'Build for production, will minify and strip everything it can. Very slow.',
         watch: 'Watch files for changes to re-run.'
     };
-    var taskOptions = {
+    var taskOptions:any = {
         less: 'Build less sources.',
         twig: 'Build twig sources.',
         webpack: 'Build js sources with webpack.'
@@ -270,17 +281,17 @@ function build(gulp, configuration, parameters) {
 
     // Fixme: schema allows to pass path arrays, but this will fail when we join them. This must be handled separately.
 
-    var cleanTasks = [];
-    var buildTasks = [];
-    var generators = {
+    var cleanTasks:string[] = [];
+    var buildTasks:string[] = [];
+    var generators:any = {
         less: createBuildLessTask,
         twig: createBuildTwigTask,
         webpack: createBuildWebpackTask
     };
 
     Object.keys(buildConfiguration).forEach(function (key) {
-        var generator = generators[key];
-        var schema = Schema['BUILD_' + key.toUpperCase()];
+        var generator:Function = generators[key];
+        var schema:string = (<any>Schema)['BUILD_' + key.toUpperCase()];
 
         if (generator != null && schema != null && validator.validate(buildConfiguration[key], schema, {throwError: true})) {
             generator(gulp, buildConfiguration, parameters, cleanTasks, buildTasks);
@@ -289,7 +300,7 @@ function build(gulp, configuration, parameters) {
     });
 
     gulp.task(Task.BUILD, description, function (callback) {
-        var tasks = [];
+        var tasks:any[] = [];
 
         cleanTasks.length > 0 && tasks.push(cleanTasks);
         buildTasks.length > 0 && tasks.push.apply(tasks, buildTasks);
@@ -303,5 +314,3 @@ function build(gulp, configuration, parameters) {
         return sequence.use(gulp).apply(null, tasks);
     }, {options: options});
 }
-
-module.exports = build;

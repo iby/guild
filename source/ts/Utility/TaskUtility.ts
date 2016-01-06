@@ -1,33 +1,32 @@
-'use strict';
+import {Path} from '../Configuration/Path';
 
-var glob = require('glob');
-var path = require('path');
-var plumber = require('gulp-plumber');
-var util = require('gulp-util');
+import glob = require('glob');
+import path = require('path');
+import plumber = require('gulp-plumber');
+import util = require('gulp-util');
 
 /**
- * @param {Error} error
+ * Handles plumber errors.
  */
-function plumberErrorHandler(error) {
+function plumberErrorHandler(error:any) {
     util.beep();
     util.log(error);
 }
 
-var TaskUtility = {
+export class TaskUtility {
 
     /**
-     * @returns {Stream}
+     * Creates gulp plumber stream with pre-configured error handler.
      */
-    createPlumber: function () {
-        return plumber({errorHandler: plumberErrorHandler})
-    },
+    static createPlumber():any {
+        return plumber({errorHandler: plumberErrorHandler});
+    }
 
     /**
-     * @param {Path} configuration
-     * @param {String} path
-     * @param {Boolean} [throwError]
+     * Checks if a given path configuration exists, like `product` or `library`. Comes handy when need
+     * working with relative paths.
      */
-    doesPathConfigurationExist: function (configuration, path, throwError) {
+    static doesPathConfigurationExist(configuration:Path, path:string, throwError?:boolean):boolean {
         if (configuration == null || configuration[path] == null) {
             if (throwError !== false) {
                 throw new Error('`path.' + path + '` must be configured to use simple target form.')
@@ -36,20 +35,19 @@ var TaskUtility = {
         }
 
         return true;
-    },
+    }
 
     /**
-     * @param {String|Array} path
-     * @returns {String}
+     *
      */
-    getGlobExtension: function (path) {
-        var extension = null;
-        var paths = [];
+    static getGlobExtension(path:string):string {
+        var extension:string = null;
+        var paths:Array<string> = [];
 
         paths = paths.concat(glob.sync(path));
 
-        for (var i = 0, n = paths.length; i < n; i++) {
-            var pathExtension = require('path').extname(path = paths[i]);
+        for (var i:number = 0, n:number = paths.length; i < n; i++) {
+            var pathExtension:string = require('path').extname(path = paths[i]);
 
             if (pathExtension === '') {
                 continue;
@@ -61,7 +59,7 @@ var TaskUtility = {
         }
 
         return extension === null ? extension : extension.slice(1);
-    },
+    }
 
     /**
      * @param {Path} configuration
@@ -70,16 +68,16 @@ var TaskUtility = {
      * @param {String} [suffix]
      * @returns {Array|String}
      */
-    normalisePath: function (configuration, group, target, suffix) {
+    static normalisePath(configuration:Path, group:string, target?:string|string[], suffix?:string) {
         if (target == null) {
             target = '';
         }
 
-        var array = Array.isArray(target);
-        var targets = array ? target : [target];
-        var extension;
+        var array:boolean = Array.isArray(target);
+        var targets:string[] = <string[]>(array ? target : [target]);
+        var extension:string;
 
-        for (var i = 0, n = targets.length; i < n; i++) {
+        for (var i:number = 0, n:number = targets.length; i < n; i++) {
 
             // Join target path with the group path if target path path is not absolute.
 
@@ -91,17 +89,17 @@ var TaskUtility = {
             // folder-part is checked only using the extension logic, which might actually be a problem. Todo: perhaps
             // todo: there should be an additional fs check, and then if the folder doesn't exist – do this shit.
 
-            if (suffix != null && (extension = path.extname(target)) === '' && target.slice(-suffix.length) !== suffix) {
+            if (suffix != null && (extension = path.extname(<string>target)) === '' && target.slice(-suffix.length) !== suffix) {
                 target = path.join(target, suffix);
             }
 
-            targets[i] = target;
+            targets[i] = <string>target;
         }
 
         // Try to return a single path if only a single item was supplied.
 
         return array || targets.length > 1 ? targets : targets[0];
-    },
+    }
 
     /**
      * @param {Path} configuration
@@ -109,9 +107,9 @@ var TaskUtility = {
      * @param {String} [suffix]
      * @returns {Array|String}
      */
-    normaliseSourcePath: function (configuration, source, suffix) {
+    static normaliseSourcePath(configuration:Path, source?:string|string[], suffix?:string) {
         return TaskUtility.normalisePath(configuration, 'source', source, suffix);
-    },
+    }
 
     /**
      * @param {Path} configuration
@@ -119,9 +117,7 @@ var TaskUtility = {
      * @param {String} [suffix]
      * @returns {Array|String}
      */
-    normaliseDestinationPath: function (configuration, destination, suffix) {
+    static normaliseDestinationPath(configuration:any, destination?:string|string[], suffix?:string) {
         return TaskUtility.normalisePath(configuration, 'product', destination, suffix);
     }
-};
-
-module.exports = TaskUtility;
+}
