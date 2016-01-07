@@ -1,14 +1,13 @@
 {
     "compilerOptions": {
-        "declaration": false,
+        "declaration": true,
         "module": "commonjs",
-        "moduleResolution": "node",
+        "moduleResolution": "classic",
         "noImplicitAny": true,
         "outDir": "../product/js",
-        "outFile": "../product/js/all.js",
         "target": "es5"
     },
     "files": [
-        "../source/ts/guild.ts"
+        "../source/ts/index.ts"
     ]
 }

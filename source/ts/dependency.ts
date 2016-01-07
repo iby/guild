@@ -1,8 +1,8 @@
 import {DataType} from './Constant/DataType';
-import {Dependency, Guild, NormaliseTarget} from './Configuration/Guild';
+import {DependencyConfiguration, GuildConfiguration, NormaliseConfiguration} from './Configuration/GuildConfiguration';
 import {GulpHelp} from 'gulp-help';
 import {ParsedArgs} from 'minimist';
-import {Path} from './Configuration/Path';
+import {PathConfiguration} from './Configuration/PathConfiguration';
 import {Plugin} from './Constant/Plugin';
 import {Schema} from './Constant/Schema';
 import {TaskUtility} from './Utility/TaskUtility';
@@ -18,7 +18,7 @@ import path = require('path');
 import sequence = require('run-sequence');
 import uglify = require('gulp-uglify');
 
-function createDependencyNormaliseTask(gulp:GulpHelp, configuration:Dependency, parameters:ParsedArgs, cleanTasks:string[], dependencyTasks:string[]) {
+function createDependencyNormaliseTask(gulp:GulpHelp, configuration:DependencyConfiguration, parameters:ParsedArgs, cleanTasks:string[], dependencyTasks:string[]) {
     var normaliseConfiguration = configuration.normalise;
     var pathConfiguration = configuration.path;
 
@@ -27,7 +27,7 @@ function createDependencyNormaliseTask(gulp:GulpHelp, configuration:Dependency, 
         var streams:Readable[] = [];
 
         Object.keys(normaliseConfiguration).forEach(function (key) {
-            var target:NormaliseTarget = normaliseConfiguration[key];
+            var target:NormaliseConfiguration = normaliseConfiguration[key];
             var source:string;
             var destination:string;
             var plugins:any[];
@@ -95,12 +95,12 @@ function createDependencyNormaliseTask(gulp:GulpHelp, configuration:Dependency, 
     });
 }
 
-function createDependencyCleanTask(gulp:GulpHelp, configuration:Dependency, parameters:ParsedArgs, cleanTasks:string[], dependencyTasks:string[]) {
+function createDependencyCleanTask(gulp:GulpHelp, configuration:DependencyConfiguration, parameters:ParsedArgs, cleanTasks:string[], dependencyTasks:string[]) {
 
     // fixme…
 
     var cleanConfiguration:any = configuration.clean;
-    var pathConfiguration:Path = configuration.path;
+    var pathConfiguration:PathConfiguration = configuration.path;
     var target:boolean|any = cleanConfiguration;
 
     if (target === false) {
@@ -123,12 +123,12 @@ function createDependencyCleanTask(gulp:GulpHelp, configuration:Dependency, para
 
 /**
  * @param {GulpHelp} gulp
- * @param {Guild} configuration
+ * @param {GuildConfiguration} configuration
  * @param {Object} parameters
  */
-export function dependency(gulp:GulpHelp, configuration:Guild, parameters:ParsedArgs) {
-    var dependencyConfiguration:Dependency = configuration.dependency;
-    var pathConfiguration:Path = configuration.path;
+export function dependency(gulp:GulpHelp, configuration:GuildConfiguration, parameters:ParsedArgs) {
+    var dependencyConfiguration:DependencyConfiguration = configuration.dependency;
+    var pathConfiguration:PathConfiguration = configuration.path;
     var clean:boolean = dependencyConfiguration.clean != null;
     var normalise:boolean = dependencyConfiguration.normalise != null;
     var validator:Validator = new Validator();

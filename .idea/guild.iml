@@ -4,6 +4,8 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/node_modules" />
       <excludeFolder url="file://$MODULE_DIR$/product/js" />
+      <excludeFolder url="file://$MODULE_DIR$/product/json" />
+      <excludeFolder url="file://$MODULE_DIR$/product/ts" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

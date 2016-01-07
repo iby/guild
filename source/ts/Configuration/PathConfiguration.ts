@@ -1,6 +1,6 @@
 import path = require('path');
 
-export class Path {
+export class PathConfiguration {
     [key: string]: string;
 
     /**

@@ -1,9 +1,9 @@
 import {DataType} from './Constant/DataType';
-import {Deploy, Guild, PluginGenerator, S3Target} from './Configuration/Guild';
+import {DeployConfiguration, GuildConfiguration, PluginGenerator, S3Configuration} from './Configuration/GuildConfiguration';
 import {GulpHelp} from 'gulp-help';
 import {Parameter} from './Constant/Parameter';
 import {ParsedArgs} from 'minimist';
-import {Path} from './Configuration/Path';
+import {PathConfiguration} from './Configuration/PathConfiguration';
 import {Plugin} from './Constant/Plugin';
 import {Schema} from './Constant/Schema';
 import {Readable} from 'stream';
@@ -18,7 +18,7 @@ import rename = require('gulp-rename');
 import sequence = require('run-sequence');
 import url = require('url');
 
-function createDeployS3Task(gulp:GulpHelp, configuration:Deploy, parameters:ParsedArgs, cleanTasks:string[], deployTasks:string[]) {
+function createDeployS3Task(gulp:GulpHelp, configuration:DeployConfiguration, parameters:ParsedArgs, cleanTasks:string[], deployTasks:string[]) {
     var s3Configuration = configuration.s3;
     var pathConfiguration = configuration.path;
 
@@ -32,7 +32,7 @@ function createDeployS3Task(gulp:GulpHelp, configuration:Deploy, parameters:Pars
         var streams:Readable[] = [];
 
         Object.keys(s3Configuration).forEach(function (bucket) {
-            var bucketConfiguration:S3Target = s3Configuration[bucket];
+            var bucketConfiguration:S3Configuration = s3Configuration[bucket];
             var source:string|string[];
             var plugins:any[]|PluginGenerator;
 
@@ -122,9 +122,9 @@ function createDeployS3Task(gulp:GulpHelp, configuration:Deploy, parameters:Pars
     });
 }
 
-export function deploy(gulp:GulpHelp, configuration:Guild, parameters:ParsedArgs) {
-    var deployConfiguration:Deploy = configuration.deploy;
-    var pathConfiguration:Path = configuration.path;
+export function deploy(gulp:GulpHelp, configuration:GuildConfiguration, parameters:ParsedArgs) {
+    var deployConfiguration:DeployConfiguration = configuration.deploy;
+    var pathConfiguration:PathConfiguration = configuration.path;
     var validator = new Validator();
 
     // Inject stuff into deploy configuration.

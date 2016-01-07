@@ -1,9 +1,11 @@
-import {Build, Guild, Less, Twig, Webpack} from './Configuration/Guild';
+/// <reference path="./Configuration/GuildConfiguration.ts"/>
+
+import {BuildConfiguration, GuildConfiguration, LessConfiguration, TwigConfiguration, WebpackConfiguration} from './Configuration/GuildConfiguration';
 import {DataType} from './Constant/DataType';
 import {GulpHelp} from 'gulp-help';
 import {Parameter} from './Constant/Parameter';
 import {ParsedArgs} from 'minimist';
-import {Path} from './Configuration/Path';
+import {PathConfiguration} from './Configuration/PathConfiguration';
 import {Plugin} from './Constant/Plugin';
 import {Schema} from './Constant/Schema';
 import {TaskUtility} from './Utility/TaskUtility';
@@ -21,15 +23,15 @@ import webpack = require('webpack-stream');
 
 /**
  * @param {GulpHelp} gulp
- * @param {Build} configuration
+ * @param {BuildConfiguration} configuration
  * @param {Object} parameters
  * @param {Boolean} parameters.watch
  * @param {Array} cleanTasks
  * @param {Array} buildTasks
  */
-function createBuildLessTask(gulp:GulpHelp, configuration:Build, parameters:ParsedArgs, cleanTasks:string[], buildTasks:string[]) {
-    var lessConfiguration:Less = configuration.less;
-    var pathConfiguration:Path = configuration.path;
+function createBuildLessTask(gulp:GulpHelp, configuration:BuildConfiguration, parameters:ParsedArgs, cleanTasks:string[], buildTasks:string[]) {
+    var lessConfiguration:LessConfiguration = configuration.less;
+    var pathConfiguration:PathConfiguration = configuration.path;
     var watch:boolean = parameters[Parameter.WATCH] === true;
     var source:string;
     var destination:string;
@@ -97,15 +99,15 @@ function createBuildLessTask(gulp:GulpHelp, configuration:Build, parameters:Pars
 
 /**
  * @param {GulpHelp} gulp
- * @param {Build} configuration
+ * @param {BuildConfiguration} configuration
  * @param {Object} parameters
  * @param {Boolean} parameters.watch
  * @param {Array} cleanTasks
  * @param {Array} buildTasks
  */
-function createBuildTwigTask(gulp:GulpHelp, configuration:Build, parameters:ParsedArgs, cleanTasks:string[], buildTasks:string[]) {
-    var twigConfiguration:Twig = configuration.twig;
-    var pathConfiguration:Path = configuration.path;
+function createBuildTwigTask(gulp:GulpHelp, configuration:BuildConfiguration, parameters:ParsedArgs, cleanTasks:string[], buildTasks:string[]) {
+    var twigConfiguration:TwigConfiguration = configuration.twig;
+    var pathConfiguration:PathConfiguration = configuration.path;
     var watch:boolean = parameters[Parameter.WATCH] === true;
     var source:string;
     var destination:string;
@@ -162,14 +164,14 @@ function createBuildTwigTask(gulp:GulpHelp, configuration:Build, parameters:Pars
 
 /**
  * @param {GulpHelp} gulp
- * @param {Build} configuration
+ * @param {BuildConfiguration} configuration
  * @param {Object} parameters
  * @param {Array} cleanTasks
  * @param {Array} buildTasks
  */
-function createBuildWebpackTask(gulp:GulpHelp, configuration:Build, parameters:ParsedArgs, cleanTasks:string[], buildTasks:string[]) {
-    var webpackConfiguration:Webpack = configuration.webpack;
-    var pathConfiguration:Path = configuration.path;
+function createBuildWebpackTask(gulp:GulpHelp, configuration:BuildConfiguration, parameters:ParsedArgs, cleanTasks:string[], buildTasks:string[]) {
+    var webpackConfiguration:WebpackConfiguration = configuration.webpack;
+    var pathConfiguration:PathConfiguration = configuration.path;
     var watch:boolean = parameters[Parameter.WATCH] === true;
     var source:string;
     var destination:string;
@@ -257,9 +259,9 @@ function createBuildWatchTask(gulp:GulpHelp, path:string, watchTask:string, runT
 /**
  * Creates build sub-tasks.
  */
-export function build(gulp:GulpHelp, configuration:Guild, parameters:ParsedArgs) {
-    var buildConfiguration:Build = configuration.build;
-    var pathConfiguration:Path = configuration.path;
+export function build(gulp:GulpHelp, configuration:GuildConfiguration, parameters:ParsedArgs) {
+    var buildConfiguration:BuildConfiguration = configuration.build;
+    var pathConfiguration:PathConfiguration = configuration.path;
     var validator:Validator = new Validator();
 
     // Inject stuff into build configuration.

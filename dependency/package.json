@@ -1,10 +1,9 @@
 {
     "description": "Gulp build tasks",
     "license": "MIT",
-    "main": "guild.js",
     "name": "@ianbytchek/guild",
+    "version": "0.0.2",
     "repository": "https://github.com/ianbytchek/guild",
-    "version": "0.0.1",
     "dependencies": {
         "autoprefixer": "*",
         "chalk": "*",
@@ -12,8 +11,11 @@
         "crypto-js": "*",
         "cssnano": "*",
         "del": "*",
+        "dts-bundle": "*",
+        "dts-generator": "*",
         "glob": "*",
         "gulp": "*",
+        "fs-extra": "*",
         "gulp-awspublish": "*",
         "gulp-concat": "*",
         "gulp-help": "*",
@@ -29,10 +31,20 @@
         "merge-stream": "*",
         "minimist": "*",
         "moment": "*",
+        "gulp-typescript": "*",
         "postcss-discard-comments": "*",
         "postcss-reporter": "*",
         "run-sequence": "*",
         "stylelint": "*",
+        "tsproject": "1.2.0-rc.4",
         "webpack-stream": "*"
-    }
+    },
+    "keywords": [
+        "build",
+        "configuration",
+        "configurator",
+        "deploy",
+        "gulp",
+        "test"
+    ]
 }

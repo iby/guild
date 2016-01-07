@@ -1,4 +1,4 @@
-import {Path} from '../Configuration/Path';
+import {PathConfiguration} from '../Configuration/PathConfiguration';
 
 import glob = require('glob');
 import path = require('path');
@@ -26,7 +26,7 @@ export class TaskUtility {
      * Checks if a given path configuration exists, like `product` or `library`. Comes handy when need
      * working with relative paths.
      */
-    static doesPathConfigurationExist(configuration:Path, path:string, throwError?:boolean):boolean {
+    static doesPathConfigurationExist(configuration:PathConfiguration, path:string, throwError?:boolean):boolean {
         if (configuration == null || configuration[path] == null) {
             if (throwError !== false) {
                 throw new Error('`path.' + path + '` must be configured to use simple target form.')
@@ -62,13 +62,13 @@ export class TaskUtility {
     }
 
     /**
-     * @param {Path} configuration
+     * @param {PathConfiguration} configuration
      * @param {String} group
      * @param {Array|String} [target]
      * @param {String} [suffix]
      * @returns {Array|String}
      */
-    static normalisePath(configuration:Path, group:string, target?:string|string[], suffix?:string) {
+    static normalisePath(configuration:PathConfiguration, group:string, target?:string|string[], suffix?:string) {
         if (target == null) {
             target = '';
         }
@@ -102,17 +102,17 @@ export class TaskUtility {
     }
 
     /**
-     * @param {Path} configuration
+     * @param {PathConfiguration} configuration
      * @param {Array|String} [source]
      * @param {String} [suffix]
      * @returns {Array|String}
      */
-    static normaliseSourcePath(configuration:Path, source?:string|string[], suffix?:string) {
+    static normaliseSourcePath(configuration:PathConfiguration, source?:string|string[], suffix?:string) {
         return TaskUtility.normalisePath(configuration, 'source', source, suffix);
     }
 
     /**
-     * @param {Path} configuration
+     * @param {PathConfiguration} configuration
      * @param {Array|String} [destination]
      * @param {String} [suffix]
      * @returns {Array|String}
