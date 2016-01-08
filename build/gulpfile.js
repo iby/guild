@@ -12,6 +12,7 @@ var sequence = require('run-sequence');
 
 gulp.task('clean', false, function () {
     var paths = [
+        '../product/documentation',
         '../product/js',
         '../product/json',
         '../product/package.json'
@@ -41,6 +42,7 @@ gulp.task('build', function () {
 
     // Copy readme.
 
+    fse.copySync('../documentation', '../product/documentation');
     fse.copySync('../README.md', '../product/README.md');
     fse.copySync('../source/json', '../product/json');
 });
