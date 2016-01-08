@@ -1,55 +1,40 @@
 # Guild
 
-Guild is a gulp configuration (tool more than a) framework for common build-test-deploy tasks to avoid reinventing the wheel with every project. Instead of copy pasting same unmaintainable tasks from project to project, with guild, they can be plugged as an npm module and used with a simple configuration.
+Guild is a gulp configuration framework for common build-test-deploy tasks. Instead of copy-pasting repeated unmaintainable tasks from project to project, with guild, they can be `required()` as a single npm module and used with a simple configuration.
 
-- [Dependency](#dependency)
-    - [Normalise](#normalise)
-- [Build](#build)
-    - [Less](#less)
-    - [Webpack](#webpack)
-- [Deployment](#deployment)
-    - [S3](#s3)
+<div align="center"><img src="./documentation/asset/screenshot.png"></div>
 
-## Usage
+The above is the result of the following configuration, which goes into your guilpfile. It adds the specified tasks and can be safely used with your own tasks, given there are no naming conflicts.
 
 ```js
-var configuration = require('./configuration/Path');
+
+// Keep path configuration and other complex / reusable stuff separately.
+
+var configuration = require('./configuration/path');
 var guild = require('@ianbytchek/guild');
 var gulp = require('gulp');
 
 guild(gulp, {
     dependency: {
         normalise: {
-            "foo": "/absolute/foo.js",
-            "bar": {path: "relative/bar.css", plugins: function(){ return [myStream()] }}
+            "jquery": 'bower_components/jquery/dist/jquery.min.js',
+            "normalize": 'bower_components/normalize.css/normalize.css'
         }
     },
-    build: {,
-        webpack: {
-            configuration: require('./configuration/Webpack')
-        },
+    build: {
+        webpack: require('./configuration/webpack'),
         less: true,
         twig: true
     },
     deployment: {
         s3: [
-            'js',
-            'css',
-            'html'
+            'favicon.icon',
+            'html/*'
         ]
     }
     path: configuration
 });
 ```
-
-The above goes into the `guilpfile.js`. It will add the specified tasks and can be safely used with your own tasks, given there are no naming conflicts.
-
-- `dependency` – builds dependencies (typically) into local libraries that are standardised, minified and stripped of comments.
-- `build` – builds sources into products that are ready for testing and deployment.
-- `test` – tests the built products.
-- `deployment` – deploys the built (and tested) products.
-
-You can use the global `-w` or `--watch` flag to run guild in the background. Task-specific options are described in configuration.
 
 ## Setup
 
@@ -63,9 +48,19 @@ Install using `npm install @ianbytchek/guild` or add it to `package.json`.
 
 ## Configuration
 
+- [Dependency](#dependency)
+    - [Normalise](#normalise)
+- [Build](#build)
+    - [Less](#less)
+    - [Twig](#twig)
+    - [Webpack](#webpack)
+- [Test](#) (WIP)
+- [Deployment](#deployment)
+    - [S3](#s3)
+
 ### Path
 
-`Path` object holds default project paths if configuration contains relative paths or assumes the use of default locations. It can be created with `require('@ianbytchek/guild').Path('/absolute/root/path'))`.
+`Path` object holds default project paths if configuration contains relative paths or assumes the use of default locations. It can be created with `require('@ianbytchek/guild').PathConfiguration('/absolute/project/path'))`.
 
 ### Dependency
 
