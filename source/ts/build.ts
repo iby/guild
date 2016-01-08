@@ -175,7 +175,7 @@ function createBuildWebpackTask(gulp:GulpHelp, configuration:BuildConfiguration,
     };
 
     buildTasks.push(Task.BUILD_WEBPACK);
-    gulp.task(Task.BUILD_WEBPACK, function () {
+    gulp.task(Task.BUILD_WEBPACK, false, function () {
 
         // Normalise plugins.
 
@@ -237,7 +237,7 @@ export function build(gulp:GulpHelp, configuration:GuildConfiguration, parameter
 
     var description:string = 'Clean and build target (js, css) sources, when no target is given, builds for everything.';
     var options:any = {
-        production: 'Build for production, will minify and strip everything it can. Very slow.',
+        production: 'Build for production, will minify and strip everything it can. Very slow… \uD83D\uDC22',
         watch: 'Watch files for changes to re-run.'
     };
     var taskOptions:any = {

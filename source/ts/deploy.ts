@@ -18,6 +18,9 @@ import rename = require('gulp-rename');
 import sequence = require('run-sequence');
 import url = require('url');
 
+/**
+ * Creates and registers aws s3 deployment task.
+ */
 function createDeployS3Task(gulp:GulpHelp, configuration:DeployConfiguration, parameters:ParsedArgs, cleanTasks:string[], deployTasks:string[]) {
     var s3Configuration = configuration.s3;
     var pathConfiguration = configuration.path;
@@ -28,7 +31,7 @@ function createDeployS3Task(gulp:GulpHelp, configuration:DeployConfiguration, pa
     Array.isArray(s3Configuration) && (s3Configuration = {'': s3Configuration});
 
     deployTasks.push(Task.DEPLOY_S3);
-    gulp.task(Task.DEPLOY_S3, function () {
+    gulp.task(Task.DEPLOY_S3, false, function () {
         var streams:Readable[] = [];
 
         Object.keys(s3Configuration).forEach(function (bucket) {
@@ -137,7 +140,6 @@ export function deploy(gulp:GulpHelp, configuration:GuildConfiguration, paramete
 
     var description:string = 'Clean and build dependencies into local libraries.';
     var options:any = {
-        production: 'Build for production, will minify and strip everything it can. Very slow.',
         watch: 'Watch files for changes to re-run.'
     };
     var taskOptions:any = {

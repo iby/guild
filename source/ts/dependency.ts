@@ -116,7 +116,7 @@ function createDependencyCleanTask(gulp:GulpHelp, configuration:DependencyConfig
     // Todo: removed callback from here… watch if it breaks anything.
 
     cleanTasks.push(Task.DEPENDENCY_CLEAN);
-    gulp.task(Task.DEPENDENCY_CLEAN, function () {
+    gulp.task(Task.DEPENDENCY_CLEAN, false, function () {
         return del(target, {force: true});
     });
 }
@@ -141,7 +141,7 @@ export function dependency(gulp:GulpHelp, configuration:GuildConfiguration, para
 
     var description:string = 'Clean and build dependencies into local libraries.';
     var options:any = {
-        production: 'Build for production, will minify and strip everything it can. Very slow.',
+        production: 'Build for production, will minify and strip everything it can. Very slow… \uD83D\uDC22',
         watch: 'Watch files for changes to re-run.'
     };
     var taskOptions:any = {
