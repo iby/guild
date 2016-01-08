@@ -9,7 +9,13 @@
     ],
     "definitions": {
         "path": {
-            "type": "string"
+            "type": [
+                "string",
+                {
+                    "type": "array",
+                    "items": {"type": "string"}
+                }
+            ]
         }
     }
 }

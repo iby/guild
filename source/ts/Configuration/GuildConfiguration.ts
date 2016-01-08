@@ -58,11 +58,12 @@ export interface DeployConfiguration extends PathConfigurationInterface {
     s3?:S3Configuration;
 }
 
-export interface S3Configuration extends PluginsConfiguration, SourceConfiguration {
+export interface S3Configuration extends PluginsConfiguration {
     accessKey?:string;
     baseUrl?:string;
     certificateAuthority?:string;
     pathStyle?:string;
     region?:string;
     secretKey?:string;
+    target?:string|string[]
 }

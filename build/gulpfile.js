@@ -17,7 +17,7 @@ gulp.task('clean', false, function () {
         '../product/package.json'
     ];
 
-    del(paths, {force: true});
+    return del(paths, {force: true});
 });
 
 //

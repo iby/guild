@@ -1,12 +1,12 @@
 {
     "id": "/Deploy/S3",
     "type": [
-        "string",
-        "array",
+        {"$ref": "/Path/Multi"},
         {
             "type": "object",
             "properties": {
-                "source": {"$ref": "/Path/Uni"}
+                "base": {"type": {"$ref": "/Path/Multi"}},
+                "target": {"type": {"$ref": "/Path/Multi"}}
             }
         }
     ]

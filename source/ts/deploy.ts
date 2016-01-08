@@ -33,7 +33,7 @@ function createDeployS3Task(gulp:GulpHelp, configuration:DeployConfiguration, pa
 
         Object.keys(s3Configuration).forEach(function (bucket) {
             var bucketConfiguration:S3Configuration = s3Configuration[bucket];
-            var source:string|string[];
+            var target:string|string[];
             var plugins:any[]|PluginGenerator;
 
             var accessKey:string;
@@ -45,9 +45,9 @@ function createDeployS3Task(gulp:GulpHelp, configuration:DeployConfiguration, pa
             var index:number;
 
             if (typeof bucketConfiguration === DataType.STRING || Array.isArray(bucketConfiguration)) {
-                source = <string>bucketConfiguration;
+                target = <any>bucketConfiguration;
             } else {
-                source = bucketConfiguration.source;
+                target = bucketConfiguration.target;
                 plugins = bucketConfiguration.plugins;
                 accessKey = bucketConfiguration.accessKey;
                 baseUrl = bucketConfiguration.baseUrl;
@@ -99,15 +99,17 @@ function createDeployS3Task(gulp:GulpHelp, configuration:DeployConfiguration, pa
             (index = (<any[]>plugins).indexOf(Plugin.DEFAULT)) >= 0 && (<any[]>plugins).splice(index, 1, Plugin.NORMALISE);
             (index = (<any[]>plugins).indexOf(Plugin.NORMALISE)) >= 0 && (<any[]>plugins).splice(index, 1);
 
-            // Normalise sources, they may contain all sort of shit as we about to find out.
+            // Normalise sources, they may contain all sort of shit as we're about to find out.
 
-            var sources:string[] = Array.isArray(source) ? source : [source];
+            (<string[]>(Array.isArray(target) ? target : [target])).forEach(function (target:string) {
 
-            sources.forEach(function (source) {
-                var base = path.join(configuration.path.product, 'html');
-                var pipeline = gulp.src(source, {base: base}).pipe(TaskUtility.createPlumber());
+                // Todo: ideally we must be able to provide base for each target, see earlier commits…
 
-                pipeline = pipeline
+                target = <string>TaskUtility.normaliseProductPath(pathConfiguration, target);
+
+                var pipeline = gulp
+                    .src(target)
+                    .pipe(TaskUtility.createPlumber())
                     .pipe(rename(function (path) {
                         path.dirname = '/' + path.dirname
                     }))

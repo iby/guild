@@ -48,7 +48,7 @@ function createDependencyNormaliseTask(gulp:GulpHelp, configuration:DependencyCo
             // If we didn't get destination we shall use standard library path. Also make sure we
             // make a proper filename for our final dependency.
 
-            source = <string>TaskUtility.normalisePath(pathConfiguration, 'dependency', source);
+            source = <string>TaskUtility.normaliseDependencyPath(pathConfiguration, source);
 
             if (destination == null && TaskUtility.doesPathConfigurationExist(pathConfiguration, 'library')) {
                 destination = (extension = TaskUtility.getGlobExtension(source)) == null ? pathConfiguration.library : path.join(pathConfiguration.library, extension);

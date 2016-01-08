@@ -1,30 +1,49 @@
 import path = require('path');
 
 export class PathConfiguration {
-    [key: string]: string;
+    [key: string]: any;
 
     /**
      * Root folder of the project.
      */
-    root:string;
+    public root:string;
 
     /**
      * Folder with all dependencies, like bower or npm.
      */
-    dependency:string;
+    public dependency:string;
 
     /**
      * Documentation and documentation assets.
      */
-    documentation:string;
+    public documentation:string;
 
     /**
      * Entrypoint for a webserver.
      */
-    entrypoint:string;
-    library:string;
-    product:string;
-    source:string;
+    public entrypoint:string;
+
+    /**
+     * Libraries that ship with the codebase.
+     */
+    public library:string;
+
+    /**
+     * Built products.
+     */
+    public product:string;
+
+    /**
+     * Source files.
+     */
+    public source:string;
+
+    /**
+     * Default destination location(s), when not specified guild would normally use `product` as
+     * default. This is useful for cases when we need to build a product and put something into the
+     * entrypoint to make it available for the webserver.
+     */
+    public destination:string|string[];
 
     constructor(root:string) {
         this.root = root;

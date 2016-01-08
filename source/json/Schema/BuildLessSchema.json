@@ -6,7 +6,7 @@
             "type": "object",
             "properties": {
                 "source": {"$ref": "/Path/Uni"},
-                "destination": {"$ref": "/Path/Uni"}
+                "destination": {"$ref": "/Path/Multi"}
             }
         }
     ]
