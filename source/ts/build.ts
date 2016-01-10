@@ -29,6 +29,7 @@ function createBuildLessTask(gulp:GulpHelp, configuration:BuildConfiguration, pa
     var lessConfiguration:LessConfiguration = configuration.less;
     var pathConfiguration:PathConfiguration = configuration.path;
     var watch:boolean = parameters[Parameter.WATCH] === true;
+    var clean:boolean;
     var source:string;
     var destination:string|string[];
     var plugins:any[]|Function;
@@ -38,9 +39,10 @@ function createBuildLessTask(gulp:GulpHelp, configuration:BuildConfiguration, pa
 
     if (typeof lessConfiguration === DataType.BOOLEAN) {
     } else {
-        source = lessConfiguration.source;
+        clean = lessConfiguration.clean;
         destination = lessConfiguration.destination;
         plugins = lessConfiguration.plugins;
+        source = lessConfiguration.source;
     }
 
     source == null && (source = 'less');
@@ -51,7 +53,6 @@ function createBuildLessTask(gulp:GulpHelp, configuration:BuildConfiguration, pa
     // Postcss configuration.
 
     var postcssConfiguration = [
-        require('postcss-discard-comments')({removeAll: true}),
         require('stylelint')({
             rules: {
                 "property-no-vendor-prefix": true,
@@ -59,6 +60,7 @@ function createBuildLessTask(gulp:GulpHelp, configuration:BuildConfiguration, pa
                 "value-no-vendor-prefix": true
             }
         }),
+        require('postcss-discard-comments')({removeAll: true}),
         require('autoprefixer')({browsers: ['last 2 versions']}),
         require('cssnano')(),
         require('postcss-reporter')()
@@ -83,7 +85,7 @@ function createBuildLessTask(gulp:GulpHelp, configuration:BuildConfiguration, pa
         return pipeline;
     });
 
-    createBuildCleanTask(gulp, TaskUtility.normaliseDestinationPath(pathConfiguration, destination, '*'), Task.BUILD_CLEAN_LESS, cleanTasks);
+    clean === false || createBuildCleanTask(gulp, TaskUtility.normaliseDestinationPath(pathConfiguration, destination, '*'), Task.BUILD_CLEAN_LESS, cleanTasks);
     watch && createBuildWatchTask(gulp, TaskUtility.normaliseSourcePath(pathConfiguration, source, '**/*.less'), Task.BUILD_LESS_WATCH, [Task.BUILD_LESS], buildTasks);
 }
 
@@ -94,20 +96,22 @@ function createBuildTwigTask(gulp:GulpHelp, configuration:BuildConfiguration, pa
     var twigConfiguration:TwigConfiguration = configuration.twig;
     var pathConfiguration:PathConfiguration = configuration.path;
     var watch:boolean = parameters[Parameter.WATCH] === true;
-    var source:string;
+    var clean:boolean;
+    var data:any;
     var destination:string;
     var plugins:any[]|Function;
     var pluginsGenerator:Function;
-    var data:any;
+    var source:string;
 
     // Normalise configuration.
 
     if (typeof twigConfiguration === DataType.BOOLEAN) {
     } else if (twigConfiguration.source != null || twigConfiguration.destination != null || twigConfiguration.plugins != null) {
-        source = twigConfiguration.source;
+        clean = twigConfiguration.clean;
+        data = twigConfiguration.data;
         destination = twigConfiguration.destination;
         plugins = twigConfiguration.plugins;
-        data = twigConfiguration.data;
+        source = twigConfiguration.source;
     } else {
         data = twigConfiguration;
     }
@@ -115,9 +119,7 @@ function createBuildTwigTask(gulp:GulpHelp, configuration:BuildConfiguration, pa
     source == null && (source = 'twig');
     destination == null && (destination = 'html');
     plugins == null && (plugins = []);
-    pluginsGenerator = plugins instanceof Function ? plugins : function () {
-        return clone(plugins)
-    };
+    pluginsGenerator = plugins instanceof Function ? plugins : function () { return clone(plugins) };
 
     buildTasks.push(Task.BUILD_TWIG);
     gulp.task(Task.BUILD_TWIG, false, function () {
@@ -140,7 +142,7 @@ function createBuildTwigTask(gulp:GulpHelp, configuration:BuildConfiguration, pa
 
     // Todo: must watch for js and css products or have an option for that.
 
-    createBuildCleanTask(gulp, TaskUtility.normaliseDestinationPath(pathConfiguration, destination, '*'), Task.BUILD_CLEAN_TWIG, cleanTasks);
+    clean === false || createBuildCleanTask(gulp, TaskUtility.normaliseDestinationPath(pathConfiguration, destination, '*'), Task.BUILD_CLEAN_TWIG, cleanTasks);
     watch && createBuildWatchTask(gulp, TaskUtility.normaliseSourcePath(pathConfiguration, source, '**/*.twig'), Task.BUILD_TWIG_WATCH, [Task.BUILD_TWIG], buildTasks);
 }
 
@@ -151,10 +153,11 @@ function createBuildWebpackTask(gulp:GulpHelp, configuration:BuildConfiguration,
     var webpackConfiguration:WebpackConfiguration = configuration.webpack;
     var pathConfiguration:PathConfiguration = configuration.path;
     var watch:boolean = parameters[Parameter.WATCH] === true;
-    var source:string;
+    var clean:boolean;
     var destination:string;
     var plugins:any[]|Function;
     var pluginsGenerator:Function;
+    var source:string;
 
     // Normalise configuration.
 
@@ -163,6 +166,7 @@ function createBuildWebpackTask(gulp:GulpHelp, configuration:BuildConfiguration,
         destination = webpackConfiguration.destination;
         plugins = webpackConfiguration.plugins;
         source = webpackConfiguration.source;
+        clean = webpackConfiguration.clean;
     } else {
         configuration = webpackConfiguration;
     }
@@ -197,7 +201,7 @@ function createBuildWebpackTask(gulp:GulpHelp, configuration:BuildConfiguration,
         return pipeline;
     });
 
-    createBuildCleanTask(gulp, TaskUtility.normaliseDestinationPath(pathConfiguration, destination, '*'), Task.BUILD_CLEAN_WEBPACK, cleanTasks);
+    clean === false || createBuildCleanTask(gulp, TaskUtility.normaliseDestinationPath(pathConfiguration, destination, '*'), Task.BUILD_CLEAN_WEBPACK, cleanTasks);
     watch && createBuildWatchTask(gulp, TaskUtility.normaliseSourcePath(pathConfiguration, source, '**/*.js'), Task.BUILD_WEBPACK_WATCH, [Task.BUILD_WEBPACK], buildTasks);
 }
 

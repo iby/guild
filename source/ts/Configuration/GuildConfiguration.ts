@@ -5,11 +5,12 @@ export declare type PluginGenerator = () => any[]
 
 // Base interfaces.
 
-export interface Configuration { [key: string]: any }
-export interface DestinationConfiguration extends Configuration { destination?:string }
-export interface PathConfigurationInterface extends Configuration { path?:PathConfiguration }
-export interface SourceConfiguration extends Configuration { source?:string }
-export interface PluginsConfiguration extends Configuration { plugins?:any[]|PluginGenerator }
+export interface ConfigurationInterface { [key: string]: any }
+export interface CleanConfigurationInterface extends ConfigurationInterface { clean?:boolean }
+export interface DestinationConfigurationInterface extends ConfigurationInterface { destination?:string }
+export interface PathConfigurationInterface extends ConfigurationInterface { path?:PathConfiguration }
+export interface PluginsConfigurationInterface extends ConfigurationInterface { plugins?:any[]|PluginGenerator }
+export interface SourceConfigurationInterface extends ConfigurationInterface { source?:string }
 
 
 // Guild configuration.
@@ -29,26 +30,25 @@ export interface BuildConfiguration extends PathConfigurationInterface {
     webpack?:WebpackConfiguration;
 }
 
-export interface LessConfiguration extends DestinationConfiguration, PathConfigurationInterface, PluginsConfiguration, SourceConfiguration {
+export interface LessConfiguration extends CleanConfigurationInterface, DestinationConfigurationInterface, PathConfigurationInterface, PluginsConfigurationInterface, SourceConfigurationInterface {
 }
 
-export interface TwigConfiguration extends DestinationConfiguration, PathConfigurationInterface, PluginsConfiguration, SourceConfiguration {
+export interface TwigConfiguration extends CleanConfigurationInterface, DestinationConfigurationInterface, PathConfigurationInterface, PluginsConfigurationInterface, SourceConfigurationInterface {
     data?:any;
 }
 
-export interface WebpackConfiguration extends DestinationConfiguration, PathConfigurationInterface, PluginsConfiguration, SourceConfiguration {
+export interface WebpackConfiguration extends CleanConfigurationInterface, DestinationConfigurationInterface, PathConfigurationInterface, PluginsConfigurationInterface, SourceConfigurationInterface {
     configuration?:any;
 }
 
 
 // Dependency configurations.
 
-export interface DependencyConfiguration extends PathConfigurationInterface {
-    clean?:any;
+export interface DependencyConfiguration extends CleanConfigurationInterface, PathConfigurationInterface {
     normalise?:NormaliseConfiguration;
 }
 
-export interface NormaliseConfiguration extends DestinationConfiguration, PluginsConfiguration, SourceConfiguration {
+export interface NormaliseConfiguration extends DestinationConfigurationInterface, PluginsConfigurationInterface, SourceConfigurationInterface {
 }
 
 
@@ -58,7 +58,7 @@ export interface DeployConfiguration extends PathConfigurationInterface {
     s3?:S3Configuration;
 }
 
-export interface S3Configuration extends PluginsConfiguration {
+export interface S3Configuration extends PluginsConfigurationInterface {
     accessKey?:string;
     baseUrl?:string;
     certificateAuthority?:string;
