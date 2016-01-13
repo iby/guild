@@ -1,16 +1,16 @@
-'use strict';
+import {execSync} from 'child_process';
 
-var del = require('del');
-var execSync = require('child_process').execSync;
-var fs = require('fs');
-var fse = require('fs-extra');
-var gulp = require('gulp');
-var path = require('path');
-var sequence = require('run-sequence');
+import del = require('del');
+import fs = require('fs');
+import fse = require('fs-extra');
+import gulp = require('gulp');
+import path = require('path');
+import sequence = require('run-sequence');
 
-//
-
-gulp.task('clean', false, function () {
+/**
+ * Clean products.
+ */
+gulp.task('clean', function () {
     var paths = [
         '../product/documentation',
         '../product/js',
@@ -21,8 +21,9 @@ gulp.task('clean', false, function () {
     return del(paths, {force: true});
 });
 
-//
-
+/**
+ * Build products.
+ */
 gulp.task('build', function () {
 
     // Build typescript sources.
@@ -31,9 +32,9 @@ gulp.task('build', function () {
 
     // Copy and update package.json configuration.
 
-    var configuration = JSON.parse(fs.readFileSync(path.join(__dirname, '../dependency/package.json')));
+    var configuration = JSON.parse(<any>fs.readFileSync(path.join(__dirname, '../dependency/package.json')));
 
-    configuration = Object.assign(configuration, {
+    configuration = (<any>Object).assign(configuration, {
         main: 'js/index.js',
         typings: 'js/index.d.ts'
     });

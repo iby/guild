@@ -13,8 +13,8 @@
         "del": "*",
         "dts-bundle": "*",
         "dts-generator": "*",
-        "glob": "*",
         "fs-extra": "*",
+        "glob": "*",
         "gulp-awspublish": "*",
         "gulp-concat": "*",
         "gulp-help": "*",
@@ -24,13 +24,13 @@
         "gulp-postcss": "*",
         "gulp-rename": "*",
         "gulp-twig": "*",
+        "gulp-typescript": "*",
         "gulp-uglify": "*",
         "gulp-util": "*",
         "jsonschema": "*",
         "merge-stream": "*",
         "minimist": "*",
         "moment": "*",
-        "gulp-typescript": "*",
         "postcss-discard-comments": "*",
         "postcss-reporter": "*",
         "run-sequence": "*",
@@ -40,7 +40,9 @@
     },
     "peerDependencies": {
         "gulp": "*",
-        "webpack": "*"
+        "webpack": "*",
+        "ts-node": "*",
+        "typescript": "*"
     },
     "keywords": [
         "build",
