@@ -1,3 +1,5 @@
+import {Validation} from 'jsonschema';
+
 import jsonschema = require('jsonschema');
 
 export class Validator extends jsonschema.Validator {
@@ -10,7 +12,23 @@ export class Validator extends jsonschema.Validator {
         this.addSchema(require('../../json/Schema/DependencyCleanSchema.json'));
         this.addSchema(require('../../json/Schema/DependencyNormaliseSchema.json'));
         this.addSchema(require('../../json/Schema/DeployS3Schema.json'));
-        this.addSchema(require('../../json/Schema/PathMultiSchema.json'));
-        this.addSchema(require('../../json/Schema/PathUniSchema.json'));
+        this.addSchema(require('../../json/Schema/PathSchema.json'));
+    }
+
+    validate(instance:any, schema:any, options?:any, context?:any):Validation {
+        var throwError:boolean = false;
+
+        if (options != null && options.throwError) {
+            throwError = true;
+            options.throwError = false;
+        }
+
+        var result:Validation = super.validate(instance, schema, options, context);
+
+        if (throwError && result.errors.length > 0) {
+            throw Error(String(result.errors));
+        }
+
+        return result;
     }
 }
