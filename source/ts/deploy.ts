@@ -18,27 +18,39 @@ import rename = require('gulp-rename');
 import sequence = require('run-sequence');
 import url = require('url');
 
+interface Path {
+    path: string;
+    base?: string;
+}
+
 /**
  * Creates and registers aws s3 deployment task.
  */
 function createDeployS3Task(gulp:GulpHelp, configuration:DeployConfiguration, parameters:ParsedArgs, cleanTasks:string[], deployTasks:string[]) {
-    var s3Configuration = configuration.s3;
-    var pathConfiguration = configuration.path;
-
-    // Normalise configuration.
-
-    typeof s3Configuration === DataType.STRING && (s3Configuration = [s3Configuration]);
-    Array.isArray(s3Configuration) && (s3Configuration = {'': s3Configuration});
-
     deployTasks.push(Task.DEPLOY_S3);
     gulp.task(Task.DEPLOY_S3, false, function () {
+        var taskConfiguration:any[] = <any>configuration.s3;
+        var pathConfiguration:any = configuration.path;
+
+        // Normalise configuration. See documentation for details on available options, but we basically want to turn
+        // either string or target or list of either of those into full syntax config.
+
+        typeof taskConfiguration === DataType.STRING && (taskConfiguration = [taskConfiguration]);
+        Array.isArray(taskConfiguration) || (taskConfiguration = [taskConfiguration]);
+
+        // Now we check which form it uses and normalise it further.
+
+        if (taskConfiguration.every(function (value:any) {return typeof value === DataType.STRING || value.hasOwnProperty('path') && Object.keys(value).length <= 2})) {
+            taskConfiguration = [{target: taskConfiguration}];
+        }
+
         var streams:Readable[] = [];
 
-        Object.keys(s3Configuration).forEach(function (bucket) {
-            var bucketConfiguration:S3Configuration = s3Configuration[bucket];
-            var target:string|string[];
+        taskConfiguration.forEach(function (configuration:S3Configuration) {
+            var target:any|any[];
             var plugins:any[]|PluginGenerator;
 
+            var bucket:string;
             var accessKey:string;
             var baseUrl:string;
             var certificateAuthority:string;
@@ -47,22 +59,29 @@ function createDeployS3Task(gulp:GulpHelp, configuration:DeployConfiguration, pa
             var secretKey:string;
             var index:number;
 
-            if (typeof bucketConfiguration === DataType.STRING || Array.isArray(bucketConfiguration)) {
-                target = <any>bucketConfiguration;
+            if (typeof configuration === DataType.STRING || Array.isArray(configuration)) {
+                target = <any>configuration;
             } else {
-                target = bucketConfiguration.target;
-                plugins = bucketConfiguration.plugins;
-                accessKey = bucketConfiguration.accessKey;
-                baseUrl = bucketConfiguration.baseUrl;
-                certificateAuthority = bucketConfiguration.certificateAuthority;
-                pathStyle = bucketConfiguration.pathStyle;
-                region = bucketConfiguration.region;
-                secretKey = bucketConfiguration.secretKey;
+                target = configuration.target;
+                plugins = configuration.plugins;
+                accessKey = configuration.accessKey;
+                baseUrl = configuration.baseUrl;
+                certificateAuthority = configuration.certificateAuthority;
+                pathStyle = configuration.pathStyle;
+                region = configuration.region;
+                secretKey = configuration.secretKey;
             }
 
-            // Check bucket.
+            // Now we normalise target.
 
-            bucket === '' && (bucket = parameters[Parameter.BUCKET]);
+            Array.isArray(target) || (target = [<any>target]);
+            target = (<any[]>target).map(function (value:any) {
+                return typeof value === DataType.OBJECT ? value : {path: value};
+            });
+
+            // Check if the bucket "alias" is specified in cli parameters.
+
+            bucket = parameters[Parameter.BUCKET];
             parameters[bucket + '-' + Parameter.BUCKET] == null || (bucket = parameters[bucket + '-' + Parameter.BUCKET]);
 
             // If configuration didn't come with the bucket try getting it from parameters.
@@ -104,14 +123,12 @@ function createDeployS3Task(gulp:GulpHelp, configuration:DeployConfiguration, pa
 
             // Normalise sources, they may contain all sort of shit as we're about to find out.
 
-            (<string[]>(Array.isArray(target) ? target : [target])).forEach(function (target:string) {
-
-                // Todo: ideally we must be able to provide base for each target, see earlier commits…
-
-                target = <string>TaskUtility.normaliseProductPath(pathConfiguration, target);
+            (<any[]>target).forEach(function (target:Path) {
+                var path:any = TaskUtility.normaliseProductPath(pathConfiguration, target.path);
+                var base:any = target.base == null ? null : TaskUtility.normaliseProductPath(pathConfiguration, target.base);
 
                 var pipeline = gulp
-                    .src(target)
+                    .src(path, base == null ? {} : {base: base})
                     .pipe(TaskUtility.createPlumber())
                     .pipe(rename(function (path) {
                         path.dirname = '/' + path.dirname

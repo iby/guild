@@ -38,7 +38,7 @@ function createDependencyNormaliseTask(gulp:GulpHelp, configuration:DependencyCo
             var filename:string;
 
             if (typeof target === DataType.STRING) {
-                source = <string>target;
+                source = <string><any>target;
             } else {
                 source = target.source;
                 destination = target.destination;
@@ -160,7 +160,7 @@ export function dependency(gulp:GulpHelp, configuration:GuildConfiguration, para
         var generator:Function = generators[key];
         var schema:string = (<any>Schema)['DEPENDENCY_' + key.toUpperCase()];
 
-        if (generator != null && schema != null && validator.validate(dependencyConfiguration[key], schema, {throwError: true})) {
+        if (generator != null && schema != null && validator.validate(dependencyConfiguration[key], schema)) {
             generator(gulp, dependencyConfiguration, parameters, cleanTasks, dependencyTasks);
             options[key] = taskOptions[key];
         }

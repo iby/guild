@@ -25,9 +25,16 @@ declare module 'gulp-twig' {
 }
 
 declare module 'jsonschema' {
+    export interface Validation {
+        instance: any;
+        schema: Object;
+        propertyPath: string;
+        errors: any[]
+    }
+
     export class Validator {
         addSchema(json:any, uri?:string):any;
-        validate(instance:any, schema:any, options?:any, context?:any):any[];
+        validate(instance:any, schema:any, options?:any, context?:any):Validation;
     }
 }
 

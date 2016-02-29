@@ -1,14 +1,13 @@
 {
     "id": "/Build/Twig",
-    "type": [
-        "object",
-        "boolean",
+    "oneOf": [
+        {"type": "boolean"},
         {
             "type": "object",
             "properties": {
                 "data": {"type": "object"},
-                "source": {"$ref": "/Path/Uni"},
-                "destination": {"$ref": "/Path/Multi"}
+                "source": {"$ref": "/Path#Uni"},
+                "destination": {"$ref": "/Path"}
             }
         }
     ]

@@ -1,0 +1,18 @@
+{
+    "id": "/Path",
+    "anyOf": [
+        {"$ref": "#/definitions/Uni"},
+        {"$ref": "#/definitions/Multi"}
+    ],
+    "definitions": {
+        "Uni": {
+            "type": "string"
+        },
+        "Multi": {
+            "oneOf": [
+                {"$ref": "#/definitions/Uni"},
+                {"type": "array", "items": {"$ref": "#/definitions/Uni"}}
+            ]
+        }
+    }
+}

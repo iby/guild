@@ -1,12 +1,12 @@
 {
     "id": "/Dependency/Normalise",
-    "type": [
-        "string",
+    "oneOf": [
+        {"type": {"$ref": "/Path#Uni"}},
         {
             "type": "object",
             "properties": {
-                "source": {"$ref": "/Path/Uni"},
-                "destination": {"$ref": "/Path/Multi"},
+                "source": {"$ref": "/Path#Uni"},
+                "destination": {"$ref": "/Path"},
                 "plugins": {"type": "array"}
             }
         }

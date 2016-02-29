@@ -1,13 +1,46 @@
 {
     "id": "/Deploy/S3",
-    "type": [
-        {"$ref": "/Path/Multi"},
-        {
+    "anyOf": [
+        {"$ref": "#/definitions/Target"},
+        {"$ref": "#/definitions/configuration"}
+    ],
+    "definitions": {
+        "Target": {
+            "anyOf": [
+                {"$ref": "/Path#Uni"},
+                {"$ref": "/Path#Multi"},
+                {"$ref": "#/definitions/TargetUni"},
+                {"$ref": "#/definitions/TargetMulti"}
+            ]
+        },
+        "TargetUni": {
+            "anyOf": [
+                {"$ref": "/Path#Multi"},
+                {
+                    "type": "object",
+                    "properties": {
+                        "base": {"type": {"$ref": "/Path#Uni"}},
+                        "path": {"type": {"$ref": "/Path#Multi"}, "required": true}
+                    }
+                }
+            ]
+        },
+        "TargetMulti": {
+            "oneOf": [
+                {"$ref": "#/definitions/TargetUni"},
+                {"type": "array", "items": {"$ref": "#/definitions/TargetUni"}}
+            ]
+        },
+        "configuration": {
             "type": "object",
             "properties": {
-                "base": {"type": {"$ref": "/Path/Multi"}},
-                "target": {"type": {"$ref": "/Path/Multi"}}
-            }
+                "target": {"type": {"$ref": "#/definitions/Target"}},
+                "bucket": {"type": "string"},
+                "accessKey": {"type": "string"},
+                "accessSecret": {"type": "string"},
+                "region": {"type": "string"}
+            },
+            "required": ["target"]
         }
-    ]
+    }
 }

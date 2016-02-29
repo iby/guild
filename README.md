@@ -131,21 +131,46 @@ webpack: {
 
 #### S3
 
+Accepts the following syntax.
+
 ```js
+
+// Plain list of targets to upload. Passes parameters directly to awspublish.
+
 s3: [
     'js',
     'css'
-],
-s3: {
-    "fooBucket": path.join(configuration.product, 'js/**/*'),
-    "barBucket": {
+]
+
+// List of targets with specifying base directory. The first case is very typical when
+// we want to upload something to the root and something not, it will copy contents of
+// `html` into the root, and everything else in `css` and `js`.
+
+s3: [
+    {path: 'html/*', base: 'html'},
+    {path: 'css'},
+    {path: 'js'}
+]
+
+// Full syntax allowing to specify extra s3 configuration. Obvious to state that sensitive
+// parameters like access and secret keys and bucket name shouldn't be stored in open.
+
+s3: [
+    {
+        target: path.join(configuration.product, 'js/**/*'),
+        bucket: 'foo'
+    },
+    {
         target: path.join(configuration.product, 'css/**/*'),
+        bucket: 'bar',
         accessKey: '…',
         secretKey: '…',
         region: '…',
     }
-}
+]
 ```
+
+- `bucket` – you can use this as an alias and specify `--bucket-foo` via cli options to provide the real bucket name.
 
 ## Similar projects
 

@@ -1,13 +1,12 @@
 {
     "id": "/Build/Webpack",
     "type": [
-        "object",
         {
             "type": "object",
             "properties": {
                 "configuration": {"type": "object"},
-                "source": {"$ref": "/Path/Uni"},
-                "destination": {"$ref": "/Path/Multi"}
+                "source": {"$ref": "/Path#Uni"},
+                "destination": {"$ref": "/Path"}
             }
         }
     ]
