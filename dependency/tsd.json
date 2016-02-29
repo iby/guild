@@ -6,7 +6,7 @@
   "bundle": "typings/reference.d.ts",
   "installed": {
     "node/node.d.ts": {
-      "commit": "4a8a2ed5c35be37a5f1a199a391be21548c81c09"
+      "commit": "12f9b621f914fe2b9486a74e0f2e130621837bfc"
     },
     "gulp/gulp.d.ts": {
       "commit": "1984ea435fe9e93a012d50db7773db58ae5d494b"
@@ -76,6 +76,15 @@
     },
     "fs-extra/fs-extra.d.ts": {
       "commit": "4a8a2ed5c35be37a5f1a199a391be21548c81c09"
+    },
+    "gulp-typescript/gulp-typescript.d.ts": {
+      "commit": "12f9b621f914fe2b9486a74e0f2e130621837bfc"
+    },
+    "js-beautify/js-beautify.d.ts": {
+      "commit": "12f9b621f914fe2b9486a74e0f2e130621837bfc"
+    },
+    "gulp-json-editor/gulp-json-editor.d.ts": {
+      "commit": "12f9b621f914fe2b9486a74e0f2e130621837bfc"
     }
   }
 }

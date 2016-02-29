@@ -1,21 +1,30 @@
-import {execSync} from 'child_process';
+/// <reference path="../dependency/typings/reference.d.ts"/>
+
+import ReadWriteStream = NodeJS.ReadWriteStream;
+import {CompilationStream, TsConfig as Configuration, Project} from 'gulp-typescript';
+import {TaskCallback} from 'gulp';
 
 import del = require('del');
 import fs = require('fs');
 import fse = require('fs-extra');
 import gulp = require('gulp');
+import json = require('gulp-json-editor');
+import merge = require('merge-stream');
 import path = require('path');
 import sequence = require('run-sequence');
+import tsc = require('gulp-typescript');
 
 /**
  * Clean products.
  */
-gulp.task('clean', function () {
-    var paths = [
+gulp.task('clean', function ():ReadWriteStream {
+    var paths:[string] = [
+        '../product/*.json',
+        '../product/*.md',
         '../product/documentation',
         '../product/js',
         '../product/json',
-        '../product/package.json'
+        '../product/ts'
     ];
 
     return del(paths, {force: true});
@@ -24,30 +33,39 @@ gulp.task('clean', function () {
 /**
  * Build products.
  */
-gulp.task('build', function () {
+gulp.task('build', function ():ReadWriteStream {
+    var project:Project = tsc.createProject('tsconfig.json');
+    var configuration:Configuration = project.config;
 
-    // Build typescript sources.
+    // Must update package details that goes into product for npm deployment.
 
-    execSync('tsc');
-
-    // Copy and update package.json configuration.
-
-    var configuration = JSON.parse(<any>fs.readFileSync(path.join(__dirname, '../dependency/package.json')));
-
-    configuration = (<any>Object).assign(configuration, {
+    var packagePatch:Object = {
         main: 'js/index.js',
         typings: 'js/index.d.ts'
-    });
+    };
 
-    fs.writeFileSync(path.join(__dirname, '../product/package.json'), JSON.stringify(configuration, null, '    '));
+    // Compile typescript to product, copy any associated files there too.
 
-    // Copy readme.
+    var compileStream:CompilationStream = <CompilationStream>gulp.src(configuration.files.concat(['../source/ts/**/*.ts'])).pipe(tsc(project));
+    var fileStream:ReadWriteStream = merge(
+        gulp.src('../dependency/package.json').pipe(json(packagePatch)).pipe(gulp.dest('../product')),
+        gulp.src(['../documentation/**/*', '../README.md'], {base: '..'}).pipe(gulp.dest('../product')),
+        gulp.src(['../source/json/**/*'], {base: '../source'}).pipe(gulp.dest('../product')));
 
-    fse.copySync('../documentation', '../product/documentation');
-    fse.copySync('../README.md', '../product/README.md');
-    fse.copySync('../source/json', '../product/json');
+    // Merge the two output streams, so this task is finished when the IO of both operations are done.
+
+    return merge(
+        compileStream.dts.pipe(gulp.dest('../product/ts')),
+        compileStream.js.pipe(gulp.dest('../product/js')),
+        fileStream);
 });
 
-gulp.task('default', function () {
-    return sequence.apply(null, ['clean', 'build'])
+// Todo: rewrite with decent `--watch` cli option.
+
+gulp.task('watch', ['default'], function () {
+    gulp.watch('../source/ts/**/*.ts', ['build']);
+});
+
+gulp.task('default', function (callback:TaskCallback):ReadWriteStream {
+    return sequence('clean', 'build', callback);
 });

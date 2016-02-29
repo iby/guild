@@ -19,6 +19,7 @@
         "gulp-concat": "*",
         "gulp-help": "*",
         "gulp-if": "*",
+        "gulp-json-editor": "*",
         "gulp-less": "*",
         "gulp-plumber": "*",
         "gulp-postcss": "*",
@@ -35,13 +36,13 @@
         "postcss-reporter": "*",
         "run-sequence": "*",
         "stylelint": "*",
-        "tsproject": "1.2.0-rc.4",
+        "ts-node": "*",
+        "tsproject": "1.2.0-rc.9",
         "webpack-stream": "*"
     },
     "peerDependencies": {
         "gulp": "*",
         "webpack": "*",
-        "ts-node": "*",
         "typescript": "*"
     },
     "keywords": [
