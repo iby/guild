@@ -36,9 +36,12 @@
         "postcss-reporter": "*",
         "run-sequence": "*",
         "stylelint": "*",
-        "ts-node": "*",
         "tsproject": "1.2.0-rc.9",
         "webpack-stream": "*"
+    },
+    "devDependencies": {
+        "mocha": "*",
+        "should": "*"
     },
     "peerDependencies": {
         "gulp": "*",

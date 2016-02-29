@@ -41,7 +41,7 @@ gulp.task('build', function ():ReadWriteStream {
 
     var packagePatch:Object = {
         main: 'js/index.js',
-        typings: 'js/index.d.ts'
+        typings: 'ts/index.d.ts'
     };
 
     // Compile typescript to product, copy any associated files there too.
