@@ -2,7 +2,7 @@
     "description": "Gulp configuration framework for common build-test-deploy tasks",
     "license": "MIT",
     "name": "@ianbytchek/guild",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "repository": "https://github.com/ianbytchek/guild",
     "dependencies": {
         "autoprefixer": "*",
@@ -40,6 +40,7 @@
         "webpack-stream": "*"
     },
     "devDependencies": {
+        "gulp-debug": "*",
         "mocha": "*",
         "should": "*"
     },

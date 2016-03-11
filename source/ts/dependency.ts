@@ -40,8 +40,8 @@ function createDependencyNormaliseTask(gulp:GulpHelp, configuration:DependencyCo
             if (typeof target === DataType.STRING) {
                 source = <string><any>target;
             } else {
-                source = target.source;
-                destination = target.destination;
+                source = <string>target.source;
+                destination = <string>target.destination;
                 plugins = <any[]>target.plugins;
             }
 

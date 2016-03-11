@@ -1,6 +1,6 @@
 import {PathConfiguration} from '../Configuration/PathConfiguration';
-import {Stream} from 'stream';
-import {GulpHelp} from 'gulp-help';
+import {Gulp} from 'gulp';
+import {ReadWriteStream} from '../Stream/Pipeline';
 
 import clone = require('clone');
 import glob = require('glob');
@@ -159,18 +159,18 @@ export class TaskUtility {
     /**
      * Adds all plugins into the pipeline.
      */
-    static pipePlugins(pipeline:Stream, plugins:any[]):Stream {
-        plugins.forEach(function (plugin) {
-            pipeline = pipeline.pipe(plugin);
+    static pipePlugins(stream:ReadWriteStream, plugins:any[]):ReadWriteStream {
+        plugins.forEach(function (plugin:ReadWriteStream) {
+            stream = stream == null ? plugin : stream.pipe(plugin);
         });
 
-        return pipeline;
+        return stream;
     }
 
     /**
      * Adds all destinations into the pipeline.
      */
-    static pipeDestination(gulp:GulpHelp, pipeline:Stream, destination:string|string[]):Stream {
+    static pipeDestination(gulp:Gulp, pipeline:ReadWriteStream, destination:string|string[]):ReadWriteStream {
         (<string[]>(Array.isArray(destination) ? destination : [destination])).forEach(function (destination:string) {
             pipeline = pipeline.pipe(gulp.dest(destination));
         });

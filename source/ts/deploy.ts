@@ -19,8 +19,8 @@ import sequence = require('run-sequence');
 import url = require('url');
 
 interface Path {
-    path: string;
-    base?: string;
+    path:string;
+    base?:string;
 }
 
 /**

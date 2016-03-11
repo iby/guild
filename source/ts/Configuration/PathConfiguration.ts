@@ -1,7 +1,7 @@
 import path = require('path');
 
 export class PathConfiguration {
-    [key: string]: any;
+    [key:string]:any;
 
     /**
      * Root folder of the project.

@@ -1,17 +1,17 @@
 import {PathConfiguration} from './PathConfiguration';
 
+// Function that generates a plugin.
 export declare type PluginGenerator = () => any[]
-
 
 // Base interfaces.
 
-export interface ConfigurationInterface { [key: string]: any }
+export interface ConfigurationInterface { [key:string]:any }
 export interface CleanConfigurationInterface extends ConfigurationInterface { clean?:boolean }
-export interface DestinationConfigurationInterface extends ConfigurationInterface { destination?:string }
+export interface DestinationConfigurationInterface extends ConfigurationInterface { destination?:string|string[] }
 export interface PathConfigurationInterface extends ConfigurationInterface { path?:PathConfiguration }
 export interface PluginsConfigurationInterface extends ConfigurationInterface { plugins?:any[]|PluginGenerator }
-export interface SourceConfigurationInterface extends ConfigurationInterface { source?:string }
-
+export interface SourceConfigurationInterface extends ConfigurationInterface { source?:string|string[] }
+export interface WatchConfigurationInterface extends ConfigurationInterface { watch?:boolean }
 
 // Guild configuration.
 
@@ -21,7 +21,6 @@ export interface GuildConfiguration extends PathConfigurationInterface {
     deploy?:DeployConfiguration;
 }
 
-
 // Build configurations.
 
 export interface BuildConfiguration extends PathConfigurationInterface {
@@ -30,17 +29,16 @@ export interface BuildConfiguration extends PathConfigurationInterface {
     webpack?:WebpackConfiguration;
 }
 
-export interface LessConfiguration extends CleanConfigurationInterface, DestinationConfigurationInterface, PathConfigurationInterface, PluginsConfigurationInterface, SourceConfigurationInterface {
+export interface LessConfiguration extends CleanConfigurationInterface, DestinationConfigurationInterface, PathConfigurationInterface, PluginsConfigurationInterface, SourceConfigurationInterface, WatchConfigurationInterface {
 }
 
-export interface TwigConfiguration extends CleanConfigurationInterface, DestinationConfigurationInterface, PathConfigurationInterface, PluginsConfigurationInterface, SourceConfigurationInterface {
+export interface TwigConfiguration extends CleanConfigurationInterface, DestinationConfigurationInterface, PathConfigurationInterface, PluginsConfigurationInterface, SourceConfigurationInterface, WatchConfigurationInterface {
     data?:any;
 }
 
-export interface WebpackConfiguration extends CleanConfigurationInterface, DestinationConfigurationInterface, PathConfigurationInterface, PluginsConfigurationInterface, SourceConfigurationInterface {
+export interface WebpackConfiguration extends CleanConfigurationInterface, DestinationConfigurationInterface, PathConfigurationInterface, PluginsConfigurationInterface, SourceConfigurationInterface, WatchConfigurationInterface {
     configuration?:any;
 }
-
 
 // Dependency configurations.
 
@@ -50,7 +48,6 @@ export interface DependencyConfiguration extends CleanConfigurationInterface, Pa
 
 export interface NormaliseConfiguration extends DestinationConfigurationInterface, PluginsConfigurationInterface, SourceConfigurationInterface {
 }
-
 
 // Deploy configurations.
 

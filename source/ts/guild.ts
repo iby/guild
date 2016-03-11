@@ -1,8 +1,8 @@
 import {GuildConfiguration} from './Configuration/GuildConfiguration';
 import {ParsedArgs} from 'minimist';
 import {Gulp} from 'gulp';
+import {BuildFactory} from './Task/BuildFactory';
 import {GulpHelp} from 'gulp-help';
-import {build} from './build';
 import {dependency} from './dependency';
 import {deploy} from './deploy';
 
@@ -26,6 +26,6 @@ export function guild(gulp:Gulp, configuration:GuildConfiguration) {
     gulp = help(gulp);
 
     configuration.dependency == null || dependency(<GulpHelp>gulp, configuration, parameters);
-    configuration.build == null || build(<GulpHelp>gulp, configuration, parameters);
+    configuration.build == null || BuildFactory.construct(<GulpHelp>gulp, configuration, parameters).construct();
     configuration.deploy == null || deploy(<GulpHelp>gulp, configuration, parameters);
 }

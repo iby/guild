@@ -7,7 +7,8 @@
             "properties": {
                 "data": {"type": "object"},
                 "source": {"$ref": "/Path#Uni"},
-                "destination": {"$ref": "/Path"}
+                "destination": {"$ref": "/Path"},
+                "watch": {"$ref": "/Path"}
             }
         }
     ]

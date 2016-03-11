@@ -6,7 +6,7 @@
   "bundle": "typings/reference.d.ts",
   "installed": {
     "node/node.d.ts": {
-      "commit": "12f9b621f914fe2b9486a74e0f2e130621837bfc"
+      "commit": "ce8ae773688d2244ba11fdf3378fcd68f773e1c4"
     },
     "gulp/gulp.d.ts": {
       "commit": "1984ea435fe9e93a012d50db7773db58ae5d494b"
@@ -91,6 +91,9 @@
     },
     "should/should.d.ts": {
       "commit": "24635d778d7ff1f7665f04239563b2ef2684ee1c"
+    },
+    "gulp-debug/gulp-debug.d.ts": {
+      "commit": "ce8ae773688d2244ba11fdf3378fcd68f773e1c4"
     }
   }
 }
