@@ -43,27 +43,95 @@ export class TaskUtility {
     }
 
     /**
-     *
+     * Returns the common extension name.
      */
-    static getGlobExtension(path:string):string {
+    static getCommonExtension(path:string|string[]):string {
+        var extname = require('path').extname;
+        var paths:string[] = Array.isArray(path) ? path : [path];
+        var pathCount:number = paths.length;
         var extension:string = null;
-        var paths:Array<string> = [];
 
-        paths = paths.concat(glob.sync(path));
+        for (var i:number = 0, n:number = pathCount; i < n; i++) {
 
-        for (var i:number = 0, n:number = paths.length; i < n; i++) {
-            var pathExtension:string = require('path').extname(path = paths[i]);
+            // The last thing we want to do is to lookup the filesystem, so we first try to get the file extension from the path,
+            // then do the lookup. Also, we don't do lookups if count has exceeded the original paths length – in case glob
+            // matched any files that have glob patterns within their name, to avoid the endless loop. Smart through the roof…
 
-            if (pathExtension === '') {
-                continue;
-            } else if (extension === null) {
-                extension = pathExtension;
-            } else if (extension !== pathExtension) {
-                return null;
+            var pathExtension:string = extname(path = paths[i]);
+
+            if (pathExtension !== '' && (pathExtension !== '.*' || i >= pathCount)) {
+                if (extension === null) {
+                    extension = pathExtension;
+                } else if (extension !== pathExtension) {
+                    return null;
+                }
+            } else if (i < pathCount) {
+                paths = paths.concat(glob.sync(<string>path));
+                n = paths.length;
             }
         }
 
         return extension === null ? extension : extension.slice(1);
+    }
+
+    /**
+     * Returns the common directory basename, NOT the full directory path.
+     */
+    static getCommonDirectory(path:string|string[]):string {
+        var dirname = require('path').dirname;
+        var basename = require('path').basename;
+        var paths:string[] = Array.isArray(path) ? path : [path];
+        var pathCount:number = paths.length;
+        var directory:string = null;
+
+        for (var i:number = 0, n:number = pathCount; i < n; i++) {
+
+            // Do check the relevant extension method. Here we check if the glob has magic and expand them,
+            // otherwise / then do all the comparisons.
+
+            var pathDirectory:string;
+
+            path = paths[i];
+
+            if (i < pathCount && glob.hasMagic(<string>path)) {
+                paths = paths.concat(glob.sync(<string>path));
+                n = paths.length;
+            } else if ((pathDirectory = basename(dirname(path))) !== '' && pathDirectory !== '.') {
+                if (directory === null) {
+                    directory = pathDirectory;
+                } else if (directory !== pathDirectory) {
+                    return null;
+                }
+            }
+        }
+
+        return directory;
+    }
+
+    static getDirectory(path:string|string[]):string[] {
+        var dirname = require('path').dirname;
+        var paths:string[] = Array.isArray(path) ? path : [path];
+        var pathCount:number = paths.length;
+        var directories:string[] = [];
+
+        for (var i:number = 0, n:number = pathCount; i < n; i++) {
+
+            // Do check the relevant extension method. Here we check if the glob has magic and expand them,
+            // otherwise / then do all the comparisons.
+
+            var pathDirectory:string;
+
+            path = paths[i];
+
+            if (i < pathCount && glob.hasMagic(<string>path)) {
+                paths = paths.concat(glob.sync(<string>path));
+                n = paths.length;
+            } else if ((pathDirectory = dirname(path = paths[i])) !== '' && pathDirectory !== '.') {
+                directories.push(pathDirectory);
+            }
+        }
+
+        return directories.length === 0 ? null : directories;
     }
 
     /**
@@ -128,6 +196,19 @@ export class TaskUtility {
         }
 
         return TaskUtility.normalisePath(basePath, destination, suffix);
+    }
+
+    /**
+     * Normalises library path.
+     */
+    static normaliseLibraryPath(configuration:PathConfiguration, library?:string|string[], suffix?:string):string|string[] {
+        var basePath:string|string[] = configuration.library;
+
+        if (basePath == null) {
+            throw new Error('Path configuration must contain `library` option to normalise library.')
+        }
+
+        return TaskUtility.normalisePath(basePath, library, suffix);
     }
 
     /**
