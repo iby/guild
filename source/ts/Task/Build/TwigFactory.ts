@@ -28,7 +28,7 @@ export class TwigFactory extends AbstractBuildFactory {
     /**
      * @inheritDoc
      */
-    protected normaliseConfiguration(configuration:BuildConfiguration, parameters:ParsedArgs):Configuration {
+    public normaliseConfiguration(configuration:BuildConfiguration, parameters?:ParsedArgs):Configuration {
         var twigConfiguration:TwigConfiguration = configuration.twig;
         var pathConfiguration:PathConfiguration = configuration.path;
 

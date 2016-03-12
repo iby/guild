@@ -18,7 +18,7 @@ export class BuildFactory extends AbstractTaskFactory {
     /**
      * @inheritDoc
      */
-    protected normaliseConfiguration(configuration:GuildConfiguration, parameters:ParsedArgs):Configuration {
+    public normaliseConfiguration(configuration:GuildConfiguration, parameters?:ParsedArgs):Configuration {
         var buildConfiguration:BuildConfiguration = configuration.build;
         var pathConfiguration:PathConfiguration = configuration.path;
 

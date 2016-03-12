@@ -31,7 +31,7 @@ export abstract class AbstractFactory {
      * to take whatever value is available and normalise it to a point where it can be safely used without
      * worrying about alternative variations.
      */
-    protected abstract normaliseConfiguration(configuration:any, parameters:ParsedArgs):any;
+    public abstract normaliseConfiguration(configuration:any):any;
 
     /**
      * Constructs the task and registers it with gulp.

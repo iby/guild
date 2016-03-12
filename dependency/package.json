@@ -36,7 +36,7 @@
         "postcss-reporter": "*",
         "run-sequence": "*",
         "stylelint": "*",
-        "tsproject": "1.2.0-rc.9",
+        "tsproject": "*",
         "webpack-stream": "*"
     },
     "devDependencies": {

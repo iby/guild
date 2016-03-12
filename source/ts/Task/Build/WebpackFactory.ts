@@ -27,7 +27,7 @@ export class WebpackFactory extends AbstractBuildFactory {
     /**
      * @inheritDoc
      */
-    protected normaliseConfiguration(configuration:BuildConfiguration, parameters:ParsedArgs):Configuration {
+    public normaliseConfiguration(configuration:BuildConfiguration, parameters?:ParsedArgs):Configuration {
         var webpackConfiguration:WebpackConfiguration = configuration.webpack;
         var pathConfiguration:PathConfiguration = configuration.path;
 

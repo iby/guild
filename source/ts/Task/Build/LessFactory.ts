@@ -31,7 +31,7 @@ export class LessFactory extends AbstractBuildFactory {
     /**
      * @inheritDoc
      */
-    protected normaliseConfiguration(configuration:BuildConfiguration, parameters:ParsedArgs):Configuration {
+    public normaliseConfiguration(configuration:BuildConfiguration, parameters?:ParsedArgs):Configuration {
         var lessConfiguration:LessConfiguration = configuration.less;
         var pathConfiguration:PathConfiguration = configuration.path;
 

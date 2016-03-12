@@ -3,8 +3,8 @@ import {ParsedArgs} from 'minimist';
 import {Gulp} from 'gulp';
 import {BuildFactory} from './Task/BuildFactory';
 import {GulpHelp} from 'gulp-help';
-import {dependency} from './dependency';
 import {deploy} from './deploy';
+import {DependencyFactory} from './Task/DependencyFactory';
 
 import clone = require('clone');
 import help = require('gulp-help');
@@ -25,7 +25,7 @@ export function guild(gulp:Gulp, configuration:GuildConfiguration) {
     configuration = clone(configuration);
     gulp = help(gulp);
 
-    configuration.dependency == null || dependency(<GulpHelp>gulp, configuration, parameters);
-    configuration.build == null || BuildFactory.construct(<GulpHelp>gulp, configuration, parameters).construct();
+    configuration.dependency == null || DependencyFactory.construct(gulp, configuration, parameters).construct();
+    configuration.build == null || BuildFactory.construct(gulp, configuration, parameters).construct();
     configuration.deploy == null || deploy(<GulpHelp>gulp, configuration, parameters);
 }
