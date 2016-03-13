@@ -62,5 +62,6 @@ export interface S3Configuration extends PluginsConfigurationInterface {
     pathStyle?:string;
     region?:string;
     secretKey?:string;
-    target?:string|string[]
+    target?:string|string[],
+    configuration:any
 }

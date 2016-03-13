@@ -1,10 +1,9 @@
-import {GuildConfiguration} from './Configuration/GuildConfiguration';
-import {ParsedArgs} from 'minimist';
-import {Gulp} from 'gulp';
 import {BuildFactory} from './Task/BuildFactory';
-import {GulpHelp} from 'gulp-help';
-import {deploy} from './deploy';
 import {DependencyFactory} from './Task/DependencyFactory';
+import {DeployFactory} from './Task/DeployFactory';
+import {GuildConfiguration} from './Configuration/GuildConfiguration';
+import {Gulp} from 'gulp';
+import {ParsedArgs} from 'minimist';
 
 import clone = require('clone');
 import help = require('gulp-help');
@@ -27,5 +26,5 @@ export function guild(gulp:Gulp, configuration:GuildConfiguration) {
 
     configuration.dependency == null || DependencyFactory.construct(gulp, configuration, parameters).construct();
     configuration.build == null || BuildFactory.construct(gulp, configuration, parameters).construct();
-    configuration.deploy == null || deploy(<GulpHelp>gulp, configuration, parameters);
+    configuration.deploy == null || DeployFactory.construct(gulp, configuration, parameters).construct();
 }

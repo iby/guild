@@ -18,8 +18,8 @@ import path = require('path');
 import uglify = require('gulp-uglify');
 import rename = require("gulp-rename");
 
-export type Configurations = [NormaliseConfiguration[], PathConfiguration];
 export type Configuration = [NormaliseConfiguration, PathConfiguration];
+export type Configurations = [NormaliseConfiguration[], PathConfiguration];
 
 export class NormaliseFactory extends AbstractDependencyFactory {
 
