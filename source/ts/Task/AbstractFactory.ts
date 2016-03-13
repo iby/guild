@@ -1,5 +1,16 @@
 import {GulpHelp} from 'gulp-help';
 import {ParsedArgs} from 'minimist';
+import {AbstractError} from '../Error/AbstractError';
+
+export class NormaliseConfigurationError extends AbstractError {
+
+    /**
+     * @inheritDoc
+     */
+    constructor(message?:string) {
+        super('Cannot normalise configuration.' + (message == null || message.length === 0 ? '' : ' ' + message));
+    }
+}
 
 export abstract class AbstractFactory {
 
@@ -18,6 +29,17 @@ export abstract class AbstractFactory {
      * Parameters received on the cli in case some are needed during the task construction.
      */
     public parameters:ParsedArgs;
+
+    /**
+     * @param gulp
+     * @param configuration
+     * @param parameters
+     */
+    constructor(gulp?:GulpHelp, configuration?:any, parameters?:ParsedArgs) {
+        this.gulp = gulp;
+        this.configuration = configuration;
+        this.parameters = parameters;
+    }
 
     /**
      * Constructs a new instance of class this gets called on.

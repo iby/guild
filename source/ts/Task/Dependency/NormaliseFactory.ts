@@ -1,7 +1,6 @@
-import {AbstractDependencyFactory, Task} from './AbstractDependencyFactory';
+import {AbstractFactory, Task} from './AbstractFactory';
 import {DataType} from '../../Constant/DataType';
 import {GulpHelp} from 'gulp-help';
-import {NormaliseConfiguration, DependencyConfiguration} from '../../Configuration/GuildConfiguration';
 import {Option} from '../Option';
 import {ParsedArgs} from 'minimist';
 import {PathConfiguration} from '../../Configuration/PathConfiguration';
@@ -9,6 +8,8 @@ import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
 import {Plugin} from '../../Constant/Plugin';
 import {Task as TaskName} from '../../Constant/Task';
 import {TaskUtility} from '../../Utility/TaskUtility';
+import {ConfigurationInterface, PluginGenerators} from '../../Configuration/Configuration';
+import {NormaliseConfigurationError} from '../AbstractFactory';
 
 import clone = require("clone");
 import concat = require('gulp-concat');
@@ -21,7 +22,13 @@ import rename = require("gulp-rename");
 export type Configuration = [NormaliseConfiguration, PathConfiguration];
 export type Configurations = [NormaliseConfiguration[], PathConfiguration];
 
-export class NormaliseFactory extends AbstractDependencyFactory {
+export interface NormaliseConfiguration extends ConfigurationInterface {
+    destination:string|string[];
+    plugins?:PluginGenerators;
+    source:string|string[];
+}
+
+export class NormaliseFactory extends AbstractFactory {
 
     /**
      * @inheritDoc
@@ -31,18 +38,22 @@ export class NormaliseFactory extends AbstractDependencyFactory {
     /**
      * @inheritDoc
      */
-    public normaliseConfigurations(configuration:DependencyConfiguration, parameters:ParsedArgs):Configurations {
-        var normaliseConfiguration:NormaliseConfiguration = configuration.normalise;
-        var pathConfiguration:PathConfiguration = configuration.path;
+    public normaliseConfigurations(configuration:Configuration, parameters:ParsedArgs):Configurations {
+        var [normaliseConfiguration, pathConfiguration]:Configuration = configuration;
         var normaliseConfigurations:NormaliseConfiguration[] = [];
         var self:NormaliseFactory = this;
 
-        if (Array.isArray(normaliseConfiguration)) {
-            normaliseConfiguration.forEach(function (configuration:NormaliseConfiguration) {
-                normaliseConfigurations = normaliseConfigurations.concat(self.normaliseConfiguration([configuration, pathConfiguration]));
+        var array:boolean = Array.isArray(normaliseConfiguration);
+        var object:boolean = typeof normaliseConfiguration === DataType.OBJECT;
+
+        if (!array && !object) {
+            throw new NormaliseConfigurationError('Expecting either an object or array, received something totally different.');
+        } else if (array) {
+            normaliseConfigurations = (<any[]><any>normaliseConfiguration).map(function (configuration:NormaliseConfiguration) {
+                return self.normaliseConfiguration([configuration, pathConfiguration]);
             });
-        } else if (typeof normaliseConfiguration === DataType.OBJECT) {
-            Object.keys(normaliseConfiguration).forEach(function (key:string) {
+        } else {
+            normaliseConfigurations = Object.keys(normaliseConfiguration).map(function (key:string) {
                 var configuration:NormaliseConfiguration;
                 var source:string;
                 var destination:string;
@@ -55,7 +66,7 @@ export class NormaliseFactory extends AbstractDependencyFactory {
                     source = <string>configuration.source;
                     destination = configuration.destination == null ? key : null;
                 } else {
-                    configuration = {source: normaliseConfiguration[key]};
+                    configuration = {destination: null, source: normaliseConfiguration[key]};
                     source = normaliseConfiguration[key];
                     destination = key;
                 }
@@ -84,10 +95,8 @@ export class NormaliseFactory extends AbstractDependencyFactory {
                     throw new Error('Missing destination configuration.');
                 }
 
-                normaliseConfigurations.push(self.normaliseConfiguration([configuration, pathConfiguration]));
+                return self.normaliseConfiguration([configuration, pathConfiguration]);
             });
-        } else {
-            throw new Error('Cannot normalise configuration.')
         }
 
         return [normaliseConfigurations, pathConfiguration];

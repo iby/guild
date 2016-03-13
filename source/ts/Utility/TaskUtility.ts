@@ -47,7 +47,7 @@ export class TaskUtility {
      */
     static getCommonExtension(path:string|string[]):string {
         var extname = require('path').extname;
-        var paths:string[] = Array.isArray(path) ? path : [path];
+        var paths:string[] = Array.isArray(path) ? <string[]>path : [<string>path];
         var pathCount:number = paths.length;
         var extension:string = null;
 
@@ -80,7 +80,7 @@ export class TaskUtility {
     static getCommonDirectory(path:string|string[]):string {
         var dirname = require('path').dirname;
         var basename = require('path').basename;
-        var paths:string[] = Array.isArray(path) ? path : [path];
+        var paths:string[] = Array.isArray(path) ? <string[]>path : [<string>path];
         var pathCount:number = paths.length;
         var directory:string = null;
 
@@ -110,7 +110,7 @@ export class TaskUtility {
 
     static getDirectory(path:string|string[]):string[] {
         var dirname = require('path').dirname;
-        var paths:string[] = Array.isArray(path) ? path : [path];
+        var paths:string[] = Array.isArray(path) ? <string[]>path : [<string>path];
         var pathCount:number = paths.length;
         var directories:string[] = [];
 

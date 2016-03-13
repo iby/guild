@@ -1,30 +1,27 @@
-import {AbstractDeployFactory} from './Deploy/AbstractDeployFactory';
+import {AbstractFactory} from './Deploy/AbstractFactory';
 import {AbstractTaskFactory} from './AbstractTaskFactory';
-import {GuildConfiguration, DeployConfiguration} from '../Configuration/GuildConfiguration';
 import {GulpHelp} from 'gulp-help';
-import {S3Factory} from './Deploy/S3Factory';
+import {S3Factory, S3Configuration} from './Deploy/S3Factory';
 import {ParsedArgs} from 'minimist';
 import {PathConfiguration} from '../Configuration/PathConfiguration';
 import {Task as TaskName} from '../Constant/Task';
+import {ConfigurationInterface} from '../Configuration/Configuration';
 
 import sequence = require('run-sequence');
 
 export type Configuration = [DeployConfiguration, PathConfiguration];
+
+export interface DeployConfiguration extends ConfigurationInterface {
+    s3?:S3Configuration;
+}
 
 export class DeployFactory extends AbstractTaskFactory {
 
     /**
      * @inheritDoc
      */
-    public normaliseConfiguration(configuration:GuildConfiguration, parameters?:ParsedArgs):Configuration {
-        var deployConfiguration:DeployConfiguration = configuration.deploy;
-        var pathConfiguration:PathConfiguration = configuration.path;
-
-        // Inject stuff into deploy configuration.
-
-        deployConfiguration.path = pathConfiguration;
-
-        return [deployConfiguration, pathConfiguration];
+    public normaliseConfiguration(configuration:Configuration, parameters?:ParsedArgs):Configuration {
+        return configuration;
     }
 
     /**
@@ -32,13 +29,12 @@ export class DeployFactory extends AbstractTaskFactory {
      */
     public construct() {
         var parameters:ParsedArgs = this.parameters;
-        var configuration:Configuration = this.normaliseConfiguration(this.configuration, parameters);
-        var [deployConfiguration, pathConfiguration] = configuration;
+        var [deployConfiguration, pathConfiguration] = this.normaliseConfiguration(this.configuration, parameters);
         var gulp:GulpHelp = this.gulp;
 
         // Define available subtask factories by configuration key.
 
-        var factories:{[id:string]:typeof AbstractDeployFactory} = {
+        var factories:{[id:string]:typeof AbstractFactory} = {
             s3: S3Factory
         };
 
@@ -46,10 +42,6 @@ export class DeployFactory extends AbstractTaskFactory {
 
         var options:{[id:string]:string} = {};
         var tasks:any[] = [];
-
-        // Inject stuff into deploy configuration.
-
-        deployConfiguration.path = pathConfiguration;
 
         // Gulp help stuff.
 
@@ -63,9 +55,9 @@ export class DeployFactory extends AbstractTaskFactory {
                 return;
             }
 
-            var factory:AbstractDeployFactory = new (<any>factories[key])();
+            var factory:AbstractFactory = new (<any>factories[key])();
 
-            factory.configuration = deployConfiguration;
+            factory.configuration = [deployConfiguration[key], pathConfiguration];
             factory.gulp = gulp;
             factory.options = options;
             factory.parameters = parameters;

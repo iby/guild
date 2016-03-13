@@ -2,7 +2,7 @@ import {AbstractSubtaskFactory} from '../AbstractSubtaskFactory';
 
 export type Task = string[]
 
-export abstract class AbstractDependencyFactory extends AbstractSubtaskFactory {
+export abstract class AbstractFactory extends AbstractSubtaskFactory {
 
     /**
      * @inheritDoc

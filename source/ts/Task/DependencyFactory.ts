@@ -1,8 +1,8 @@
-import {AbstractDependencyFactory} from './Dependency/AbstractDependencyFactory';
+import {AbstractFactory} from './Dependency/AbstractFactory';
 import {AbstractTaskFactory} from './AbstractTaskFactory';
-import {GuildConfiguration, DependencyConfiguration} from '../Configuration/GuildConfiguration';
+import {ConfigurationInterface} from '../Configuration/Configuration';
 import {GulpHelp} from 'gulp-help';
-import {NormaliseFactory} from './Dependency/NormaliseFactory';
+import {NormaliseFactory, NormaliseConfiguration} from './Dependency/NormaliseFactory';
 import {ParsedArgs} from 'minimist';
 import {PathConfiguration} from '../Configuration/PathConfiguration';
 import {Task as TaskName} from '../Constant/Task';
@@ -11,20 +11,17 @@ import sequence = require('run-sequence');
 
 export type Configuration = [DependencyConfiguration, PathConfiguration];
 
+export interface DependencyConfiguration extends ConfigurationInterface {
+    normalise?:NormaliseConfiguration|NormaliseConfiguration[];
+}
+
 export class DependencyFactory extends AbstractTaskFactory {
 
     /**
      * @inheritDoc
      */
-    public normaliseConfiguration(configuration:GuildConfiguration, parameters?:ParsedArgs):Configuration {
-        var dependencyConfiguration:DependencyConfiguration = configuration.dependency;
-        var pathConfiguration:PathConfiguration = configuration.path;
-
-        // Inject stuff into dependency configuration.
-
-        dependencyConfiguration.path = pathConfiguration;
-
-        return [dependencyConfiguration, pathConfiguration];
+    public normaliseConfiguration(configuration:Configuration, parameters?:ParsedArgs):Configuration {
+        return configuration;
     }
 
     /**
@@ -38,7 +35,7 @@ export class DependencyFactory extends AbstractTaskFactory {
 
         // Define available subtask factories by configuration key.
 
-        var factories:{[id:string]:typeof AbstractDependencyFactory} = {
+        var factories:{[id:string]:typeof AbstractFactory} = {
             normalise: NormaliseFactory
         };
 
@@ -46,10 +43,6 @@ export class DependencyFactory extends AbstractTaskFactory {
 
         var options:{[id:string]:string} = {};
         var tasks:any[] = [];
-
-        // Inject stuff into dependency configuration.
-
-        dependencyConfiguration.path = pathConfiguration;
 
         // Gulp help stuff.
 
@@ -63,9 +56,9 @@ export class DependencyFactory extends AbstractTaskFactory {
                 return;
             }
 
-            var factory:AbstractDependencyFactory = new (<any>factories[key])();
+            var factory:AbstractFactory = new (<any>factories[key])();
 
-            factory.configuration = dependencyConfiguration;
+            factory.configuration = [dependencyConfiguration[key], pathConfiguration];
             factory.gulp = gulp;
             factory.options = options;
             factory.parameters = parameters;

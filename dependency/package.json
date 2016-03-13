@@ -40,14 +40,13 @@
         "webpack-stream": "*"
     },
     "devDependencies": {
+        "gulp": "*",
         "gulp-debug": "*",
         "mocha": "*",
-        "should": "*"
-    },
-    "peerDependencies": {
-        "gulp": "*",
-        "webpack": "*",
-        "typescript": "*"
+        "should": "*",
+        "ts-node": "*",
+        "typescript": "*",
+        "webpack": "*"
     },
     "keywords": [
         "build",

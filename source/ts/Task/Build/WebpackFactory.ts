@@ -1,24 +1,35 @@
-import {AbstractBuildFactory, Task} from './AbstractBuildFactory';
-import {BuildConfiguration, WebpackConfiguration, PluginGenerator} from '../../Configuration/GuildConfiguration';
+import {AbstractFactory, Task} from './AbstractFactory';
 import {GulpHelp} from 'gulp-help';
 import {Option} from '../Option';
 import {Parameter} from '../../Constant/Parameter';
 import {ParsedArgs} from 'minimist';
 import {PathConfiguration} from '../../Configuration/PathConfiguration';
 import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
+import {PluginGenerators, ConfigurationInterface} from '../../Configuration/Configuration';
 import {Plugin} from '../../Constant/Plugin';
-import {TaskUtility} from '../../Utility/TaskUtility';
 import {Task as TaskName} from '../../Constant/Task';
+import {TaskUtility} from '../../Utility/TaskUtility';
 
 import clone = require('clone');
 import webpack = require('webpack-stream');
 
+// Internal configuration format.
+
 export type Configuration = [WebpackConfiguration, PathConfiguration];
+
+export interface WebpackConfiguration extends ConfigurationInterface {
+    clean?:boolean;
+    configuration?:any;
+    destination:string|string[];
+    plugins?:PluginGenerators;
+    source:string|string[];
+    watch?:boolean;
+}
 
 /**
  * Creates and registers webpack build tasks.
  */
-export class WebpackFactory extends AbstractBuildFactory {
+export class WebpackFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
@@ -27,16 +38,15 @@ export class WebpackFactory extends AbstractBuildFactory {
     /**
      * @inheritDoc
      */
-    public normaliseConfiguration(configuration:BuildConfiguration, parameters?:ParsedArgs):Configuration {
-        var webpackConfiguration:WebpackConfiguration = configuration.webpack;
-        var pathConfiguration:PathConfiguration = configuration.path;
+    public normaliseConfiguration(configuration:Configuration, parameters?:ParsedArgs):Configuration {
+        var [webpackConfiguration, pathConfiguration]:Configuration = configuration;
 
         // Options.
 
         var clean:boolean;
         var compilerConfiguration:any;
         var destination:string|string[];
-        var plugins:any[]|PluginGenerator;
+        var plugins:PluginGenerators;
         var pluginsGenerator:Function;
         var source:string|string[];
         var watch:boolean;

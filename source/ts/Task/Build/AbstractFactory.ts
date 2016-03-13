@@ -1,5 +1,4 @@
 import {AbstractSubtaskFactory} from '../AbstractSubtaskFactory';
-import {BuildConfiguration} from '../../Configuration/GuildConfiguration';
 import {Schema} from '../../Constant/Schema';
 
 /**
@@ -7,12 +6,7 @@ import {Schema} from '../../Constant/Schema';
  */
 export type Task = [string[], string[], string[]];
 
-export abstract class AbstractBuildFactory extends AbstractSubtaskFactory {
-
-    /**
-     * @inheritDoc
-     */
-    public configuration:BuildConfiguration;
+export abstract class AbstractFactory extends AbstractSubtaskFactory {
 
     /**
      * @inheritDoc
@@ -29,7 +23,7 @@ export abstract class AbstractBuildFactory extends AbstractSubtaskFactory {
             throw new Error('Missing gulp instance reference in the task factory.');
         }
 
-        this.validate(this.configuration, Schema.BUILD_LESS);
+        // Fixme: this.validate(this.configuration, Schema.BUILD_LESS);
 
         return null;
     }

@@ -1,6 +1,12 @@
+import {ConfigurationInterface} from './Configuration';
+
 import path = require('path');
 
-export class PathConfiguration {
+export class PathConfiguration implements ConfigurationInterface {
+
+    /**
+     * Todo: smells like a hack, keep an eye on https://github.com/Microsoft/TypeScript/issues/7633.
+     */
     [key:string]:any;
 
     /**

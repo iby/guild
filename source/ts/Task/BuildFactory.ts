@@ -1,32 +1,31 @@
-import {AbstractBuildFactory, Task} from './Build/AbstractBuildFactory';
+import {AbstractFactory, Task} from './Build/AbstractFactory';
 import {AbstractTaskFactory} from './AbstractTaskFactory';
-import {BuildConfiguration, GuildConfiguration} from '../Configuration/GuildConfiguration';
+import {ConfigurationInterface} from '../Configuration/Configuration';
 import {GulpHelp} from 'gulp-help';
-import {LessFactory} from './Build/LessFactory';
+import {LessFactory, LessConfiguration} from './Build/LessFactory';
 import {ParsedArgs} from 'minimist';
 import {PathConfiguration} from '../Configuration/PathConfiguration';
 import {Task as TaskName} from '../Constant/Task';
-import {TwigFactory} from './Build/TwigFactory';
-import {WebpackFactory} from './Build/WebpackFactory';
+import {TwigFactory, TwigConfiguration} from './Build/TwigFactory';
+import {WebpackFactory, WebpackConfiguration} from './Build/WebpackFactory';
 
 import sequence = require('run-sequence');
 
 export type Configuration = [BuildConfiguration, PathConfiguration];
+
+export interface BuildConfiguration extends ConfigurationInterface {
+    less?:LessConfiguration;
+    twig?:TwigConfiguration;
+    webpack?:WebpackConfiguration;
+}
 
 export class BuildFactory extends AbstractTaskFactory {
 
     /**
      * @inheritDoc
      */
-    public normaliseConfiguration(configuration:GuildConfiguration, parameters?:ParsedArgs):Configuration {
-        var buildConfiguration:BuildConfiguration = configuration.build;
-        var pathConfiguration:PathConfiguration = configuration.path;
-
-        // Inject stuff into build configuration.
-
-        buildConfiguration.path = pathConfiguration;
-
-        return [buildConfiguration, pathConfiguration];
+    public normaliseConfiguration(configuration:Configuration, parameters?:ParsedArgs):Configuration {
+        return configuration;
     }
 
     /**
@@ -40,7 +39,7 @@ export class BuildFactory extends AbstractTaskFactory {
 
         // Define available subtask factories by configuration key.
 
-        var factories:{[id:string]:typeof AbstractBuildFactory} = {
+        var factories:{[id:string]:typeof AbstractFactory} = {
             less: LessFactory,
             twig: TwigFactory,
             webpack: WebpackFactory
@@ -61,9 +60,9 @@ export class BuildFactory extends AbstractTaskFactory {
                 return;
             }
 
-            var factory:AbstractBuildFactory = new (<any>factories[key])();
+            var factory:AbstractFactory = new (<any>factories[key])();
 
-            factory.configuration = buildConfiguration;
+            factory.configuration = [buildConfiguration[key], pathConfiguration];
             factory.gulp = gulp;
             factory.options = options;
             factory.parameters = parameters;

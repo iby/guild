@@ -1,6 +1,8 @@
-import {AbstractDeployFactory, Task} from './AbstractDeployFactory';
+import {AbstractFactory, Task} from './AbstractFactory';
+import {ConfigurationInterface} from '../../Configuration/Configuration';
 import {DataType} from '../../Constant/DataType';
 import {GulpHelp} from 'gulp-help';
+import {NormaliseConfigurationError} from '../AbstractFactory';
 import {Option} from '../Option';
 import {Parameter} from '../../Constant/Parameter';
 import {ParsedArgs} from 'minimist';
@@ -26,12 +28,18 @@ export interface Path {
     base?:string;
 }
 
-export interface S3Configuration {
+export interface S3Configuration extends ConfigurationInterface {
     accessKey?:string;
     baseUrl?:string;
     bucket?:string;
     certificateAuthority?:string;
-    configuration?:any
+    configuration?:{
+        accessKeyId:string;
+        secretAccessKey:string;
+        params:{
+            Bucket:string;
+        }
+    }
     pathStyle?:string;
     plugins?:any,
     region?:string;
@@ -39,7 +47,7 @@ export interface S3Configuration {
     target:Path;
 }
 
-export class S3Factory extends AbstractDeployFactory {
+export class S3Factory extends AbstractFactory {
 
     /**
      * @inheritDoc
@@ -72,7 +80,7 @@ export class S3Factory extends AbstractDeployFactory {
         var object:boolean = typeof s3Configuration === DataType.OBJECT;
 
         if (!object && !array) {
-            throw new Error('Cannot normalise configuration, expecting either an object or array, received something totally different.');
+            throw new NormaliseConfigurationError('Expecting either an object or array, received something totally different.');
         } else if (array) {
             s3Configurations = <any>s3Configuration;
         } else {
@@ -92,13 +100,13 @@ export class S3Factory extends AbstractDeployFactory {
             } else if (S3Factory.isConfiguration(configuration)) {
                 target = configuration.target;
             } else {
-                throw new Error('Cannot normalise configuration, unexpected object format.');
+                throw new NormaliseConfigurationError('Unexpected object format.');
             }
 
             // Quick target validate.
 
             if (target == null) {
-                throw new Error('Cannot normalise configuration, target is missing.');
+                throw new NormaliseConfigurationError('Target is missing.');
             }
 
             return self.normaliseConfiguration([configuration, pathConfiguration], parameters);
@@ -138,19 +146,13 @@ export class S3Factory extends AbstractDeployFactory {
         if (Array.isArray(target) || typeof target === DataType.STRING) {
             target = {path: target};
         } else if (typeof target !== DataType.OBJECT || !S3Factory.isPath(target)) {
-            throw new Error('Cannot normalise configuration, target is in a wrong format.');
+            throw new NormaliseConfigurationError('Target is in a wrong format.');
         }
 
         // Check if the bucket "alias" is specified in cli parameters.
 
         if (bucket != null && parameters[bucket + '-' + Parameter.BUCKET] != null) {
             bucket = parameters[bucket + '-' + Parameter.BUCKET];
-        }
-
-        if (bucket == null || bucket == '') {
-            throw new Error('Cannot normalise configuration, bucket is missing.');
-        } else if (accessKey == null || secretKey == null) {
-            throw new Error('Cannot normalise configuration, access or secret keys are missing.');
         }
 
         var awsConfiguration:any = {
@@ -186,6 +188,16 @@ export class S3Factory extends AbstractDeployFactory {
             for (let s3Configuration of s3Configurations) {
                 var stream:ReadWriteStream;
                 var target:Path = s3Configuration.target;
+
+                var bucket:string = s3Configuration.configuration.params.Bucket;
+                var accessKey:string = s3Configuration.configuration.accessKeyId;
+                var secretKey:string = s3Configuration.configuration.secretAccessKey;
+
+                if (bucket == null || bucket == '') {
+                    throw new Error('Bucket is missing.');
+                } else if (accessKey == null || secretKey == null) {
+                    throw new Error('Access or secret keys are missing.');
+                }
 
                 stream = gulp.src(target.path, target.base == null ? {} : {base: target.base}).pipe(TaskUtility.createPlumber());
                 stream = self.constructStream(stream, s3Configuration);
@@ -225,7 +237,7 @@ export class S3Factory extends AbstractDeployFactory {
      * @inheritDoc
      */
     public construct():Task {
-        var configurations:Configurations = this.normaliseConfigurations([this.configuration.s3, this.configuration.path], this.parameters);
+        var configurations:Configurations = this.normaliseConfigurations(this.configuration, this.parameters);
         var gulp:GulpHelp = this.gulp;
 
         return this.constructTask(gulp, configurations)

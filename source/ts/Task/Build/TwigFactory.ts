@@ -1,5 +1,4 @@
-import {AbstractBuildFactory, Task} from './AbstractBuildFactory';
-import {BuildConfiguration, TwigConfiguration, PluginGenerator} from '../../Configuration/GuildConfiguration';
+import {AbstractFactory, Task} from './AbstractFactory';
 import {DataType} from '../../Constant/DataType';
 import {GulpHelp} from 'gulp-help';
 import {Option} from '../Option';
@@ -10,16 +9,28 @@ import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
 import {Plugin} from '../../Constant/Plugin';
 import {TaskUtility} from '../../Utility/TaskUtility';
 import {Task as TaskName} from '../../Constant/Task';
+import {PluginGenerators, ConfigurationInterface} from '../../Configuration/Configuration';
 
 import clone = require('clone');
 import twig = require('gulp-twig');
 
+// Internal configuration format.
+
 export type Configuration = [TwigConfiguration, PathConfiguration];
+
+export interface TwigConfiguration extends ConfigurationInterface {
+    clean?:boolean;
+    data?:any;
+    destination:string|string[];
+    plugins?:PluginGenerators;
+    source:string|string[];
+    watch?:boolean;
+}
 
 /**
  * Creates and registers twig build tasks.
  */
-export class TwigFactory extends AbstractBuildFactory {
+export class TwigFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
@@ -28,16 +39,15 @@ export class TwigFactory extends AbstractBuildFactory {
     /**
      * @inheritDoc
      */
-    public normaliseConfiguration(configuration:BuildConfiguration, parameters?:ParsedArgs):Configuration {
-        var twigConfiguration:TwigConfiguration = configuration.twig;
-        var pathConfiguration:PathConfiguration = configuration.path;
+    public normaliseConfiguration(configuration:Configuration, parameters?:ParsedArgs):Configuration {
+        var [twigConfiguration, pathConfiguration]:Configuration = configuration;
 
         // Options.
 
         var clean:boolean;
         var data:any;
         var destination:string|string[];
-        var plugins:any[]|PluginGenerator;
+        var plugins:PluginGenerators;
         var source:string|string[];
         var watch:boolean;
 
