@@ -170,7 +170,7 @@ s3: [
 ]
 ```
 
-- `bucket` – you can use this as an alias and specify `--bucket-foo` via cli options to provide the real bucket name.
+- `bucket` – you can use this as an alias and specify `--bucket-foo` via cli options to provide the real bucket name. This is potentially more secure than having the real bucket exposed.
 
 ## Similar projects
 
