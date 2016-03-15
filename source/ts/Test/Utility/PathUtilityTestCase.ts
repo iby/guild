@@ -37,4 +37,12 @@ suite('path utility', function () {
 
         should.not.exist(PathUtility.getDirectory(['foo', 'bar']));
     });
+
+    test('globalise path', function () {
+        // Todo: var sourcePath:string = path.join(__dirname, '../../../../test/project/source');
+
+        PathUtility.globalisePath('foo', '*', true).should.eql('foo/*');
+        PathUtility.globalisePath('foo/bar', '*', true).should.eql('foo/bar/*');
+        PathUtility.globalisePath('foo/bar.baz', '*', true).should.eql('foo/bar.baz');
+    });
 });

@@ -1,9 +1,14 @@
 import {PathConfiguration} from '../Configuration/PathConfiguration';
 
+import fs = require('fs');
 import glob = require('glob');
 import path = require('path');
 
-import pathModule = path;
+import pathBasename = path.basename;
+import pathDirname = path.dirname;
+import pathExtname = path.extname;
+import pathIsAbsolute = path.isAbsolute;
+import pathJoin = path.join;
 
 export class PathUtility {
 
@@ -26,7 +31,6 @@ export class PathUtility {
      * Returns the common extension name.
      */
     static getCommonExtension(path:string|string[]):string {
-        var extname = require('path').extname;
         var paths:string[] = Array.isArray(path) ? <string[]>path : [<string>path];
         var pathCount:number = paths.length;
         var extension:string = null;
@@ -37,7 +41,7 @@ export class PathUtility {
             // then do the lookup. Also, we don't do lookups if count has exceeded the original paths length – in case glob
             // matched any files that have glob patterns within their name, to avoid the endless loop. Smart through the roof…
 
-            var pathExtension:string = extname(path = paths[i]);
+            var pathExtension:string = pathExtname(path = paths[i]);
 
             if (pathExtension !== '' && (pathExtension !== '.*' || i >= pathCount)) {
                 if (extension === null) {
@@ -58,8 +62,6 @@ export class PathUtility {
      * Returns the common directory basename, NOT the full directory path.
      */
     static getCommonDirectory(path:string|string[]):string {
-        var dirname = require('path').dirname;
-        var basename = require('path').basename;
         var paths:string[] = Array.isArray(path) ? <string[]>path : [<string>path];
         var pathCount:number = paths.length;
         var directory:string = null;
@@ -76,7 +78,7 @@ export class PathUtility {
             if (i < pathCount && glob.hasMagic(<string>path)) {
                 paths = paths.concat(glob.sync(<string>path));
                 n = paths.length;
-            } else if ((pathDirectory = basename(dirname(<string>path))) !== '' && pathDirectory !== '.') {
+            } else if ((pathDirectory = pathBasename(pathDirname(<string>path))) !== '' && pathDirectory !== '.') {
                 if (directory === null) {
                     directory = pathDirectory;
                 } else if (directory !== pathDirectory) {
@@ -88,8 +90,11 @@ export class PathUtility {
         return directory;
     }
 
+    /**
+     * Returns path directory of the given file / files. If path is a glob, attempts to expand it using fs lookup and
+     * return directories from that.
+     */
     static getDirectory(path:string|string[]):string[] {
-        var dirname = require('path').dirname;
         var paths:string[] = Array.isArray(path) ? <string[]>path : [<string>path];
         var pathCount:number = paths.length;
         var directories:string[] = [];
@@ -106,12 +111,31 @@ export class PathUtility {
             if (i < pathCount && glob.hasMagic(<string>path)) {
                 paths = paths.concat(glob.sync(<string>path));
                 n = paths.length;
-            } else if ((pathDirectory = dirname(path = paths[i])) !== '' && pathDirectory !== '.') {
+            } else if ((pathDirectory = pathDirname(path = paths[i])) !== '' && pathDirectory !== '.') {
                 directories.push(pathDirectory);
             }
         }
 
         return directories.length === 0 ? null : directories;
+    }
+
+    /**
+     * Appends glob to a path if it's a directory, if it's not a directory, returns the path untouched. Two modes
+     * to check if directory or not – soft, using extension without fs lookup, and hard, using fs lookup.
+     */
+    static globalisePath(path:string|string[], glob:string, soft:boolean = false):string|string[] {
+        var array:boolean = Array.isArray(path);
+        var paths:string[] = array ? <string[]>path : [<string>path];
+
+        paths = paths.map(function (path:string):string {
+            if (soft && pathExtname(path) !== '' || !soft && fs.statSync(path).isFile()) {
+                return path;
+            }
+
+            return pathJoin(path, glob);
+        });
+
+        return array ? paths : paths.pop();
     }
 
     /**
@@ -123,7 +147,7 @@ export class PathUtility {
 
         var basePathArray:boolean = Array.isArray(basePath);
         var pathArray:boolean = Array.isArray(path);
-        var normalisedPaths:string[] = [];
+        var paths:string[] = [];
         var extension:string;
 
         (<string[]>(basePathArray ? basePath : [basePath])).forEach(function (basePath:string) {
@@ -131,25 +155,25 @@ export class PathUtility {
 
                 // Join target path with the group path if target path path is not absolute.
 
-                if (!pathModule.isAbsolute(path)) {
-                    path = pathModule.join(basePath, path);
+                if (!pathIsAbsolute(path)) {
+                    path = pathJoin(basePath, path);
                 }
 
                 // Suffix gets appended only when we're dealing with folders and it doesn't already end with suffix. The
                 // folder-part is checked only using the extension logic, which might actually be a problem. Todo: perhaps
                 // todo: there should be an additional fs check, and then if the folder doesn't exist – do this shit.
 
-                if (suffix != null && (extension = pathModule.extname(path)) === '' && path.slice(-suffix.length) !== suffix) {
-                    path = pathModule.join(path, suffix);
+                if (suffix != null && (extension = pathExtname(path)) === '' && path.slice(-suffix.length) !== suffix) {
+                    path = pathJoin(path, suffix);
                 }
 
-                normalisedPaths.push(path);
+                paths.push(path);
             });
         });
 
         // Try to return a single path if only a single item was supplied.
 
-        return basePathArray || pathArray ? normalisedPaths : normalisedPaths[0];
+        return basePathArray || pathArray ? paths : paths.pop();
     }
 
     /**
