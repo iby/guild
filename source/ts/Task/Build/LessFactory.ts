@@ -9,7 +9,7 @@ import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
 import {PluginGenerators, ConfigurationInterface} from '../../Configuration/Configuration';
 import {Plugin} from '../../Constant/Plugin';
 import {Task as TaskName} from '../../Constant/Task';
-import {TaskUtility} from '../../Utility/TaskUtility';
+import {PathUtility} from '../../Utility/PathUtility';
 
 import clone = require('clone');
 import less = require('gulp-less');
@@ -92,8 +92,8 @@ export class LessFactory extends AbstractFactory {
 
         return [
             task = this.constructTask(gulp, configuration),
-            lessConfiguration.clean ? this.constructClean(gulp, TaskName.BUILD_LESS_CLEAN, TaskUtility.normaliseDestinationPath(pathConfiguration, lessConfiguration.destination, '*')) : [],
-            lessConfiguration.watch ? this.constructWatch(gulp, TaskName.BUILD_LESS_WATCH, TaskUtility.normaliseSourcePath(pathConfiguration, lessConfiguration.source, '**/*.less'), task) : []
+            lessConfiguration.clean ? this.constructClean(gulp, TaskName.BUILD_LESS_CLEAN, PathUtility.normaliseDestinationPath(pathConfiguration, lessConfiguration.destination, '*')) : [],
+            lessConfiguration.watch ? this.constructWatch(gulp, TaskName.BUILD_LESS_WATCH, PathUtility.normaliseSourcePath(pathConfiguration, lessConfiguration.source, '**/*.less'), task) : []
         ];
     }
 
@@ -107,9 +107,9 @@ export class LessFactory extends AbstractFactory {
             var [lessConfiguration, pathConfiguration] = configuration;
             var stream:ReadWriteStream;
 
-            stream = gulp.src(TaskUtility.normaliseSourcePath(pathConfiguration, lessConfiguration.source, '**/*.less')).pipe(TaskUtility.createPlumber());
+            stream = gulp.src(PathUtility.normaliseSourcePath(pathConfiguration, lessConfiguration.source, '**/*.less')).pipe(this.constructPlumber());
             stream = self.constructStream(stream, configuration);
-            stream = self.constructDestination(stream, gulp, TaskUtility.normaliseDestinationPath(pathConfiguration, lessConfiguration.destination));
+            stream = self.constructDestination(stream, gulp, PathUtility.normaliseDestinationPath(pathConfiguration, lessConfiguration.destination));
 
             return stream;
         });

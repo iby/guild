@@ -7,7 +7,7 @@ import {PathConfiguration} from '../../Configuration/PathConfiguration';
 import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
 import {Plugin} from '../../Constant/Plugin';
 import {Task as TaskName} from '../../Constant/Task';
-import {TaskUtility} from '../../Utility/TaskUtility';
+import {PathUtility} from '../../Utility/PathUtility';
 import {ConfigurationInterface, PluginGenerators} from '../../Configuration/Configuration';
 import {NormaliseConfigurationError} from '../AbstractFactory';
 
@@ -112,8 +112,8 @@ export class NormaliseFactory extends AbstractFactory {
         var destination:string|string[] = normaliseConfiguration.destination;
         var plugins:any[] = <any[]>normaliseConfiguration.plugins;
 
-        source = TaskUtility.normaliseDependencyPath(pathConfiguration, source);
-        destination = TaskUtility.normaliseLibraryPath(pathConfiguration, destination);
+        source = PathUtility.normaliseDependencyPath(pathConfiguration, source);
+        destination = PathUtility.normaliseLibraryPath(pathConfiguration, destination);
 
         var extension:string;
         var directory:string;
@@ -121,8 +121,8 @@ export class NormaliseFactory extends AbstractFactory {
 
         // If destination has no extension, but source does…
 
-        if ((extension = TaskUtility.getCommonExtension(destination)) == null) {
-            if ((extension = TaskUtility.getCommonExtension(source)) != null) {
+        if ((extension = PathUtility.getCommonExtension(destination)) == null) {
+            if ((extension = PathUtility.getCommonExtension(source)) != null) {
                 destination += '.' + extension;
             }
         }
@@ -156,9 +156,9 @@ export class NormaliseFactory extends AbstractFactory {
                 // We rename file inside the task, otherwise we'll end up with same destination
                 // folder name as the filename.
 
-                stream = gulp.src(normaliseConfiguration.source).pipe(TaskUtility.createPlumber());
+                stream = gulp.src(normaliseConfiguration.source).pipe(this.constructPlumber());
                 stream = self.constructStream(stream, normaliseConfiguration);
-                stream = self.constructDestination(stream, gulp, TaskUtility.getDirectory(normaliseConfiguration.destination));
+                stream = self.constructDestination(stream, gulp, PathUtility.getDirectory(normaliseConfiguration.destination));
 
                 streams.push(stream);
             }

@@ -1,31 +1,11 @@
 import {PathConfiguration} from '../Configuration/PathConfiguration';
-import {Gulp} from 'gulp';
-import {ReadWriteStream} from '../Stream/Pipeline';
 
-import clone = require('clone');
 import glob = require('glob');
 import path = require('path');
-import plumber = require('gulp-plumber');
-import util = require('gulp-util');
 
 import pathModule = path;
 
-/**
- * Handles plumber errors.
- */
-function plumberErrorHandler(error:any) {
-    util.beep();
-    util.log(error);
-}
-
-export class TaskUtility {
-
-    /**
-     * Creates gulp plumber stream with pre-configured error handler.
-     */
-    static createPlumber():any {
-        return plumber({errorHandler: plumberErrorHandler});
-    }
+export class PathUtility {
 
     /**
      * Checks if a given path configuration exists, like `product` or `library`. Comes handy when need
@@ -96,7 +76,7 @@ export class TaskUtility {
             if (i < pathCount && glob.hasMagic(<string>path)) {
                 paths = paths.concat(glob.sync(<string>path));
                 n = paths.length;
-            } else if ((pathDirectory = basename(dirname(path))) !== '' && pathDirectory !== '.') {
+            } else if ((pathDirectory = basename(dirname(<string>path))) !== '' && pathDirectory !== '.') {
                 if (directory === null) {
                     directory = pathDirectory;
                 } else if (directory !== pathDirectory) {
@@ -182,7 +162,7 @@ export class TaskUtility {
             throw new Error('Path configuration must contain `dependency` option to normalise dependency.')
         }
 
-        return TaskUtility.normalisePath(basePath, dependency);
+        return PathUtility.normalisePath(basePath, dependency);
     }
 
     /**
@@ -195,7 +175,7 @@ export class TaskUtility {
             throw new Error('Path configuration must contain `destination` or `product` option to normalise destination.')
         }
 
-        return TaskUtility.normalisePath(basePath, destination, suffix);
+        return PathUtility.normalisePath(basePath, destination, suffix);
     }
 
     /**
@@ -208,7 +188,7 @@ export class TaskUtility {
             throw new Error('Path configuration must contain `library` option to normalise library.')
         }
 
-        return TaskUtility.normalisePath(basePath, library, suffix);
+        return PathUtility.normalisePath(basePath, library, suffix);
     }
 
     /**
@@ -221,7 +201,7 @@ export class TaskUtility {
             throw new Error('Path configuration must contain `source` option to normalise source.')
         }
 
-        return TaskUtility.normalisePath(basePath, source, suffix);
+        return PathUtility.normalisePath(basePath, source, suffix);
     }
 
     /**
@@ -234,28 +214,6 @@ export class TaskUtility {
             throw new Error('Path configuration must contain `product` option to normalise product.')
         }
 
-        return TaskUtility.normalisePath(basePath, product, suffix);
-    }
-
-    /**
-     * Adds all plugins into the pipeline.
-     */
-    static pipePlugins(stream:ReadWriteStream, plugins:any[]):ReadWriteStream {
-        plugins.forEach(function (plugin:ReadWriteStream) {
-            stream = stream == null ? plugin : stream.pipe(plugin);
-        });
-
-        return stream;
-    }
-
-    /**
-     * Adds all destinations into the pipeline.
-     */
-    static pipeDestination(gulp:Gulp, pipeline:ReadWriteStream, destination:string|string[]):ReadWriteStream {
-        (<string[]>(Array.isArray(destination) ? destination : [destination])).forEach(function (destination:string) {
-            pipeline = pipeline.pipe(gulp.dest(destination));
-        });
-
-        return pipeline;
+        return PathUtility.normalisePath(basePath, product, suffix);
     }
 }

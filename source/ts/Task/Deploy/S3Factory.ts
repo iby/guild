@@ -10,7 +10,7 @@ import {PathConfiguration} from '../../Configuration/PathConfiguration';
 import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
 import {Plugin} from '../../Constant/Plugin';
 import {Task as TaskName} from '../../Constant/Task';
-import {TaskUtility} from '../../Utility/TaskUtility';
+import {PathUtility} from '../../Utility/PathUtility';
 
 import awspublish = require('gulp-awspublish');
 import merge = require('merge-stream');
@@ -199,7 +199,7 @@ export class S3Factory extends AbstractFactory {
                     throw new Error('Access or secret keys are missing.');
                 }
 
-                stream = gulp.src(target.path, target.base == null ? {} : {base: target.base}).pipe(TaskUtility.createPlumber());
+                stream = gulp.src(target.path, target.base == null ? {} : {base: target.base}).pipe(this.constructPlumber());
                 stream = self.constructStream(stream, s3Configuration);
 
                 streams.push(stream);

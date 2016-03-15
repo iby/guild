@@ -8,7 +8,7 @@ import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
 import {PluginGenerators, ConfigurationInterface} from '../../Configuration/Configuration';
 import {Plugin} from '../../Constant/Plugin';
 import {Task as TaskName} from '../../Constant/Task';
-import {TaskUtility} from '../../Utility/TaskUtility';
+import {PathUtility} from '../../Utility/PathUtility';
 
 import clone = require('clone');
 import webpack = require('webpack-stream');
@@ -95,8 +95,8 @@ export class WebpackFactory extends AbstractFactory {
 
         return [
             task = this.constructTask(gulp, configuration),
-            webpackConfiguration.clean ? this.constructClean(gulp, TaskName.BUILD_WEBPACK_CLEAN, TaskUtility.normaliseDestinationPath(pathConfiguration, webpackConfiguration.destination, '*')) : [],
-            webpackConfiguration.watch ? this.constructWatch(gulp, TaskName.BUILD_WEBPACK_WATCH, TaskUtility.normaliseSourcePath(pathConfiguration, webpackConfiguration.source, '**/*.js'), task) : []
+            webpackConfiguration.clean ? this.constructClean(gulp, TaskName.BUILD_WEBPACK_CLEAN, PathUtility.normaliseDestinationPath(pathConfiguration, webpackConfiguration.destination, '*')) : [],
+            webpackConfiguration.watch ? this.constructWatch(gulp, TaskName.BUILD_WEBPACK_WATCH, PathUtility.normaliseSourcePath(pathConfiguration, webpackConfiguration.source, '**/*.js'), task) : []
         ];
     }
 
@@ -110,9 +110,9 @@ export class WebpackFactory extends AbstractFactory {
             var [webpackConfiguration, pathConfiguration] = configuration;
             var stream:ReadWriteStream;
 
-            stream = gulp.src(TaskUtility.normaliseSourcePath(pathConfiguration, webpackConfiguration.source, '**/*.js')).pipe(TaskUtility.createPlumber());
+            stream = gulp.src(PathUtility.normaliseSourcePath(pathConfiguration, webpackConfiguration.source, '**/*.js')).pipe(this.constructPlumber());
             stream = self.constructStream(stream, configuration);
-            stream = self.constructDestination(stream, gulp, TaskUtility.normaliseDestinationPath(pathConfiguration, webpackConfiguration.destination));
+            stream = self.constructDestination(stream, gulp, PathUtility.normaliseDestinationPath(pathConfiguration, webpackConfiguration.destination));
 
             return stream;
         });

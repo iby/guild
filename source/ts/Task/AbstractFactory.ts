@@ -1,6 +1,14 @@
+import {AbstractError} from '../Error/AbstractError';
 import {GulpHelp} from 'gulp-help';
 import {ParsedArgs} from 'minimist';
-import {AbstractError} from '../Error/AbstractError';
+import {ReadWriteStream} from '../Stream/Pipeline';
+
+import plumber = require('gulp-plumber');
+import util = require('gulp-util');
+
+export interface Handler {
+    (error:any):void;
+}
 
 export class NormaliseConfigurationError extends AbstractError {
 
@@ -46,6 +54,18 @@ export abstract class AbstractFactory {
      */
     public static construct(...args:any[]):AbstractFactory {
         return new (<any>this)(...args);
+    }
+
+    /**
+     * Creates gulp plumber stream with pre-configured error handler.
+     */
+    public constructPlumber(handler?:Handler):ReadWriteStream {
+        handler == null && (handler = function (error:any) {
+            util.beep();
+            util.log(error);
+        });
+
+        return plumber(handler);
     }
 
     /**

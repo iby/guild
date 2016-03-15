@@ -7,7 +7,7 @@ import {ParsedArgs} from 'minimist';
 import {PathConfiguration} from '../../Configuration/PathConfiguration';
 import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
 import {Plugin} from '../../Constant/Plugin';
-import {TaskUtility} from '../../Utility/TaskUtility';
+import {PathUtility} from '../../Utility/PathUtility';
 import {Task as TaskName} from '../../Constant/Task';
 import {PluginGenerators, ConfigurationInterface} from '../../Configuration/Configuration';
 
@@ -97,8 +97,8 @@ export class TwigFactory extends AbstractFactory {
 
         return [
             task = this.constructTask(gulp, configuration),
-            twigConfiguration.clean ? this.constructClean(gulp, TaskName.BUILD_TWIG_CLEAN, TaskUtility.normaliseDestinationPath(pathConfiguration, twigConfiguration.destination, '*')) : [],
-            twigConfiguration.watch ? this.constructWatch(gulp, TaskName.BUILD_TWIG_WATCH, TaskUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.source, '**/*.twig'), task) : []
+            twigConfiguration.clean ? this.constructClean(gulp, TaskName.BUILD_TWIG_CLEAN, PathUtility.normaliseDestinationPath(pathConfiguration, twigConfiguration.destination, '*')) : [],
+            twigConfiguration.watch ? this.constructWatch(gulp, TaskName.BUILD_TWIG_WATCH, PathUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.source, '**/*.twig'), task) : []
         ];
     }
 
@@ -112,9 +112,9 @@ export class TwigFactory extends AbstractFactory {
             var [twigConfiguration, pathConfiguration] = configuration;
             var stream:ReadWriteStream;
 
-            stream = gulp.src(TaskUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.source, '**/*.twig')).pipe(TaskUtility.createPlumber());
+            stream = gulp.src(PathUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.source, '**/*.twig')).pipe(this.constructPlumber());
             stream = self.constructStream(stream, configuration);
-            stream = self.constructDestination(stream, gulp, TaskUtility.normaliseDestinationPath(pathConfiguration, twigConfiguration.destination));
+            stream = self.constructDestination(stream, gulp, PathUtility.normaliseDestinationPath(pathConfiguration, twigConfiguration.destination));
 
             return stream;
         });
