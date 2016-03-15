@@ -4,6 +4,7 @@ import {Gulp} from 'gulp';
 import {Option} from './Option';
 import {ReadWriteStream, ReadableStream, Pipeline} from '../Stream/Pipeline';
 import {Validator} from '../Validator/Validator';
+import {NotImplementedError} from '../Error/NotImplementedError';
 
 import del = require('del');
 import merge = require("merge-stream");
@@ -60,19 +61,17 @@ export abstract class AbstractSubtaskFactory extends AbstractFactory {
     public abstract constructPipeline(configuration:any):Pipeline;
 
     /**
-     * Creates a new clean task and appends it to `cleanTasks` array.
+     * Constructs and registers new clean task.
      */
-    protected constructClean(gulp:GulpHelp, name:string, path:string|string[]):string[] {
-        gulp.task(name, false, function () { return del(path, {force: true}); });
-        return [name];
+    public constructClean(gulp:GulpHelp, configuration:any):string[] {
+        throw new NotImplementedError();
     }
 
     /**
-     * Creates and registers watch task.
+     * Constructs and registers new watch task, invokes tasks specified in `tasks` array when files change.
      */
-    protected constructWatch(gulp:GulpHelp, name:string, path:string|string[], tasks:string[]):string[] {
-        gulp.task(name, false, function () { return gulp.watch(path, tasks); });
-        return [name];
+    public constructWatch(gulp:GulpHelp, configuration:any, tasks:string[]):string[] {
+        throw new NotImplementedError();
     }
 
     /**

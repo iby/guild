@@ -29,7 +29,7 @@ suite('build twig task factory', function () {
         head.write(<any>SourceFile.twig('template.twig'));
     });
 
-    test('construct build task', function () {
+    test('construct task', function () {
         var twigConfiguration:TwigConfiguration = {clean: true, destination: null, source: null, watch: true};
         var configuration:any = [twigConfiguration, pathConfiguration];
         var factory:TwigFactory = new TwigFactory();

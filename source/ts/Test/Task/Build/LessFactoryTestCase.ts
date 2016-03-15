@@ -29,7 +29,7 @@ suite('build less task factory', function () {
         head.write(<any>SourceFile.less('style.less'));
     });
 
-    test('construct build task', function () {
+    test('construct task', function () {
         var lessConfiguration:any = {clean: true, destination: null, source: null, watch: true};
         var configuration:any = [lessConfiguration, pathConfiguration];
         var factory:LessFactory = new LessFactory();

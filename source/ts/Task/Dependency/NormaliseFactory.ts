@@ -156,7 +156,7 @@ export class NormaliseFactory extends AbstractFactory {
                 // We rename file inside the task, otherwise we'll end up with same destination
                 // folder name as the filename.
 
-                stream = gulp.src(normaliseConfiguration.source).pipe(this.constructPlumber());
+                stream = gulp.src(normaliseConfiguration.source).pipe(self.constructPlumber());
                 stream = self.constructStream(stream, normaliseConfiguration);
                 stream = self.constructDestination(stream, gulp, PathUtility.getDirectory(normaliseConfiguration.destination));
 

@@ -12,6 +12,7 @@ import {Task as TaskName} from '../../Constant/Task';
 import {PluginGenerators, ConfigurationInterface} from '../../Configuration/Configuration';
 
 import clone = require('clone');
+import del = require('del');
 import twig = require('gulp-twig');
 
 // Internal configuration format.
@@ -97,8 +98,8 @@ export class TwigFactory extends AbstractFactory {
 
         return [
             task = this.constructTask(gulp, configuration),
-            twigConfiguration.clean ? this.constructClean(gulp, TaskName.BUILD_TWIG_CLEAN, PathUtility.normaliseDestinationPath(pathConfiguration, twigConfiguration.destination, '*')) : [],
-            twigConfiguration.watch ? this.constructWatch(gulp, TaskName.BUILD_TWIG_WATCH, PathUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.source, '**/*.twig'), task) : []
+            twigConfiguration.clean ? this.constructClean(gulp, configuration) : [],
+            twigConfiguration.watch ? this.constructWatch(gulp, configuration, task) : []
         ];
     }
 
@@ -112,7 +113,7 @@ export class TwigFactory extends AbstractFactory {
             var [twigConfiguration, pathConfiguration] = configuration;
             var stream:ReadWriteStream;
 
-            stream = gulp.src(PathUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.source, '**/*.twig')).pipe(this.constructPlumber());
+            stream = gulp.src(PathUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.source, '**/*.twig')).pipe(self.constructPlumber());
             stream = self.constructStream(stream, configuration);
             stream = self.constructDestination(stream, gulp, PathUtility.normaliseDestinationPath(pathConfiguration, twigConfiguration.destination));
 
@@ -120,6 +121,38 @@ export class TwigFactory extends AbstractFactory {
         });
 
         return [TaskName.BUILD_TWIG];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public constructClean(gulp:GulpHelp, configuration:Configuration):string[] {
+        var task:string = TaskName.BUILD_TWIG_CLEAN;
+
+        gulp.task(task, false, function () {
+            var [twigConfiguration, pathConfiguration]:Configuration = configuration;
+            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseDestinationPath(pathConfiguration, twigConfiguration.destination), '**/*.html');
+
+            return del(path, {force: true});
+        });
+
+        return [task];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public constructWatch(gulp:GulpHelp, configuration:Configuration, tasks:string[]):string[] {
+        var task:string = TaskName.BUILD_TWIG_WATCH;
+
+        gulp.task(task, false, function () {
+            var [twigConfiguration, pathConfiguration]:Configuration = configuration;
+            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.destination), '**/*.twig');
+
+            return gulp.watch(path, tasks);
+        });
+
+        return [task];
     }
 
     /**

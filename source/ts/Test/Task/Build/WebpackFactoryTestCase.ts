@@ -29,7 +29,7 @@ suite('build webpack task factory', function () {
         head.write(<any>SourceFile.js('script.js'));
     });
 
-    test('construct build task', function () {
+    test('construct task', function () {
         var webpackConfiguration:WebpackConfiguration = {clean: true, destination: null, source: null, watch: true};
         var configuration:any = [webpackConfiguration, pathConfiguration];
         var factory:WebpackFactory = new WebpackFactory();

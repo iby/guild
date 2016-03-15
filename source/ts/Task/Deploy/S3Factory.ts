@@ -199,7 +199,7 @@ export class S3Factory extends AbstractFactory {
                     throw new Error('Access or secret keys are missing.');
                 }
 
-                stream = gulp.src(target.path, target.base == null ? {} : {base: target.base}).pipe(this.constructPlumber());
+                stream = gulp.src(target.path, target.base == null ? {} : {base: target.base}).pipe(self.constructPlumber());
                 stream = self.constructStream(stream, s3Configuration);
 
                 streams.push(stream);

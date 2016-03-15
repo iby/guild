@@ -12,6 +12,7 @@ import {Task as TaskName} from '../../Constant/Task';
 import {PathUtility} from '../../Utility/PathUtility';
 
 import clone = require('clone');
+import del = require('del');
 import less = require('gulp-less');
 import postcss = require('gulp-postcss');
 
@@ -92,8 +93,8 @@ export class LessFactory extends AbstractFactory {
 
         return [
             task = this.constructTask(gulp, configuration),
-            lessConfiguration.clean ? this.constructClean(gulp, TaskName.BUILD_LESS_CLEAN, PathUtility.normaliseDestinationPath(pathConfiguration, lessConfiguration.destination, '*')) : [],
-            lessConfiguration.watch ? this.constructWatch(gulp, TaskName.BUILD_LESS_WATCH, PathUtility.normaliseSourcePath(pathConfiguration, lessConfiguration.source, '**/*.less'), task) : []
+            lessConfiguration.clean ? this.constructClean(gulp, configuration) : [],
+            lessConfiguration.watch ? this.constructWatch(gulp, configuration, task) : []
         ];
     }
 
@@ -101,20 +102,53 @@ export class LessFactory extends AbstractFactory {
      * @inheritDoc
      */
     public constructTask(gulp:GulpHelp, configuration:Configuration):string[] {
+        var task:string = TaskName.BUILD_LESS;
         var self:LessFactory = this;
 
-        gulp.task(TaskName.BUILD_LESS, false, function () {
-            var [lessConfiguration, pathConfiguration] = configuration;
+        gulp.task(task, false, function () {
+            var [lessConfiguration, pathConfiguration]:Configuration = configuration;
             var stream:ReadWriteStream;
 
-            stream = gulp.src(PathUtility.normaliseSourcePath(pathConfiguration, lessConfiguration.source, '**/*.less')).pipe(this.constructPlumber());
+            stream = gulp.src(PathUtility.normaliseSourcePath(pathConfiguration, lessConfiguration.source, '**/*.less')).pipe(self.constructPlumber());
             stream = self.constructStream(stream, configuration);
             stream = self.constructDestination(stream, gulp, PathUtility.normaliseDestinationPath(pathConfiguration, lessConfiguration.destination));
 
             return stream;
         });
 
-        return [TaskName.BUILD_LESS];
+        return [task];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public constructClean(gulp:GulpHelp, configuration:Configuration):string[] {
+        var task:string = TaskName.BUILD_LESS_CLEAN;
+
+        gulp.task(task, false, function () {
+            var [lessConfiguration, pathConfiguration]:Configuration = configuration;
+            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseDestinationPath(pathConfiguration, lessConfiguration.destination), '**/*.css');
+
+            return del(path, {force: true});
+        });
+
+        return [task];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public constructWatch(gulp:GulpHelp, configuration:Configuration, tasks:string[]):string[] {
+        var task:string = TaskName.BUILD_LESS_WATCH;
+
+        gulp.task(task, false, function () {
+            var [lessConfiguration, pathConfiguration]:Configuration = configuration;
+            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, lessConfiguration.destination), '**/*.less');
+
+            return gulp.watch(path, tasks);
+        });
+
+        return [task];
     }
 
     /**

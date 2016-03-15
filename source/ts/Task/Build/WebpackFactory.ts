@@ -11,6 +11,7 @@ import {Task as TaskName} from '../../Constant/Task';
 import {PathUtility} from '../../Utility/PathUtility';
 
 import clone = require('clone');
+import del = require('del');
 import webpack = require('webpack-stream');
 
 // Internal configuration format.
@@ -95,8 +96,8 @@ export class WebpackFactory extends AbstractFactory {
 
         return [
             task = this.constructTask(gulp, configuration),
-            webpackConfiguration.clean ? this.constructClean(gulp, TaskName.BUILD_WEBPACK_CLEAN, PathUtility.normaliseDestinationPath(pathConfiguration, webpackConfiguration.destination, '*')) : [],
-            webpackConfiguration.watch ? this.constructWatch(gulp, TaskName.BUILD_WEBPACK_WATCH, PathUtility.normaliseSourcePath(pathConfiguration, webpackConfiguration.source, '**/*.js'), task) : []
+            webpackConfiguration.clean ? this.constructClean(gulp, configuration) : [],
+            webpackConfiguration.watch ? this.constructWatch(gulp, configuration, task) : []
         ];
     }
 
@@ -110,7 +111,7 @@ export class WebpackFactory extends AbstractFactory {
             var [webpackConfiguration, pathConfiguration] = configuration;
             var stream:ReadWriteStream;
 
-            stream = gulp.src(PathUtility.normaliseSourcePath(pathConfiguration, webpackConfiguration.source, '**/*.js')).pipe(this.constructPlumber());
+            stream = gulp.src(PathUtility.normaliseSourcePath(pathConfiguration, webpackConfiguration.source, '**/*.js')).pipe(self.constructPlumber());
             stream = self.constructStream(stream, configuration);
             stream = self.constructDestination(stream, gulp, PathUtility.normaliseDestinationPath(pathConfiguration, webpackConfiguration.destination));
 
@@ -118,6 +119,38 @@ export class WebpackFactory extends AbstractFactory {
         });
 
         return [TaskName.BUILD_WEBPACK];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public constructClean(gulp:GulpHelp, configuration:Configuration):string[] {
+        var task:string = TaskName.BUILD_WEBPACK_CLEAN;
+
+        gulp.task(task, false, function () {
+            var [twigConfiguration, pathConfiguration]:Configuration = configuration;
+            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseDestinationPath(pathConfiguration, twigConfiguration.destination), '**/*.js');
+
+            return del(path, {force: true});
+        });
+
+        return [task];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public constructWatch(gulp:GulpHelp, configuration:Configuration, tasks:string[]):string[] {
+        var task:string = TaskName.BUILD_WEBPACK_WATCH;
+
+        gulp.task(task, false, function () {
+            var [twigConfiguration, pathConfiguration]:Configuration = configuration;
+            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.destination), '**/*.js');
+
+            return gulp.watch(path, tasks);
+        });
+
+        return [task];
     }
 
     /**
