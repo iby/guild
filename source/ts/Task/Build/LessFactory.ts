@@ -109,7 +109,7 @@ export class LessFactory extends AbstractFactory {
             var [lessConfiguration, pathConfiguration]:Configuration = configuration;
             var stream:ReadWriteStream;
 
-            stream = gulp.src(PathUtility.normaliseSourcePath(pathConfiguration, lessConfiguration.source, '**/*.less')).pipe(self.constructPlumber());
+            stream = gulp.src(PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, lessConfiguration.source), '**/*.less')).pipe(self.constructPlumber());
             stream = self.constructStream(stream, configuration);
             stream = self.constructDestination(stream, gulp, PathUtility.normaliseDestinationPath(pathConfiguration, lessConfiguration.destination));
 

@@ -111,7 +111,7 @@ export class WebpackFactory extends AbstractFactory {
             var [webpackConfiguration, pathConfiguration] = configuration;
             var stream:ReadWriteStream;
 
-            stream = gulp.src(PathUtility.normaliseSourcePath(pathConfiguration, webpackConfiguration.source, '**/*.js')).pipe(self.constructPlumber());
+            stream = gulp.src(PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, webpackConfiguration.source), '**/*.js')).pipe(self.constructPlumber());
             stream = self.constructStream(stream, configuration);
             stream = self.constructDestination(stream, gulp, PathUtility.normaliseDestinationPath(pathConfiguration, webpackConfiguration.destination));
 

@@ -45,4 +45,11 @@ suite('path utility', function () {
         PathUtility.globalisePath('foo/bar', '*', true).should.eql('foo/bar/*');
         PathUtility.globalisePath('foo/bar.baz', '*', true).should.eql('foo/bar.baz');
     });
+
+    test('normalise path', function () {
+        PathUtility.normalisePath('/foo', 'bar').should.eql('/foo/bar');
+        PathUtility.normalisePath('/foo', '/bar').should.eql('/bar');
+        PathUtility.normalisePath('/foo', '!bar').should.eql('!/foo/bar');
+        PathUtility.normalisePath('/foo', '!/bar').should.eql('!/bar');
+    });
 });

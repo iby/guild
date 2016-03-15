@@ -128,11 +128,22 @@ export class PathUtility {
         var paths:string[] = array ? <string[]>path : [<string>path];
 
         paths = paths.map(function (path:string):string {
-            if (soft && pathExtname(path) !== '' || !soft && fs.statSync(path).isFile()) {
-                return path;
+            var file:boolean;
+
+            // Here we assume that we don't receive glob files, but we still may receive negated / exclusion paths,
+            // which will give exceptions.
+
+            if (soft) {
+                file = pathExtname(path) !== '';
+            } else {
+                try {
+                    file = fs.statSync(path.charAt(0) === '!' ? path.slice(1) : path).isFile();
+                } catch (error) {
+                    file = false;
+                }
             }
 
-            return pathJoin(path, glob);
+            return file ? path : pathJoin(path, glob);
         });
 
         return array ? paths : paths.pop();
@@ -150,14 +161,23 @@ export class PathUtility {
         var paths:string[] = [];
         var extension:string;
 
-        (<string[]>(basePathArray ? basePath : [basePath])).forEach(function (basePath:string) {
-            (<string[]>(pathArray ? path : [path])).forEach(function (path:string) {
+        (<string[]>(pathArray ? path : [path])).forEach(function (path:string) {
+            var negate:boolean;
 
-                // Join target path with the group path if target path path is not absolute.
+            // Check if this is a negation.
 
-                if (!pathIsAbsolute(path)) {
-                    path = pathJoin(basePath, path);
-                }
+            if (negate = path.charAt(0) === '!') {
+                path = path.slice(1);
+            }
+
+            // Join target path with the group path if target path path is not absolute.
+
+            if (!pathIsAbsolute(path)) {
+                path = pathJoin(basePath, path);
+            }
+
+            (<string[]>(basePathArray ? basePath : [basePath])).forEach(function (basePath:string) {
+
 
                 // Suffix gets appended only when we're dealing with folders and it doesn't already end with suffix. The
                 // folder-part is checked only using the extension logic, which might actually be a problem. Todo: perhaps
@@ -165,6 +185,10 @@ export class PathUtility {
 
                 if (suffix != null && (extension = pathExtname(path)) === '' && path.slice(-suffix.length) !== suffix) {
                     path = pathJoin(path, suffix);
+                }
+
+                if (negate) {
+                    path = '!' + path;
                 }
 
                 paths.push(path);

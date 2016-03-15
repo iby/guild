@@ -113,7 +113,7 @@ export class TwigFactory extends AbstractFactory {
             var [twigConfiguration, pathConfiguration] = configuration;
             var stream:ReadWriteStream;
 
-            stream = gulp.src(PathUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.source, '**/*.twig')).pipe(self.constructPlumber());
+            stream = gulp.src(PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.source), '**/*.twig')).pipe(self.constructPlumber());
             stream = self.constructStream(stream, configuration);
             stream = self.constructDestination(stream, gulp, PathUtility.normaliseDestinationPath(pathConfiguration, twigConfiguration.destination));
 
