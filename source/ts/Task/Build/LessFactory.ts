@@ -143,7 +143,7 @@ export class LessFactory extends AbstractFactory {
 
         gulp.task(task, false, function () {
             var [lessConfiguration, pathConfiguration]:Configuration = configuration;
-            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, lessConfiguration.destination), '**/*.less');
+            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, lessConfiguration.source), '**/*.less');
 
             return gulp.watch(path, tasks);
         });

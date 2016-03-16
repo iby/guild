@@ -8,6 +8,7 @@ import {PathConfiguration} from '../Configuration/PathConfiguration';
 import {Task as TaskName} from '../Constant/Task';
 import {TwigFactory, TwigConfiguration} from './Build/TwigFactory';
 import {WebpackFactory, WebpackConfiguration} from './Build/WebpackFactory';
+import {CopyFactory} from './Build/CopyFactory';
 
 import sequence = require('run-sequence');
 
@@ -36,10 +37,12 @@ export class BuildFactory extends AbstractTaskFactory {
         var configuration:Configuration = this.normaliseConfiguration(this.configuration, parameters);
         var [buildConfiguration, pathConfiguration] = configuration;
         var gulp:GulpHelp = this.gulp;
+        var self:BuildFactory = this;
 
         // Define available subtask factories by configuration key.
 
         var factories:{[id:string]:typeof AbstractFactory} = {
+            copy: CopyFactory,
             less: LessFactory,
             twig: TwigFactory,
             webpack: WebpackFactory
@@ -62,6 +65,7 @@ export class BuildFactory extends AbstractTaskFactory {
 
             var factory:AbstractFactory = new (<any>factories[key])();
 
+            factory.name = 'build' + '-' + key;
             factory.configuration = [buildConfiguration[key], pathConfiguration];
             factory.gulp = gulp;
             factory.options = options;

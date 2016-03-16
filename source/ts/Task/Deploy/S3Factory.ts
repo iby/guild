@@ -87,7 +87,7 @@ export class S3Factory extends AbstractFactory {
             s3Configurations = [s3Configuration];
         }
 
-        s3Configurations = s3Configurations.map(function (configuration:S3Configuration) {
+        s3Configurations = s3Configurations.map(function (configuration:S3Configuration):S3Configuration {
             var target:Path;
 
             // If configuration is already an object, we inject target into it if necessary. If not,
@@ -204,6 +204,8 @@ export class S3Factory extends AbstractFactory {
 
                 streams.push(stream);
             }
+            
+            return merge(...streams);
         });
 
         return [TaskName.DEPLOY_S3];

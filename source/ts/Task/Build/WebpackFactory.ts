@@ -145,7 +145,7 @@ export class WebpackFactory extends AbstractFactory {
 
         gulp.task(task, false, function () {
             var [twigConfiguration, pathConfiguration]:Configuration = configuration;
-            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.destination), '**/*.js');
+            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.source), '**/*.js');
 
             return gulp.watch(path, tasks);
         });

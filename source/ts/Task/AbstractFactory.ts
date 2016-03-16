@@ -34,6 +34,11 @@ export abstract class AbstractFactory {
     public gulp:GulpHelp;
 
     /**
+     * Task name under which it will be registered with gulp.
+     */
+    public name:string;
+
+    /**
      * Parameters received on the cli in case some are needed during the task construction.
      */
     public parameters:ParsedArgs;

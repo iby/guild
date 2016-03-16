@@ -58,7 +58,9 @@ export abstract class AbstractSubtaskFactory extends AbstractFactory {
      * Constructs task-specific stream pipeline, this being a standalone method allows easier testing of streams
      * without touching gulp internals.
      */
-    public abstract constructPipeline(configuration:any):Pipeline;
+    public constructPipeline(configuration:any):Pipeline {
+        throw new NotImplementedError();
+    }
 
     /**
      * Constructs and registers new clean task.
