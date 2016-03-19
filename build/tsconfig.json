@@ -2,10 +2,9 @@
     "compilerOptions": {
         "declaration": true,
         "module": "commonjs",
-        "moduleResolution": "classic",
         "noImplicitAny": true,
-        "removeComments": true,
         "outDir": "../product/js",
+        "removeComments": true,
         "target": "es5"
     },
     "files": [

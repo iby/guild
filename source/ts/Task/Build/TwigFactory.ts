@@ -23,6 +23,7 @@ export interface TwigConfiguration extends ConfigurationInterface {
     clean?:boolean;
     data?:any;
     destination:string|string[];
+    options?:any, // Todo: gulp-twig plugin options, ideally can be replaced with https://github.com/zimmen/gulp-twig/issues/25
     plugins?:PluginGenerators;
     source:string|string[];
     watch?:boolean;
@@ -49,6 +50,7 @@ export class TwigFactory extends AbstractFactory {
         var data:any;
         var destination:string|string[];
         var plugins:PluginGenerators;
+        var options:any;
         var source:string|string[];
         var watch:boolean;
 
@@ -60,6 +62,7 @@ export class TwigFactory extends AbstractFactory {
             clean = twigConfiguration.clean;
             data = twigConfiguration.data;
             destination = twigConfiguration.destination;
+            options = twigConfiguration.options;
             plugins = twigConfiguration.plugins;
             source = twigConfiguration.source;
             watch = twigConfiguration.watch;
@@ -70,13 +73,15 @@ export class TwigFactory extends AbstractFactory {
         destination == null && (destination = 'html');
         source == null && (source = 'twig');
         plugins == null && (plugins = []);
+        options == null && (options = {});
+        data == null || (options.data = data);
 
         // Rebuild twig configuration.
 
         twigConfiguration = <TwigConfiguration>{
             clean: clean !== false,
-            data: data,
             destination: destination,
+            options: options,
             plugins: plugins,
             source: source,
             watch: watch === true || parameters[Parameter.WATCH] === true
@@ -165,7 +170,7 @@ export class TwigFactory extends AbstractFactory {
 
         (plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
         (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.TWIG);
-        (index = plugins.indexOf(Plugin.TWIG)) >= 0 && plugins.splice(index, 1, twig(twigConfiguration.data));
+        (index = plugins.indexOf(Plugin.TWIG)) >= 0 && plugins.splice(index, 1, twig(twigConfiguration.options));
 
         return this.pipelineStreams(plugins);
     }
