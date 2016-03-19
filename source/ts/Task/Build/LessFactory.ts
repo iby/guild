@@ -25,7 +25,7 @@ export interface LessConfiguration extends ConfigurationInterface {
     destination:string|string[];
     plugins?:any[];
     source:string|string[];
-    watch?:boolean;
+    watch?:boolean|string|string[];
 }
 
 /**
@@ -50,7 +50,7 @@ export class LessFactory extends AbstractFactory {
         var destination:string|string[];
         var plugins:PluginGenerators;
         var source:string|string[];
-        var watch:boolean;
+        var watch:boolean|string|string[];
 
         // Normalise configuration.
 
@@ -66,6 +66,7 @@ export class LessFactory extends AbstractFactory {
         source == null && (source = 'less');
         destination == null && (destination = 'css');
         plugins == null && (plugins = []);
+        watch == null && (watch = watch === true || parameters[Parameter.WATCH] === true);
 
         // Rebuild less configuration.
 
@@ -74,7 +75,7 @@ export class LessFactory extends AbstractFactory {
             destination: destination,
             plugins: plugins,
             source: source,
-            watch: watch === true || parameters[Parameter.WATCH] === true
+            watch: watch
         };
 
         return [lessConfiguration, pathConfiguration];
@@ -93,8 +94,8 @@ export class LessFactory extends AbstractFactory {
 
         return [
             task = this.constructTask(gulp, configuration),
-            lessConfiguration.clean ? this.constructClean(gulp, configuration) : [],
-            lessConfiguration.watch ? this.constructWatch(gulp, configuration, task) : []
+            this.constructClean(gulp, configuration),
+            this.constructWatch(gulp, configuration, task)
         ];
     }
 
@@ -123,12 +124,16 @@ export class LessFactory extends AbstractFactory {
      * @inheritDoc
      */
     public constructClean(gulp:GulpHelp, configuration:Configuration):string[] {
+        var [lessConfiguration, pathConfiguration]:Configuration = configuration;
+        var clean:boolean = lessConfiguration.clean;
         var task:string = TaskName.BUILD_LESS_CLEAN;
 
-        gulp.task(task, false, function () {
-            var [lessConfiguration, pathConfiguration]:Configuration = configuration;
-            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseDestinationPath(pathConfiguration, lessConfiguration.destination), '**/*.css');
+        if (clean === true) {
+            return [];
+        }
 
+        gulp.task(task, false, function () {
+            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseDestinationPath(pathConfiguration, lessConfiguration.destination), '**/*.css');
             return del(path, {force: true});
         });
 
@@ -139,11 +144,22 @@ export class LessFactory extends AbstractFactory {
      * @inheritDoc
      */
     public constructWatch(gulp:GulpHelp, configuration:Configuration, tasks:string[]):string[] {
+        var [lessConfiguration, pathConfiguration]:Configuration = configuration;
         var task:string = TaskName.BUILD_LESS_WATCH;
+        var watch:any = lessConfiguration.watch;
+
+        if (watch === false) {
+            return [];
+        }
 
         gulp.task(task, false, function () {
-            var [lessConfiguration, pathConfiguration]:Configuration = configuration;
-            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, lessConfiguration.source), '**/*.less');
+
+            // When no explicit watch paths are given, use default less source location, otherwise normalise paths
+            // relative to the root directory. Todo: must take into account `configuration.source`…
+
+            var path:string|string[] = watch === true
+                ? PathUtility.normaliseSourcePath(pathConfiguration, 'less/**/*.less')
+                : PathUtility.normalisePath(pathConfiguration.root, watch);
 
             return gulp.watch(path, tasks);
         });

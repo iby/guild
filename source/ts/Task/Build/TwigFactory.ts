@@ -13,6 +13,7 @@ import {PluginGenerators, ConfigurationInterface} from '../../Configuration/Conf
 
 import clone = require('clone');
 import del = require('del');
+import path = require('path');
 import twig = require('gulp-twig');
 
 // Internal configuration format.
@@ -26,7 +27,7 @@ export interface TwigConfiguration extends ConfigurationInterface {
     options?:any, // Todo: gulp-twig plugin options, ideally can be replaced with https://github.com/zimmen/gulp-twig/issues/25
     plugins?:PluginGenerators;
     source:string|string[];
-    watch?:boolean;
+    watch?:boolean|string|string[];
 }
 
 /**
@@ -52,7 +53,7 @@ export class TwigFactory extends AbstractFactory {
         var plugins:PluginGenerators;
         var options:any;
         var source:string|string[];
-        var watch:boolean;
+        var watch:boolean|string|string[];
 
         // Normalise configuration, we may simply pass twig data as twig configuration, this we check if that object
         // compares at all to expected configuration.
@@ -73,6 +74,8 @@ export class TwigFactory extends AbstractFactory {
         destination == null && (destination = 'html');
         source == null && (source = 'twig');
         plugins == null && (plugins = []);
+        watch == null && (watch = watch === true || parameters[Parameter.WATCH] === true);
+
         options == null && (options = {});
         data == null || (options.data = data);
 
@@ -84,7 +87,7 @@ export class TwigFactory extends AbstractFactory {
             options: options,
             plugins: plugins,
             source: source,
-            watch: watch === true || parameters[Parameter.WATCH] === true
+            watch: watch
         };
 
         return [twigConfiguration, pathConfiguration];
@@ -103,8 +106,8 @@ export class TwigFactory extends AbstractFactory {
 
         return [
             task = this.constructTask(gulp, configuration),
-            twigConfiguration.clean ? this.constructClean(gulp, configuration) : [],
-            twigConfiguration.watch ? this.constructWatch(gulp, configuration, task) : []
+            this.constructClean(gulp, configuration),
+            this.constructWatch(gulp, configuration, task)
         ];
     }
 
@@ -132,12 +135,16 @@ export class TwigFactory extends AbstractFactory {
      * @inheritDoc
      */
     public constructClean(gulp:GulpHelp, configuration:Configuration):string[] {
+        var [twigConfiguration, pathConfiguration]:Configuration = configuration;
+        var clean:boolean = twigConfiguration.clean;
         var task:string = TaskName.BUILD_TWIG_CLEAN;
 
-        gulp.task(task, false, function () {
-            var [twigConfiguration, pathConfiguration]:Configuration = configuration;
-            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseDestinationPath(pathConfiguration, twigConfiguration.destination), '**/*.html');
+        if (clean === true) {
+            return [];
+        }
 
+        gulp.task(task, false, function () {
+            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseDestinationPath(pathConfiguration, twigConfiguration.destination), '**/*.html');
             return del(path, {force: true});
         });
 
@@ -148,11 +155,22 @@ export class TwigFactory extends AbstractFactory {
      * @inheritDoc
      */
     public constructWatch(gulp:GulpHelp, configuration:Configuration, tasks:string[]):string[] {
+        var [twigConfiguration, pathConfiguration]:Configuration = configuration;
+        var watch:any = twigConfiguration.watch;
         var task:string = TaskName.BUILD_TWIG_WATCH;
 
+        if (watch === false) {
+            return [];
+        }
+
         gulp.task(task, false, function () {
-            var [twigConfiguration, pathConfiguration]:Configuration = configuration;
-            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.source), '**/*.twig');
+
+            // When no explicit watch paths are given, use default twig source location, otherwise normalise paths
+            // relative to the root directory. Todo: must take into account `configuration.source`…
+
+            var path:string|string[] = watch === true
+                ? PathUtility.normaliseSourcePath(pathConfiguration, 'twig/**/*.twig')
+                : PathUtility.normalisePath(pathConfiguration.root, watch);
 
             return gulp.watch(path, tasks);
         });
@@ -165,7 +183,7 @@ export class TwigFactory extends AbstractFactory {
      */
     public constructPipeline(configuration:Configuration):Pipeline {
         var [twigConfiguration, pathConfiguration]:Configuration = configuration;
-        var plugins:any = twigConfiguration.plugins instanceof Function ? twigConfiguration.plugins : function () { return clone(twigConfiguration.plugins) };
+        var plugins:any = twigConfiguration.plugins instanceof Function ? twigConfiguration.plugins : function () { return clone(twigConfiguration.plugins); };
         var index:number;
 
         (plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
