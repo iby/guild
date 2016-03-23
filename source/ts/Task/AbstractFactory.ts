@@ -65,12 +65,24 @@ export abstract class AbstractFactory {
      * Creates gulp plumber stream with pre-configured error handler.
      */
     public constructPlumber(handler?:Handler):ReadWriteStream {
-        handler == null && (handler = function (error:any) {
-            util.beep();
-            util.log(error);
-        });
+        return plumber(function (error:any) {
+            if (handler == null) {
 
-        return plumber(handler);
+                // This prints only basic error info, todo: if we do a debug mode, we want to print more details…
+
+                util.beep();
+                util.log(util.colors.bold.yellow('Error (' + error.plugin + '): ' + error.message) + '\n');
+            } else {
+                handler(error);
+            }
+
+            // Must emit end event for any dependent streams to pick up on this. Destroying the stream ensures nothing else in that
+            // stream gets done, for example, if we're dealing with five files, after an error in one of them, any other won't carry
+            // on. Doing destroy without ending it first will not notify depending streams, tasks like `watch` will hang up.
+
+            this.emit('end');
+            this.destroy();
+        });
     }
 
     /**
