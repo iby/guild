@@ -1,5 +1,5 @@
 import {AbstractFactory, Task} from './AbstractFactory';
-import {ConfigurationInterface} from '../../Configuration/Configuration';
+import {ConfigurationInterface, PluginGenerator} from '../../Configuration/Configuration';
 import {DataType} from '../../Constant/DataType';
 import {GulpHelp} from 'gulp-help';
 import {NormaliseConfigurationError} from '../AbstractFactory';
@@ -10,15 +10,14 @@ import {PathConfiguration} from '../../Configuration/PathConfiguration';
 import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
 import {Plugin} from '../../Constant/Plugin';
 import {Task as TaskName} from '../../Constant/Task';
-import {PathUtility} from '../../Utility/PathUtility';
 
 import awspublish = require('gulp-awspublish');
+import clone = require("clone");
 import merge = require('merge-stream');
 import path = require('path');
 import rename = require('gulp-rename');
 import sequence = require('run-sequence');
 import url = require('url');
-import clone = require("clone");
 
 export type Configuration = [S3Configuration, PathConfiguration];
 export type Configurations = [S3Configuration[], PathConfiguration];
@@ -41,7 +40,7 @@ export interface S3Configuration extends ConfigurationInterface {
         }
     }
     pathStyle?:string;
-    plugins?:any,
+    plugins?:PluginGenerator,
     region?:string;
     secretKey?:string;
     target:Path;
@@ -109,7 +108,7 @@ export class S3Factory extends AbstractFactory {
                 throw new NormaliseConfigurationError('Target is missing.');
             }
 
-            return self.normaliseConfiguration([configuration, pathConfiguration], parameters);
+            return self.normaliseConfiguration(configuration, parameters);
         });
 
         return [s3Configurations, pathConfiguration];
@@ -118,18 +117,16 @@ export class S3Factory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public normaliseConfiguration(configuration:Configuration, parameters?:ParsedArgs):S3Configuration {
-        var [s3Configuration, pathConfiguration]:Configuration = configuration;
-
-        var accessKey:string = s3Configuration.accessKey;
-        var baseUrl:string = s3Configuration.baseUrl;
-        var bucket:string = s3Configuration.bucket;
-        var certificateAuthority:string = s3Configuration.certificateAuthority;
-        var pathStyle:string = s3Configuration.pathStyle;
-        var plugins:any[] = s3Configuration.plugins;
-        var region:string = s3Configuration.region;
-        var secretKey:string = s3Configuration.secretKey;
-        var target:any = s3Configuration.target;
+    public normaliseConfiguration(configuration:S3Configuration, parameters?:ParsedArgs):S3Configuration {
+        var accessKey:string = configuration.accessKey;
+        var baseUrl:string = configuration.baseUrl;
+        var bucket:string = configuration.bucket;
+        var certificateAuthority:string = configuration.certificateAuthority;
+        var pathStyle:string = configuration.pathStyle;
+        var plugins:PluginGenerator = configuration.plugins;
+        var region:string = configuration.region;
+        var secretKey:string = configuration.secretKey;
+        var target:any = configuration.target;
 
         // If configuration didn't come with the bucket try getting it from parameters.
 
@@ -169,10 +166,17 @@ export class S3Factory extends AbstractFactory {
         pathStyle == null || (awsConfiguration['s3ForcePathStyle'] = pathStyle);
         region == null || (awsConfiguration['region'] = region);
 
-        return {
+        // And…
+
+        plugins == null && (plugins = null);
+
+        configuration = <S3Configuration>{
             target: target,
-            configuration: awsConfiguration
+            configuration: awsConfiguration,
+            plugins: plugins
         };
+
+        return configuration;
     }
 
     /**
@@ -204,7 +208,7 @@ export class S3Factory extends AbstractFactory {
 
                 streams.push(stream);
             }
-            
+
             return merge(...streams);
         });
 
@@ -215,7 +219,7 @@ export class S3Factory extends AbstractFactory {
      * @inheritDoc
      */
     public constructPipeline(configuration:S3Configuration):Pipeline {
-        var plugins:any = configuration.plugins instanceof Function ? configuration.plugins : function () { return clone(configuration.plugins) };
+        var plugins:any[] = this.constructPlugins(configuration.plugins);
         var index:number;
 
         (plugins == null || (<any[]>plugins).length === 0) && (plugins = [Plugin.DEFAULT]);

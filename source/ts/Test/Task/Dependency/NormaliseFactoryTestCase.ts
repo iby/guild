@@ -32,7 +32,7 @@ suite('dependency normalise task factory', function () {
 
         normaliseConfiguration.should.be.instanceOf(Array).and.eql([{
             destination: path.join(pathConfiguration.library, 'js/foo.js'),
-            plugins: undefined,
+            plugins: null,
             source: path.join(pathConfiguration.dependency, 'script.js')
         }]);
     });
@@ -45,7 +45,7 @@ suite('dependency normalise task factory', function () {
 
         normaliseConfiguration.should.be.instanceOf(Array).and.eql([{
             destination: path.join(pathConfiguration.library, 'css/foo.css'),
-            plugins: undefined,
+            plugins: null,
             source: path.join(pathConfiguration.dependency, 'style.css')
         }]);
     });

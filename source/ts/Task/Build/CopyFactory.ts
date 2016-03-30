@@ -1,13 +1,13 @@
 import {AbstractFactory, Task} from './AbstractFactory';
+import {ConfigurationInterface, PluginGenerator} from '../../Configuration/Configuration';
 import {DataType} from '../../Constant/DataType';
 import {GulpHelp} from 'gulp-help';
+import {NormaliseConfigurationError} from '../AbstractFactory';
 import {Parameter} from '../../Constant/Parameter';
 import {ParsedArgs} from 'minimist';
 import {PathConfiguration} from '../../Configuration/PathConfiguration';
-import {ReadWriteStream} from '../../Stream/Pipeline';
-import {PluginGenerators, ConfigurationInterface} from '../../Configuration/Configuration';
 import {PathUtility} from '../../Utility/PathUtility';
-import {NormaliseConfigurationError} from '../AbstractFactory';
+import {ReadWriteStream, Pipeline} from '../../Stream/Pipeline';
 
 import clone = require('clone');
 import del = require('del');
@@ -21,7 +21,7 @@ export type Configurations = [CopyConfiguration[], PathConfiguration];
 export interface CopyConfiguration extends ConfigurationInterface {
     clean?:boolean;
     destination:string|string[];
-    plugins?:any[];
+    plugins?:PluginGenerator;
     source:string|string[];
     watch?:boolean;
 }
@@ -55,7 +55,7 @@ export class CopyFactory extends AbstractFactory {
                 throw new NormaliseConfigurationError('Unexpected object format.');
             }
 
-            return self.normaliseConfiguration([configuration, pathConfiguration], parameters);
+            return self.normaliseConfiguration(configuration, parameters);
         });
 
         return [copyConfigurations, pathConfiguration];
@@ -64,41 +64,34 @@ export class CopyFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public normaliseConfiguration(configuration:Configuration, parameters?:ParsedArgs):CopyConfiguration {
-        var [copyConfiguration, pathConfiguration]:Configuration = configuration;
-
-        // Options.
-
+    public normaliseConfiguration(configuration:CopyConfiguration, parameters?:ParsedArgs):CopyConfiguration {
         var clean:boolean;
         var destination:string|string[];
-        var plugins:PluginGenerators;
+        var plugins:PluginGenerator;
         var source:string|string[];
         var watch:boolean;
 
-        // Normalise configuration.
-
-        if (typeof copyConfiguration === DataType.BOOLEAN) {
+        if (typeof configuration === DataType.BOOLEAN) {
         } else {
-            clean = copyConfiguration.clean;
-            destination = copyConfiguration.destination;
-            plugins = copyConfiguration.plugins;
-            source = copyConfiguration.source;
-            watch = copyConfiguration.watch;
+            clean = configuration.clean;
+            destination = configuration.destination;
+            plugins = configuration.plugins;
+            source = configuration.source;
+            watch = configuration.watch;
         }
 
-        plugins == null && (plugins = []);
+        plugins == null && (plugins = null);
+        watch == null && (watch = watch === true || parameters[Parameter.WATCH] === true);
 
-        // Rebuild name configuration.
-
-        copyConfiguration = <CopyConfiguration>{
+        configuration = <CopyConfiguration>{
             clean: clean !== false,
             destination: destination,
             plugins: plugins,
             source: source,
-            watch: watch === true || parameters[Parameter.WATCH] === true
+            watch: watch
         };
 
-        return copyConfiguration;
+        return configuration;
     }
 
     /**
@@ -134,6 +127,7 @@ export class CopyFactory extends AbstractFactory {
                 var stream:ReadWriteStream;
 
                 stream = gulp.src(PathUtility.globalisePath(PathUtility.normalisePath(pathConfiguration.root, copyConfiguration.source), '**/*'));
+                stream = self.constructStream(stream, copyConfiguration);
                 stream = self.constructDestination(stream, gulp, PathUtility.normalisePath(pathConfiguration.root, copyConfiguration.destination));
 
                 streams.push(stream);
@@ -143,6 +137,14 @@ export class CopyFactory extends AbstractFactory {
         });
 
         return [task];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public constructPipeline(configuration:CopyConfiguration):Pipeline {
+        var plugins:any[] = this.constructPlugins(configuration.plugins);
+        return this.pipelineStreams(plugins);
     }
 
     /**

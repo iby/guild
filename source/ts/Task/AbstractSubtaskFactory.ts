@@ -1,13 +1,14 @@
-import {AbstractFactory} from './AbstractFactory';
+import {AbstractFactory, NormaliseConfigurationError} from './AbstractFactory';
 import {GulpHelp} from 'gulp-help';
 import {Gulp} from 'gulp';
 import {Option} from './Option';
-import {ReadWriteStream, ReadableStream, Pipeline} from '../Stream/Pipeline';
+import {ReadWriteStream, Pipeline} from '../Stream/Pipeline';
 import {Validator} from '../Validator/Validator';
 import {NotImplementedError} from '../Error/NotImplementedError';
 
 import del = require('del');
 import merge = require("merge-stream");
+import clone = require("clone");
 
 export abstract class AbstractSubtaskFactory extends AbstractFactory {
 
@@ -48,8 +49,17 @@ export abstract class AbstractSubtaskFactory extends AbstractFactory {
     /**
      * Constructs the task stream, relies on `constructPipeline` method to construct the stream pipeline.
      */
-    public constructStream(stream:ReadableStream, configuration:any):ReadWriteStream {
-        var [head, tail]:Pipeline = this.constructPipeline(configuration);
+    public constructStream(stream:ReadWriteStream, configuration:any):ReadWriteStream {
+        var pipeline:Pipeline = this.constructPipeline(configuration);
+
+        // Yes, pipeline may get not constructed, for example with build copy task, it would return something only
+        // when custom plugins are provided.
+
+        if (pipeline == null) {
+            return stream;
+        }
+
+        var [head, tail]:Pipeline = pipeline;
         stream.pipe(head);
         return tail;
     }
@@ -77,9 +87,28 @@ export abstract class AbstractSubtaskFactory extends AbstractFactory {
     }
 
     /**
-     * Pipes streams into a pipeline object.
+     * Normalises plugins and returns plugin generator function.
+     */
+    protected constructPlugins(plugins:any):any[] {
+        if (plugins == null) {
+            return [];
+        } else if (Array.isArray(plugins)) {
+            return clone(plugins);
+        } else if (plugins instanceof Function && Array.isArray(plugins = plugins())) {
+            return plugins;
+        }
+
+        throw new NormaliseConfigurationError('Plugins must be either an array or a function that returns array.');
+    }
+
+    /**
+     * Pipes streams into a pipeline object, returns `null` when `streams` is not provided or empty.
      */
     protected pipelineStreams(streams:ReadWriteStream[]):Pipeline {
+        if (streams == null || streams.length === 0) {
+            return null;
+        }
+
         var head:ReadWriteStream = null;
         var tail:ReadWriteStream = null;
 

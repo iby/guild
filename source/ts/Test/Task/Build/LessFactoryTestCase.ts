@@ -20,7 +20,7 @@ suite('build less task factory', function () {
         var lessConfiguration:LessConfiguration = {destination: null, source: null};
         var configuration:any = [lessConfiguration, pathConfiguration];
         var factory:LessFactory = new LessFactory();
-        var [head, tail]:Pipeline = factory.constructPipeline([lessConfiguration, pathConfiguration]);
+        var [head, tail]:Pipeline = factory.constructPipeline(lessConfiguration);
 
         tail.once('data', function (file:SourceFile) {
             path.basename(file.path).should.equal('style.css');

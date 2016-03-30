@@ -1,15 +1,15 @@
 import {AbstractFactory, Task} from './AbstractFactory';
+import {ConfigurationInterface, PluginGenerator} from '../../Configuration/Configuration';
 import {DataType} from '../../Constant/DataType';
 import {GulpHelp} from 'gulp-help';
+import {NormaliseConfigurationError} from '../AbstractFactory';
 import {Option} from '../Option';
 import {ParsedArgs} from 'minimist';
 import {PathConfiguration} from '../../Configuration/PathConfiguration';
+import {PathUtility} from '../../Utility/PathUtility';
 import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
 import {Plugin} from '../../Constant/Plugin';
 import {Task as TaskName} from '../../Constant/Task';
-import {PathUtility} from '../../Utility/PathUtility';
-import {ConfigurationInterface, PluginGenerators} from '../../Configuration/Configuration';
-import {NormaliseConfigurationError} from '../AbstractFactory';
 
 import clone = require("clone");
 import concat = require('gulp-concat');
@@ -17,14 +17,13 @@ import gulpif = require('gulp-if');
 import merge = require('merge-stream');
 import path = require('path');
 import uglify = require('gulp-uglify');
-import rename = require("gulp-rename");
 
 export type Configuration = [NormaliseConfiguration, PathConfiguration];
 export type Configurations = [NormaliseConfiguration[], PathConfiguration];
 
 export interface NormaliseConfiguration extends ConfigurationInterface {
     destination:string|string[];
-    plugins?:PluginGenerators;
+    plugins?:PluginGenerator;
     source:string|string[];
 }
 
@@ -110,10 +109,13 @@ export class NormaliseFactory extends AbstractFactory {
 
         var source:string|string[] = normaliseConfiguration.source;
         var destination:string|string[] = normaliseConfiguration.destination;
-        var plugins:any[] = <any[]>normaliseConfiguration.plugins;
+        var plugins:PluginGenerator = normaliseConfiguration.plugins;
+
+        // Todo: why are we doing path normalisation here?
 
         source = PathUtility.normaliseDependencyPath(pathConfiguration, source);
         destination = PathUtility.normaliseLibraryPath(pathConfiguration, destination);
+        plugins == null && (plugins = null);
 
         var extension:string;
         var directory:string;
@@ -173,7 +175,7 @@ export class NormaliseFactory extends AbstractFactory {
      * @inheritDoc
      */
     public constructPipeline(configuration:NormaliseConfiguration):Pipeline {
-        var plugins:any = configuration.plugins instanceof Function ? configuration.plugins : function () { return clone(configuration.plugins) };
+        var plugins:any = this.constructPlugins(configuration.plugins);
         var index:number;
 
         (plugins == null || plugins.length === 0) && (plugins = [Plugin.DEFAULT]);

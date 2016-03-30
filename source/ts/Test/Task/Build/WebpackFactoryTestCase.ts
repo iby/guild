@@ -20,7 +20,7 @@ suite('build webpack task factory', function () {
 
     test('construct pipeline', function () {
         var factory:WebpackFactory = new WebpackFactory();
-        var [head, tail]:Pipeline = factory.constructPipeline([webpackConfiguration, pathConfiguration]);
+        var [head, tail]:Pipeline = factory.constructPipeline(webpackConfiguration);
 
         tail.once('data', function (file:SourceFile) {
             path.basename(file.path).should.equal('script.js');

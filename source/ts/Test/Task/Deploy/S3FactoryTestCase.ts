@@ -38,8 +38,8 @@ suite('s3 task factory', function () {
         [s3Configuration] = factory.normaliseConfigurations([s3Configuration, pathConfiguration], parameters);
 
         s3Configuration.should.eql([
-            {target: {path: 'foo'}, configuration: awsConfiguration},
-            {target: {path: 'bar'}, configuration: awsConfiguration}
+            {target: {path: 'foo'}, configuration: awsConfiguration, plugins: null},
+            {target: {path: 'bar'}, configuration: awsConfiguration, plugins: null}
         ]);
     });
 
@@ -50,8 +50,8 @@ suite('s3 task factory', function () {
         [s3Configuration] = factory.normaliseConfigurations([s3Configuration, pathConfiguration], parameters);
 
         s3Configuration.should.eql([
-            {target: {path: 'foo/bar', base: 'foo'}, configuration: awsConfiguration},
-            {target: {path: 'bar/baz'}, configuration: awsConfiguration}
+            {target: {path: 'foo/bar', base: 'foo'}, configuration: awsConfiguration, plugins: null},
+            {target: {path: 'bar/baz'}, configuration: awsConfiguration, plugins: null}
         ]);
     });
 });

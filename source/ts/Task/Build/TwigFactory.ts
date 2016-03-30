@@ -1,15 +1,15 @@
 import {AbstractFactory, Task} from './AbstractFactory';
+import {ConfigurationInterface, PluginGenerator} from '../../Configuration/Configuration';
 import {DataType} from '../../Constant/DataType';
 import {GulpHelp} from 'gulp-help';
 import {Option} from '../Option';
 import {Parameter} from '../../Constant/Parameter';
 import {ParsedArgs} from 'minimist';
 import {PathConfiguration} from '../../Configuration/PathConfiguration';
+import {PathUtility} from '../../Utility/PathUtility';
 import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
 import {Plugin} from '../../Constant/Plugin';
-import {PathUtility} from '../../Utility/PathUtility';
 import {Task as TaskName} from '../../Constant/Task';
-import {PluginGenerators, ConfigurationInterface} from '../../Configuration/Configuration';
 
 import clone = require('clone');
 import del = require('del');
@@ -25,7 +25,7 @@ export interface TwigConfiguration extends ConfigurationInterface {
     data?:any;
     destination:string|string[];
     options?:any, // Todo: gulp-twig plugin options, ideally can be replaced with https://github.com/zimmen/gulp-twig/issues/25
-    plugins?:PluginGenerators;
+    plugins?:PluginGenerator;
     source:string|string[];
     watch?:boolean|string|string[];
 }
@@ -50,8 +50,8 @@ export class TwigFactory extends AbstractFactory {
         var clean:boolean;
         var data:any;
         var destination:string|string[];
-        var plugins:PluginGenerators;
         var options:any;
+        var plugins:PluginGenerator;
         var source:string|string[];
         var watch:boolean|string|string[];
 
@@ -71,9 +71,9 @@ export class TwigFactory extends AbstractFactory {
             data = twigConfiguration;
         }
 
-        destination == null && (destination = 'html');
         source == null && (source = 'twig');
-        plugins == null && (plugins = []);
+        destination == null && (destination = 'html');
+        plugins == null && (plugins = null);
         watch == null && (watch = watch === true || parameters[Parameter.WATCH] === true);
 
         options == null && (options = {});
@@ -122,7 +122,7 @@ export class TwigFactory extends AbstractFactory {
             var stream:ReadWriteStream;
 
             stream = gulp.src(PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.source), '**/*.twig')).pipe(self.constructPlumber());
-            stream = self.constructStream(stream, configuration);
+            stream = self.constructStream(stream, twigConfiguration);
             stream = self.constructDestination(stream, gulp, PathUtility.normaliseDestinationPath(pathConfiguration, twigConfiguration.destination));
 
             return stream;
@@ -134,16 +134,29 @@ export class TwigFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
+    public constructPipeline(configuration:TwigConfiguration):Pipeline {
+        var plugins:any[] = this.constructPlugins(configuration.plugins);
+        var index:number;
+
+        (plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
+        (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.TWIG);
+        (index = plugins.indexOf(Plugin.TWIG)) >= 0 && plugins.splice(index, 1, twig(configuration.options));
+
+        return this.pipelineStreams(plugins);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public constructClean(gulp:GulpHelp, configuration:Configuration):string[] {
         var [twigConfiguration, pathConfiguration]:Configuration = configuration;
-        var clean:boolean = twigConfiguration.clean;
-        var task:string = TaskName.BUILD_TWIG_CLEAN;
+        var task:string;
 
-        if (clean === true) {
+        if (!twigConfiguration.clean) {
             return [];
         }
 
-        gulp.task(task, false, function () {
+        gulp.task(task = TaskName.BUILD_TWIG_CLEAN, false, function () {
             var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseDestinationPath(pathConfiguration, twigConfiguration.destination), '**/*.html');
             return del(path, {force: true});
         });
@@ -176,20 +189,5 @@ export class TwigFactory extends AbstractFactory {
         });
 
         return [task];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public constructPipeline(configuration:Configuration):Pipeline {
-        var [twigConfiguration, pathConfiguration]:Configuration = configuration;
-        var plugins:any = twigConfiguration.plugins instanceof Function ? twigConfiguration.plugins : function () { return clone(twigConfiguration.plugins); };
-        var index:number;
-
-        (plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
-        (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.TWIG);
-        (index = plugins.indexOf(Plugin.TWIG)) >= 0 && plugins.splice(index, 1, twig(twigConfiguration.options));
-
-        return this.pipelineStreams(plugins);
     }
 }

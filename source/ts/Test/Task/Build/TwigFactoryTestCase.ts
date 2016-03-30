@@ -20,7 +20,7 @@ suite('build twig task factory', function () {
 
     test('construct pipeline', function () {
         var factory:TwigFactory = new TwigFactory();
-        var [head, tail]:Pipeline = factory.constructPipeline([twigConfiguration, pathConfiguration]);
+        var [head, tail]:Pipeline = factory.constructPipeline(twigConfiguration);
 
         tail.once('data', function (file:SourceFile) {
             path.basename(file.path).should.equal('template.html');

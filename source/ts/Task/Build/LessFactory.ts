@@ -1,15 +1,15 @@
 import {AbstractFactory, Task} from './AbstractFactory';
+import {ConfigurationInterface, PluginGenerator} from '../../Configuration/Configuration';
 import {DataType} from '../../Constant/DataType';
 import {GulpHelp} from 'gulp-help';
 import {Option} from '../Option';
 import {Parameter} from '../../Constant/Parameter';
 import {ParsedArgs} from 'minimist';
 import {PathConfiguration} from '../../Configuration/PathConfiguration';
+import {PathUtility} from '../../Utility/PathUtility';
 import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
-import {PluginGenerators, ConfigurationInterface} from '../../Configuration/Configuration';
 import {Plugin} from '../../Constant/Plugin';
 import {Task as TaskName} from '../../Constant/Task';
-import {PathUtility} from '../../Utility/PathUtility';
 
 import clone = require('clone');
 import del = require('del');
@@ -23,7 +23,7 @@ export type Configuration = [LessConfiguration, PathConfiguration];
 export interface LessConfiguration extends ConfigurationInterface {
     clean?:boolean;
     destination:string|string[];
-    plugins?:any[];
+    plugins?:PluginGenerator;
     source:string|string[];
     watch?:boolean|string|string[];
 }
@@ -48,7 +48,7 @@ export class LessFactory extends AbstractFactory {
 
         var clean:boolean;
         var destination:string|string[];
-        var plugins:PluginGenerators;
+        var plugins:PluginGenerator;
         var source:string|string[];
         var watch:boolean|string|string[];
 
@@ -65,7 +65,7 @@ export class LessFactory extends AbstractFactory {
 
         source == null && (source = 'less');
         destination == null && (destination = 'css');
-        plugins == null && (plugins = []);
+        plugins == null && (plugins = null);
         watch == null && (watch = watch === true || parameters[Parameter.WATCH] === true);
 
         // Rebuild less configuration.
@@ -111,7 +111,7 @@ export class LessFactory extends AbstractFactory {
             var stream:ReadWriteStream;
 
             stream = gulp.src(PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, lessConfiguration.source), '**/*.less')).pipe(self.constructPlumber());
-            stream = self.constructStream(stream, configuration);
+            stream = self.constructStream(stream, lessConfiguration);
             stream = self.constructDestination(stream, gulp, PathUtility.normaliseDestinationPath(pathConfiguration, lessConfiguration.destination));
 
             return stream;
@@ -123,16 +123,41 @@ export class LessFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
+    public constructPipeline(configuration:LessConfiguration):Pipeline {
+        var plugins:any[] = this.constructPlugins(configuration.plugins);
+        var index:number;
+
+        (plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
+        (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.LESS);
+        (index = plugins.indexOf(Plugin.LESS)) >= 0 && plugins.splice(index, 1, less(), postcss([
+            require('stylelint')({
+                rules: {
+                    "property-no-vendor-prefix": true,
+                    "selector-no-vendor-prefix": true,
+                    "value-no-vendor-prefix": true
+                }
+            }),
+            require('postcss-discard-comments')({removeAll: true}),
+            require('autoprefixer')({browsers: ['last 2 versions']}),
+            require('cssnano')(),
+            require('postcss-reporter')()
+        ]));
+
+        return this.pipelineStreams(plugins);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public constructClean(gulp:GulpHelp, configuration:Configuration):string[] {
         var [lessConfiguration, pathConfiguration]:Configuration = configuration;
-        var clean:boolean = lessConfiguration.clean;
-        var task:string = TaskName.BUILD_LESS_CLEAN;
+        var task:string;
 
-        if (clean === true) {
+        if (!lessConfiguration.clean) {
             return [];
         }
 
-        gulp.task(task, false, function () {
+        gulp.task(task = TaskName.BUILD_LESS_CLEAN, false, function () {
             var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseDestinationPath(pathConfiguration, lessConfiguration.destination), '**/*.css');
             return del(path, {force: true});
         });
@@ -165,32 +190,5 @@ export class LessFactory extends AbstractFactory {
         });
 
         return [task];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public constructPipeline(configuration:Configuration):Pipeline {
-        var [lessConfiguration, pathConfiguration]:Configuration = configuration;
-        var plugins:any = lessConfiguration.plugins instanceof Function ? lessConfiguration.plugins : function () { return clone(lessConfiguration.plugins) };
-        var index:number;
-
-        (plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
-        (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.LESS);
-        (index = plugins.indexOf(Plugin.LESS)) >= 0 && plugins.splice(index, 1, less(), postcss([
-            require('stylelint')({
-                rules: {
-                    "property-no-vendor-prefix": true,
-                    "selector-no-vendor-prefix": true,
-                    "value-no-vendor-prefix": true
-                }
-            }),
-            require('postcss-discard-comments')({removeAll: true}),
-            require('autoprefixer')({browsers: ['last 2 versions']}),
-            require('cssnano')(),
-            require('postcss-reporter')()
-        ]));
-
-        return this.pipelineStreams(plugins);
     }
 }

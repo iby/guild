@@ -1,14 +1,14 @@
 import {AbstractFactory, Task} from './AbstractFactory';
+import {ConfigurationInterface, PluginGenerator} from '../../Configuration/Configuration';
 import {GulpHelp} from 'gulp-help';
 import {Option} from '../Option';
 import {Parameter} from '../../Constant/Parameter';
 import {ParsedArgs} from 'minimist';
 import {PathConfiguration} from '../../Configuration/PathConfiguration';
+import {PathUtility} from '../../Utility/PathUtility';
 import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
-import {PluginGenerators, ConfigurationInterface} from '../../Configuration/Configuration';
 import {Plugin} from '../../Constant/Plugin';
 import {Task as TaskName} from '../../Constant/Task';
-import {PathUtility} from '../../Utility/PathUtility';
 
 import clone = require('clone');
 import del = require('del');
@@ -22,7 +22,7 @@ export interface WebpackConfiguration extends ConfigurationInterface {
     clean?:boolean;
     configuration?:any;
     destination:string|string[];
-    plugins?:PluginGenerators;
+    plugins?:PluginGenerator;
     source:string|string[];
     watch?:boolean;
 }
@@ -47,8 +47,7 @@ export class WebpackFactory extends AbstractFactory {
         var clean:boolean;
         var compilerConfiguration:any;
         var destination:string|string[];
-        var plugins:PluginGenerators;
-        var pluginsGenerator:Function;
+        var plugins:PluginGenerator;
         var source:string|string[];
         var watch:boolean;
 
@@ -67,7 +66,8 @@ export class WebpackFactory extends AbstractFactory {
 
         source == null && (source = 'js');
         destination == null && (destination = 'js');
-        plugins == null && (plugins = []);
+        plugins == null && (plugins = null);
+        watch == null && (watch = watch === true || parameters[Parameter.WATCH] === true);
 
         // Rebuild less configuration.
 
@@ -77,7 +77,7 @@ export class WebpackFactory extends AbstractFactory {
             destination: destination,
             plugins: plugins,
             source: source,
-            watch: watch === true || parameters[Parameter.WATCH] === true
+            watch: watch
         };
 
         return [webpackConfiguration, pathConfiguration];
@@ -112,7 +112,7 @@ export class WebpackFactory extends AbstractFactory {
             var stream:ReadWriteStream;
 
             stream = gulp.src(PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, webpackConfiguration.source), '**/*.js')).pipe(self.constructPlumber());
-            stream = self.constructStream(stream, configuration);
+            stream = self.constructStream(stream, webpackConfiguration);
             stream = self.constructDestination(stream, gulp, PathUtility.normaliseDestinationPath(pathConfiguration, webpackConfiguration.destination));
 
             return stream;
@@ -124,8 +124,24 @@ export class WebpackFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
+    public constructPipeline(configuration:WebpackConfiguration):Pipeline {
+        var plugins:any[] = this.constructPlugins(configuration.plugins);
+        var index:number;
+
+        (plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
+        (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.WEBPACK);
+        (index = plugins.indexOf(Plugin.WEBPACK)) >= 0 && plugins.splice(index, 1, webpack(configuration.configuration));
+
+        return this.pipelineStreams(plugins);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public constructClean(gulp:GulpHelp, configuration:Configuration):string[] {
         var task:string = TaskName.BUILD_WEBPACK_CLEAN;
+
+        // Todo: rewrite using new form, like in less and twig.
 
         gulp.task(task, false, function () {
             var [twigConfiguration, pathConfiguration]:Configuration = configuration;
@@ -143,6 +159,8 @@ export class WebpackFactory extends AbstractFactory {
     public constructWatch(gulp:GulpHelp, configuration:Configuration, tasks:string[]):string[] {
         var task:string = TaskName.BUILD_WEBPACK_WATCH;
 
+        // Todo: rewrite using new form, like in less and twig.
+
         gulp.task(task, false, function () {
             var [twigConfiguration, pathConfiguration]:Configuration = configuration;
             var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.source), '**/*.js');
@@ -151,20 +169,5 @@ export class WebpackFactory extends AbstractFactory {
         });
 
         return [task];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public constructPipeline(configuration:Configuration):Pipeline {
-        var [webpackConfiguration, pathConfiguration]:Configuration = configuration;
-        var plugins:any = webpackConfiguration.plugins instanceof Function ? webpackConfiguration.plugins : function () { return clone(webpackConfiguration.plugins) };
-        var index:number;
-
-        (plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
-        (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.WEBPACK);
-        (index = plugins.indexOf(Plugin.WEBPACK)) >= 0 && plugins.splice(index, 1, webpack(webpackConfiguration.configuration));
-
-        return this.pipelineStreams(plugins);
     }
 }

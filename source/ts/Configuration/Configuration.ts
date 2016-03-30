@@ -16,4 +16,4 @@ export type PluginGenerator = () => any[]
 /**
  * A set / array of plugins, see `PluginGenerator` type.
  */
-export type PluginGenerators = (string|PluginGenerator)[]
+export type PluginGenerators = string[]|PluginGenerator
