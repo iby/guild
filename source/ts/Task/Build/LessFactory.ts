@@ -41,6 +41,11 @@ export class LessFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
+    public name:string = TaskName.BUILD_LESS;
+
+    /**
+     * @inheritDoc
+     */
     public normaliseConfiguration(configuration:Configuration, parameters?:ParsedArgs):Configuration {
         var [lessConfiguration, pathConfiguration]:Configuration = configuration;
 
@@ -153,11 +158,11 @@ export class LessFactory extends AbstractFactory {
         var [lessConfiguration, pathConfiguration]:Configuration = configuration;
         var task:string;
 
-        if (!lessConfiguration.clean) {
+        if (lessConfiguration.clean === false) {
             return [];
         }
 
-        gulp.task(task = TaskName.BUILD_LESS_CLEAN, false, function () {
+        gulp.task(task = this.name + '-clean', false, function () {
             var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseDestinationPath(pathConfiguration, lessConfiguration.destination), '**/*.css');
             return del(path, {force: true});
         });
@@ -170,14 +175,14 @@ export class LessFactory extends AbstractFactory {
      */
     public constructWatch(gulp:GulpHelp, configuration:Configuration, tasks:string[]):string[] {
         var [lessConfiguration, pathConfiguration]:Configuration = configuration;
-        var task:string = TaskName.BUILD_LESS_WATCH;
         var watch:any = lessConfiguration.watch;
+        var task:string;
 
         if (watch === false) {
             return [];
         }
 
-        gulp.task(task, false, function () {
+        gulp.task(task = this.name + '-watch', false, function () {
 
             // When no explicit watch paths are given, use default less source location, otherwise normalise paths
             // relative to the root directory. Todo: must take into account `configuration.source`…

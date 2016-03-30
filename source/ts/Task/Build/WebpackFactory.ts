@@ -39,6 +39,11 @@ export class WebpackFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
+    public name:string = TaskName.BUILD_WEBPACK;
+
+    /**
+     * @inheritDoc
+     */
     public normaliseConfiguration(configuration:Configuration, parameters?:ParsedArgs):Configuration {
         var [webpackConfiguration, pathConfiguration]:Configuration = configuration;
 
@@ -139,14 +144,15 @@ export class WebpackFactory extends AbstractFactory {
      * @inheritDoc
      */
     public constructClean(gulp:GulpHelp, configuration:Configuration):string[] {
-        var task:string = TaskName.BUILD_WEBPACK_CLEAN;
+        var [webpackConfiguration, pathConfiguration]:Configuration = configuration;
+        var task:string;
 
-        // Todo: rewrite using new form, like in less and twig.
+        if (webpackConfiguration.clean === false) {
+            return [];
+        }
 
-        gulp.task(task, false, function () {
-            var [twigConfiguration, pathConfiguration]:Configuration = configuration;
-            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseDestinationPath(pathConfiguration, twigConfiguration.destination), '**/*.js');
-
+        gulp.task(task = this.name + '-clean', false, function () {
+            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseDestinationPath(pathConfiguration, webpackConfiguration.destination), '**/*.js');
             return del(path, {force: true});
         });
 
@@ -157,13 +163,22 @@ export class WebpackFactory extends AbstractFactory {
      * @inheritDoc
      */
     public constructWatch(gulp:GulpHelp, configuration:Configuration, tasks:string[]):string[] {
-        var task:string = TaskName.BUILD_WEBPACK_WATCH;
+        var [webpackConfiguration, pathConfiguration]:Configuration = configuration;
+        var watch:any = webpackConfiguration.watch;
+        var task:string;
 
-        // Todo: rewrite using new form, like in less and twig.
+        if (watch === false) {
+            return [];
+        }
 
-        gulp.task(task, false, function () {
-            var [twigConfiguration, pathConfiguration]:Configuration = configuration;
-            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, twigConfiguration.source), '**/*.js');
+        gulp.task(task = this.name + '-watch', false, function () {
+
+            // When no explicit watch paths are given, use default twig source location, otherwise normalise paths
+            // relative to the root directory. Todo: must take into account `configuration.source`…
+
+            var path:string|string[] = watch === true
+                ? PathUtility.normaliseSourcePath(pathConfiguration, 'js/**/*.js')
+                : PathUtility.normalisePath(pathConfiguration.root, watch);
 
             return gulp.watch(path, tasks);
         });

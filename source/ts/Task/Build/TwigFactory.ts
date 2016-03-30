@@ -42,6 +42,11 @@ export class TwigFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
+    public name:string = TaskName.BUILD_TWIG;
+
+    /**
+     * @inheritDoc
+     */
     public normaliseConfiguration(configuration:Configuration, parameters?:ParsedArgs):Configuration {
         var [twigConfiguration, pathConfiguration]:Configuration = configuration;
 
@@ -156,7 +161,7 @@ export class TwigFactory extends AbstractFactory {
             return [];
         }
 
-        gulp.task(task = TaskName.BUILD_TWIG_CLEAN, false, function () {
+        gulp.task(task = this.name + '-clean', false, function () {
             var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseDestinationPath(pathConfiguration, twigConfiguration.destination), '**/*.html');
             return del(path, {force: true});
         });
@@ -170,13 +175,13 @@ export class TwigFactory extends AbstractFactory {
     public constructWatch(gulp:GulpHelp, configuration:Configuration, tasks:string[]):string[] {
         var [twigConfiguration, pathConfiguration]:Configuration = configuration;
         var watch:any = twigConfiguration.watch;
-        var task:string = TaskName.BUILD_TWIG_WATCH;
+        var task:string;
 
         if (watch === false) {
             return [];
         }
 
-        gulp.task(task, false, function () {
+        gulp.task(task = this.name + '-watch', false, function () {
 
             // When no explicit watch paths are given, use default twig source location, otherwise normalise paths
             // relative to the root directory. Todo: must take into account `configuration.source`…

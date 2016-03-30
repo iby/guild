@@ -152,7 +152,7 @@ export class CopyFactory extends AbstractFactory {
      */
     public constructClean(gulp:GulpHelp, configuration:Configurations):string[] {
         var [copyConfigurations, pathConfiguration]:Configurations = configuration;
-        var task:string = this.name + '-clean';
+        var task:string;
 
         copyConfigurations = copyConfigurations.filter(function (copyConfiguration:CopyConfiguration) {
             return copyConfiguration.clean === true;
@@ -162,7 +162,7 @@ export class CopyFactory extends AbstractFactory {
             return [];
         }
 
-        gulp.task(task, false, function () {
+        gulp.task(task = this.name + '-clean', false, function () {
             var streams:ReadWriteStream[] = [];
 
             for (let copyConfiguration of copyConfigurations) {
@@ -181,7 +181,7 @@ export class CopyFactory extends AbstractFactory {
      */
     public constructWatch(gulp:GulpHelp, configuration:Configurations, tasks:string[]):string[] {
         var [copyConfigurations, pathConfiguration]:Configurations = configuration;
-        var task:string = this.name + '-watch';
+        var task:string;
 
         copyConfigurations = copyConfigurations.filter(function (copyConfiguration:CopyConfiguration) {
             return copyConfiguration.watch === true;
@@ -191,7 +191,7 @@ export class CopyFactory extends AbstractFactory {
             return [];
         }
 
-        gulp.task(task, false, function () {
+        gulp.task(task = this.name + '-watch', false, function () {
             for (let copyConfiguration of copyConfigurations) {
                 var path:string|string[] = PathUtility.globalisePath(PathUtility.normalisePath(pathConfiguration.root, copyConfiguration.source), '**/*');
                 gulp.watch(path, tasks);
