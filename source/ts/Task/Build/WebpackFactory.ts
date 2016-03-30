@@ -12,6 +12,7 @@ import {Task as TaskName} from '../../Constant/Task';
 
 import clone = require('clone');
 import del = require('del');
+import uglify = require('gulp-uglify');
 import webpack = require('webpack-stream');
 
 // Internal configuration format.
@@ -23,6 +24,7 @@ export interface WebpackConfiguration extends ConfigurationInterface {
     configuration?:any;
     destination:string|string[];
     plugins?:PluginGenerator;
+    production?:boolean;
     source:string|string[];
     watch?:boolean;
 }
@@ -53,6 +55,7 @@ export class WebpackFactory extends AbstractFactory {
         var compilerConfiguration:any;
         var destination:string|string[];
         var plugins:PluginGenerator;
+        var production:boolean;
         var source:string|string[];
         var watch:boolean;
 
@@ -63,6 +66,7 @@ export class WebpackFactory extends AbstractFactory {
             compilerConfiguration = webpackConfiguration.configuration;
             destination = webpackConfiguration.destination;
             plugins = webpackConfiguration.plugins;
+            production = webpackConfiguration.production;
             source = webpackConfiguration.source;
             watch = webpackConfiguration.watch;
         } else {
@@ -73,6 +77,7 @@ export class WebpackFactory extends AbstractFactory {
         destination == null && (destination = 'js');
         plugins == null && (plugins = null);
         watch == null && (watch = watch === true || parameters[Parameter.WATCH] === true);
+        production == null && (production = production === true || parameters[Parameter.PRODUCTION] === true);
 
         // Rebuild less configuration.
 
@@ -81,6 +86,7 @@ export class WebpackFactory extends AbstractFactory {
             configuration: compilerConfiguration,
             destination: destination,
             plugins: plugins,
+            production: production,
             source: source,
             watch: watch
         };
@@ -135,7 +141,11 @@ export class WebpackFactory extends AbstractFactory {
 
         (plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
         (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.WEBPACK);
-        (index = plugins.indexOf(Plugin.WEBPACK)) >= 0 && plugins.splice(index, 1, webpack(configuration.configuration));
+
+        if ((index = plugins.indexOf(Plugin.WEBPACK)) >= 0) {
+            plugins.splice(index++, 1, webpack(configuration.configuration));
+            configuration.production && plugins.splice(index, 0, uglify())
+        }
 
         return this.pipelineStreams(plugins);
     }

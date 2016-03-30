@@ -7,4 +7,5 @@ export class Parameter {
     static REGION:string = 'region';
     static SECRET_KEY:string = 'secret-key';
     static WATCH:string = 'watch';
+    static PRODUCTION:string = 'production';
 }
