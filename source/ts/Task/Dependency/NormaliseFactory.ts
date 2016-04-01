@@ -60,14 +60,17 @@ export class NormaliseFactory extends AbstractFactory {
                 // If configuration is already an object, we inject destination into it if necessary. If not,
                 // we turn it into object. In both cases some normalisation takes place.
 
-                if (typeof normaliseConfiguration[key] === DataType.OBJECT) {
+                var array:boolean = Array.isArray(normaliseConfiguration[key]);
+                var object:boolean = typeof normaliseConfiguration[key] === DataType.OBJECT;
+
+                if (array && object || !array && !object) {
+                    configuration = {destination: key, source: normaliseConfiguration[key]};
+                    source = normaliseConfiguration[key];
+                    destination = key;
+                } else {
                     configuration = normaliseConfiguration[key];
                     source = <string>configuration.source;
                     destination = configuration.destination == null ? key : null;
-                } else {
-                    configuration = {destination: null, source: normaliseConfiguration[key]};
-                    source = normaliseConfiguration[key];
-                    destination = key;
                 }
 
                 // Quick source validate.
