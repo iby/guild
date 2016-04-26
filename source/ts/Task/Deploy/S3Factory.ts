@@ -27,6 +27,11 @@ export type Configurations = [S3Configuration[], PathConfiguration];
 export interface Target {
     path:string;
     base?:string;
+
+    /**
+     * Target specific prefix, if prefix option is specified in configuration, target prefix will be appended
+     * after it, otherwise only target prefix will be used.
+     */
     prefix?:string;
 }
 
@@ -44,6 +49,12 @@ export interface S3Configuration extends ConfigurationInterface {
     }
     pathStyle?:string;
     plugins?:PluginGenerator,
+
+    /**
+     * Global prefix for all targets, also configurable via parameters, useful when all targets must be deployed
+     * to a specific location within the bucket.
+     */
+    prefix?:string,
     region?:string;
     secretKey?:string;
     target:Target[];
@@ -91,8 +102,8 @@ export class S3Factory extends AbstractFactory {
 
         s3Configurations = s3Configurations.map(function (configuration:S3Configuration):S3Configuration {
 
-            // If configuration is already an object, we inject target into it if necessary. If not,
-            // we turn it into object. In both cases some normalisation takes place.
+            // If configuration is already an object, we inject target into it if necessary. If not, we turn it
+            // into object. In both cases some normalisation takes place.
 
             if (typeof configuration !== DataType.OBJECT) {
                 configuration = {target: [{path: <any>configuration}]};
@@ -124,6 +135,7 @@ export class S3Factory extends AbstractFactory {
         var certificateAuthority:string = configuration.certificateAuthority;
         var pathStyle:string = configuration.pathStyle;
         var plugins:PluginGenerator = configuration.plugins;
+        var prefix:string = configuration.prefix;
         var region:string = configuration.region;
         var secretKey:string = configuration.secretKey;
         var target:any = configuration.target;
@@ -141,14 +153,16 @@ export class S3Factory extends AbstractFactory {
         if (bucket != null) {
             accessKey == null && (accessKey = parameters[bucket + '-' + Parameter.ACCESS_KEY]);
             secretKey == null && (secretKey = parameters[bucket + '-' + Parameter.SECRET_KEY]);
+            prefix == null && (prefix = parameters[bucket + '-' + Parameter.PREFIX]);
             parameters[bucket + '-' + Parameter.BUCKET] == null || (bucket = parameters[bucket + '-' + Parameter.BUCKET]);
         }
 
-        // If both access and secret keys are still missing, but bucket is set, use default ones.
+        // If both access and secret keys and prefix are still missing, but bucket is set, use default ones.
 
         if (bucket != null) {
             accessKey == null && (accessKey = parameters[Parameter.ACCESS_KEY]);
             secretKey == null && (secretKey = parameters[Parameter.SECRET_KEY]);
+            prefix == null && (prefix = parameters[Parameter.PREFIX]);
         }
 
         // Normalise targets, it either is an array of targets or a single object.
@@ -157,8 +171,9 @@ export class S3Factory extends AbstractFactory {
 
         targets = targets.map(function (target:any) {
             if (typeof target === DataType.STRING) {
-                return {path: target};
+                return {path: target, prefix: prefix};
             } else if (typeof target === DataType.OBJECT && S3Factory.isTarget(target)) {
+                prefix == null || (target.prefix = target.prefix == null ? null : pathJoin(prefix, target.prefix));
                 return target;
             } else {
                 throw new NormaliseConfigurationError('Target is in a wrong format.');

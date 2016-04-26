@@ -4,6 +4,7 @@ export class Parameter {
     static BUCKET:string = 'bucket';
     static CERTIFICATE_AUTHORITY:string = 'ca';
     static PATH_STYLE:string = 'path-style';
+    static PREFIX:string = 'prefix';
     static REGION:string = 'region';
     static SECRET_KEY:string = 'secret-key';
     static WATCH:string = 'watch';
