@@ -19,12 +19,15 @@ import rename = require('gulp-rename');
 import sequence = require('run-sequence');
 import url = require('url');
 
+import pathJoin = path.join;
+
 export type Configuration = [S3Configuration, PathConfiguration];
 export type Configurations = [S3Configuration[], PathConfiguration];
 
-export interface Path {
+export interface Target {
     path:string;
     base?:string;
+    prefix?:string;
 }
 
 export interface S3Configuration extends ConfigurationInterface {
@@ -43,7 +46,7 @@ export interface S3Configuration extends ConfigurationInterface {
     plugins?:PluginGenerator,
     region?:string;
     secretKey?:string;
-    target:Path;
+    target:Target[];
 }
 
 export class S3Factory extends AbstractFactory {
@@ -54,9 +57,9 @@ export class S3Factory extends AbstractFactory {
     protected option:Option = new Option('normalise', 'Normalise dependencies.');
 
     /**
-     * Soft-checks whether the object is a `Path` interface.
+     * Soft-checks whether the object is a `Target` interface.
      */
-    protected static isPath(object:any) {
+    protected static isTarget(object:any) {
         return object.path != null;
     }
 
@@ -87,24 +90,21 @@ export class S3Factory extends AbstractFactory {
         }
 
         s3Configurations = s3Configurations.map(function (configuration:S3Configuration):S3Configuration {
-            var target:Path;
 
             // If configuration is already an object, we inject target into it if necessary. If not,
             // we turn it into object. In both cases some normalisation takes place.
 
             if (typeof configuration !== DataType.OBJECT) {
-                configuration = {target: target = {path: <any>configuration}};
-            } else if (S3Factory.isPath(configuration)) {
-                configuration = {target: target = <any>configuration};
-            } else if (S3Factory.isConfiguration(configuration)) {
-                target = configuration.target;
-            } else {
+                configuration = {target: [{path: <any>configuration}]};
+            } else if (S3Factory.isTarget(configuration)) {
+                configuration = {target: [<any>configuration]};
+            } else if (!S3Factory.isConfiguration(configuration)) {
                 throw new NormaliseConfigurationError('Unexpected object format.');
             }
 
             // Quick target validate.
 
-            if (target == null) {
+            if (configuration.target == null) {
                 throw new NormaliseConfigurationError('Target is missing.');
             }
 
@@ -128,29 +128,45 @@ export class S3Factory extends AbstractFactory {
         var secretKey:string = configuration.secretKey;
         var target:any = configuration.target;
 
-        // If configuration didn't come with the bucket try getting it from parameters.
+        // If required configuration didn't come with the bucket try getting it from parameters.
 
-        accessKey == null && (accessKey = parameters[Parameter.ACCESS_KEY]);
         baseUrl == null && (baseUrl = parameters[Parameter.BASE_URL]);
         bucket == null && (bucket = parameters[Parameter.BUCKET]);
         certificateAuthority == null && (certificateAuthority = parameters[Parameter.CERTIFICATE_AUTHORITY]);
         pathStyle == null && (pathStyle = parameters[Parameter.PATH_STYLE]);
         region == null && (region = parameters[Parameter.REGION]);
-        secretKey == null && (secretKey = parameters[Parameter.SECRET_KEY]);
 
-        // Normalise targets, it either
+        // Check if bucket "alias" is specified in cli parameters, same for access and secret keys.
 
-        if (Array.isArray(target) || typeof target === DataType.STRING) {
-            target = {path: target};
-        } else if (typeof target !== DataType.OBJECT || !S3Factory.isPath(target)) {
-            throw new NormaliseConfigurationError('Target is in a wrong format.');
+        if (bucket != null) {
+            accessKey == null && (accessKey = parameters[bucket + '-' + Parameter.ACCESS_KEY]);
+            secretKey == null && (secretKey = parameters[bucket + '-' + Parameter.SECRET_KEY]);
+            parameters[bucket + '-' + Parameter.BUCKET] == null || (bucket = parameters[bucket + '-' + Parameter.BUCKET]);
         }
 
-        // Check if the bucket "alias" is specified in cli parameters.
+        // If both access and secret keys are still missing, but bucket is set, use default ones.
 
-        if (bucket != null && parameters[bucket + '-' + Parameter.BUCKET] != null) {
-            bucket = parameters[bucket + '-' + Parameter.BUCKET];
+        if (bucket != null) {
+            accessKey == null && (accessKey = parameters[Parameter.ACCESS_KEY]);
+            secretKey == null && (secretKey = parameters[Parameter.SECRET_KEY]);
         }
+
+        // Normalise targets, it either is an array of targets or a single object.
+
+        var targets:Target[] = Array.isArray(target) ? target : [target];
+
+        targets = targets.map(function (target:any) {
+            if (typeof target === DataType.STRING) {
+                return {path: target};
+            } else if (typeof target === DataType.OBJECT && S3Factory.isTarget(target)) {
+                return target;
+            } else {
+                throw new NormaliseConfigurationError('Target is in a wrong format.');
+            }
+        });
+
+        // Create configuration that will be passed to aws publish module, it uses different parameter names
+        // and structure that would be more difficult to configure, so we do this manual proxying…
 
         var awsConfiguration:any = {
             accessKeyId: accessKey,
@@ -171,7 +187,7 @@ export class S3Factory extends AbstractFactory {
         plugins == null && (plugins = null);
 
         configuration = <S3Configuration>{
-            target: target,
+            target: targets,
             configuration: awsConfiguration,
             plugins: plugins
         };
@@ -188,28 +204,46 @@ export class S3Factory extends AbstractFactory {
         gulp.task(TaskName.DEPLOY_S3, false, function () {
             var [s3Configurations, pathConfiguration]:Configurations = configuration;
             var streams:ReadWriteStream[] = [];
+            var configurationCount:number = s3Configurations.length;
 
             for (let s3Configuration of s3Configurations) {
-                var stream:ReadWriteStream;
-                var target:Path = s3Configuration.target;
+                var targets:Target[] = s3Configuration.target;
+                var error:Error = null;
 
                 var bucket:string = s3Configuration.configuration.params.Bucket;
                 var accessKey:string = s3Configuration.configuration.accessKeyId;
                 var secretKey:string = s3Configuration.configuration.secretAccessKey;
 
                 if (bucket == null || bucket == '') {
-                    throw new Error('Bucket is missing.');
+                    error = new Error('Bucket is missing.');
                 } else if (accessKey == null || secretKey == null) {
-                    throw new Error('Access or secret keys are missing.');
+                    error = new Error('Access or secret keys are missing.');
                 }
 
-                stream = gulp.src(target.path, target.base == null ? {} : {base: target.base}).pipe(self.constructPlumber());
-                stream = self.constructStream(stream, s3Configuration);
+                // We only want to throw error at this point if dealing with a single configuration, if we have
+                // multiple configurations, it's likely that we simply don't want to upload into this bucket.
 
-                streams.push(stream);
+                if (error != null && configurationCount > 1) {
+                    continue;
+                } else if (error != null) {
+                    throw error;
+                }
+
+                for (let target of targets) {
+                    var stream:ReadWriteStream;
+
+                    stream = gulp.src(target.path, target.base == null ? {} : {base: target.base}).pipe(self.constructPlumber());
+                    stream = self.constructStream(stream, [s3Configuration, target]);
+
+                    streams.push(stream);
+                }
             }
 
-            return merge(...streams);
+            if (streams.length == 0) {
+                throw new Error('Could not configure any S3 tasks, check that credentials and targets for at least one bucket are specified correctly.');
+            }
+
+            return streams.length > 1 ? merge(...streams) : streams.pop();
         });
 
         return [TaskName.DEPLOY_S3];
@@ -218,23 +252,30 @@ export class S3Factory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public constructPipeline(configuration:S3Configuration):Pipeline {
-        var plugins:any[] = this.constructPlugins(configuration.plugins);
+    public constructPipeline(configuration:[S3Configuration, Target]):Pipeline {
+        var [s3configuration, target]: [S3Configuration, Target] = configuration;
+        var plugins:any[] = this.constructPlugins(s3configuration.plugins);
         var index:number;
 
         (plugins == null || (<any[]>plugins).length === 0) && (plugins = [Plugin.DEFAULT]);
         (index = (<any[]>plugins).indexOf(Plugin.DEFAULT)) >= 0 && (<any[]>plugins).splice(index, 1, Plugin.S3);
-        (index = (<any[]>plugins).indexOf(Plugin.S3)) >= 0 && (<any[]>plugins).splice(index, 1,
 
-            // Not sure why, but I think there was a problem with that that got solved eventually, this is a todo.
-            rename(function (path) { path.dirname = '/' + path.dirname }),
+        if ((index = (<any[]>plugins).indexOf(Plugin.S3)) >= 0) {
+            (<any[]>plugins).splice(index, 1);
 
-            // Send file to S3.
-            awspublish.create(configuration.configuration).publish(null, {force: true}),
+            // Add prefix if it's specified, make sure index gets increased.
+            target.prefix == null || (<any[]>plugins).splice(index++, 0, rename(function (path) {
+                path.dirname = pathJoin(target.prefix, path.dirname);
+            }));
 
-            // Report some statistics.
-            awspublish.reporter({})
-        );
+            (<any[]>plugins).splice(index, 0,
+                // Send files to S3.
+                awspublish.create(s3configuration.configuration).publish(null, {force: true}),
+
+                // Report back statistics.
+                awspublish.reporter({})
+            );
+        }
 
         return this.pipelineStreams(plugins);
     }

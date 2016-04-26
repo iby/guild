@@ -10,6 +10,16 @@ import del = require('del');
 import merge = require("merge-stream");
 import clone = require("clone");
 
+/**
+ * Subtask factory constructs configured streams for a single task and registers them with gulp. Before it can be
+ * used, following attributes must specified, see their documentation for details.
+ *
+ * - `configuration`
+ * - `gulp`
+ * - `name`
+ * - `options`
+ * - `parameters`
+ */
 export abstract class AbstractSubtaskFactory extends AbstractFactory {
 
     /**

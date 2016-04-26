@@ -133,7 +133,7 @@ export class CopyFactory extends AbstractFactory {
                 streams.push(stream);
             }
 
-            return streams.length > 1 ? merge(...streams) : streams.pop;
+            return streams.length > 1 ? merge(...streams) : streams.pop();
         });
 
         return [task];
@@ -163,14 +163,14 @@ export class CopyFactory extends AbstractFactory {
         }
 
         gulp.task(task = this.name + '-clean', false, function () {
-            var streams:ReadWriteStream[] = [];
+            var promises:Promise<void>[] = [];
 
             for (let copyConfiguration of copyConfigurations) {
                 var path:string|string[] = PathUtility.globalisePath(PathUtility.normalisePath(pathConfiguration.root, copyConfiguration.destination), '**/*');
-                streams.push(del(path, {force: true}));
+                promises.push(del(path, {force: true}));
             }
 
-            return streams.length > 1 ? merge(...streams) : streams.pop;
+            return promises.length > 1 ? Promise.all(promises) : promises.pop();
         });
 
         return [task];
