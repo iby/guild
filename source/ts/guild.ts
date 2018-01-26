@@ -16,7 +16,7 @@ export type Configuration = [any, PathConfiguration];
  * todo: dependencies, making it hard to use in depending projects.
  */
 export function guild(gulp: Gulp, configuration: any) {
-    var [guildConfiguration, pathConfiguration]: Configuration = configuration;
+    let [guildConfiguration, pathConfiguration]: Configuration = configuration;
 
     if (configuration == null) {
         return;
@@ -25,7 +25,7 @@ export function guild(gulp: Gulp, configuration: any) {
     // Parse cli options. First three are command, gulp and task, we don't want either of them. Todo: what happens
     // todo: when we use this with without a task, i.e., default task?
 
-    var parameters: ParsedArgs = minimist(process.argv.slice(3));
+    let parameters: ParsedArgs = minimist(process.argv.slice(3));
 
     // Make a copy of configuration so we can change and not affect the original object.
 

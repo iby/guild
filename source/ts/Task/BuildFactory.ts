@@ -33,15 +33,15 @@ export class BuildFactory extends AbstractTaskFactory {
      * @inheritDoc
      */
     public construct() {
-        var parameters: ParsedArgs = this.parameters;
-        var configuration: Configuration = this.normaliseConfiguration(this.configuration, parameters);
-        var [buildConfiguration, pathConfiguration] = configuration;
-        var gulp: GulpHelp = this.gulp;
-        var self: BuildFactory = this;
+        let parameters: ParsedArgs = this.parameters;
+        let configuration: Configuration = this.normaliseConfiguration(this.configuration, parameters);
+        let [buildConfiguration, pathConfiguration] = configuration;
+        let gulp: GulpHelp = this.gulp;
+        let self: BuildFactory = this;
 
         // Define available subtask factories by configuration key.
 
-        var factories: { [id: string]: typeof AbstractFactory } = {
+        let factories: { [id: string]: typeof AbstractFactory } = {
             copy: CopyFactory,
             less: LessFactory,
             twig: TwigFactory,
@@ -51,10 +51,10 @@ export class BuildFactory extends AbstractTaskFactory {
         // Depending on configuration we may have clean tasks, which must be run before the actual build tasks. If we
         // have a watch option on cli, we must also construct watch tasks.
 
-        var options: { [id: string]: string } = {};
-        var buildTasks: string[] = [];
-        var cleanTasks: string[] = [];
-        var watchTasks: string[] = [];
+        let options: { [id: string]: string } = {};
+        let buildTasks: string[] = [];
+        let cleanTasks: string[] = [];
+        let watchTasks: string[] = [];
 
         // Fixme: schema allows to pass path arrays, but this will fail when we join them. This must be handled separately.
 
@@ -63,7 +63,7 @@ export class BuildFactory extends AbstractTaskFactory {
                 return;
             }
 
-            var factory: AbstractFactory = new (<any>factories[key])();
+            let factory: AbstractFactory = new (<any>factories[key])();
 
             factory.name = 'build' + '-' + key;
             factory.configuration = [buildConfiguration[key], pathConfiguration];
@@ -71,7 +71,7 @@ export class BuildFactory extends AbstractTaskFactory {
             factory.options = options;
             factory.parameters = parameters;
 
-            var [builds, cleans, watches]: Task = factory.construct();
+            let [builds, cleans, watches]: Task = factory.construct();
 
             buildTasks = buildTasks.concat(builds);
             cleanTasks = cleanTasks.concat(cleans);
@@ -80,13 +80,13 @@ export class BuildFactory extends AbstractTaskFactory {
 
         // Gulp help stuff.
 
-        var description: string = 'Clean and build target (js, css) sources, when no target is given, builds for everything.';
+        let description: string = 'Clean and build target (js, css) sources, when no target is given, builds for everything.';
 
         options['production'] = 'Build for production, will minify and strip everything it can. Very slow… \uD83D\uDC22';
         options['watch'] = 'Watch files for changes to re-run.';
 
         gulp.task(TaskName.BUILD, description, function (callback: Function) {
-            var tasks: any[] = [];
+            let tasks: any[] = [];
 
             cleanTasks.length > 0 && tasks.push(cleanTasks);
             buildTasks.length > 0 && tasks.push.apply(tasks, buildTasks);

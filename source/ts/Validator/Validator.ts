@@ -16,14 +16,14 @@ export class Validator extends jsonschema.Validator {
     }
 
     validate(instance: any, schema: any, options?: any, context?: any): Validation {
-        var throwError: boolean = false;
+        let throwError: boolean = false;
 
         if (options != null && options.throwError) {
             throwError = true;
             options.throwError = false;
         }
 
-        var result: Validation = super.validate(instance, schema, options, context);
+        let result: Validation = super.validate(instance, schema, options, context);
 
         if (throwError && result.errors.length > 0) {
             throw Error(String(result.errors));

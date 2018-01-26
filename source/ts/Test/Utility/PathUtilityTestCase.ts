@@ -8,7 +8,7 @@ import should = require('should');
 
 suite('path utility', function () {
     test('get common extension', function () {
-        var sourcePath: string = path.join(__dirname, '../../../../test/project/source');
+        let sourcePath: string = path.join(__dirname, '../../../../test/project/source');
 
         PathUtility.getCommonExtension(path.join(sourcePath, 'js/*')).should.equal('js');
         PathUtility.getCommonExtension(['foo.js', 'bar.js']).should.equal('js');
@@ -19,7 +19,7 @@ suite('path utility', function () {
     });
 
     test('get common directory', function () {
-        // Todo: var sourcePath:string = path.join(__dirname, '../../../../test/project/source');
+        // Todo: let sourcePath:string = path.join(__dirname, '../../../../test/project/source');
 
         PathUtility.getCommonDirectory('foo/bar').should.equal('foo');
         PathUtility.getCommonDirectory(['foo/bar', 'foo/baz']).should.equal('foo');
@@ -29,7 +29,7 @@ suite('path utility', function () {
     });
 
     test('get directory', function () {
-        // Todo: var sourcePath:string = path.join(__dirname, '../../../../test/project/source');
+        // Todo: let sourcePath:string = path.join(__dirname, '../../../../test/project/source');
 
         PathUtility.getDirectory('foo/bar').should.eql(['foo']);
         PathUtility.getDirectory(['foo/bar', 'foo/baz']).should.eql(['foo', 'foo']);
@@ -39,7 +39,7 @@ suite('path utility', function () {
     });
 
     test('globalise path', function () {
-        // Todo: var sourcePath:string = path.join(__dirname, '../../../../test/project/source');
+        // Todo: let sourcePath:string = path.join(__dirname, '../../../../test/project/source');
 
         PathUtility.globalisePath('foo', '*', true).should.eql('foo/*');
         PathUtility.globalisePath('foo/bar', '*', true).should.eql('foo/bar/*');

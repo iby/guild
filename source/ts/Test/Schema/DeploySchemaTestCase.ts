@@ -8,10 +8,10 @@ require('should');
 
 suite('deploy schema', function () {
     suite('s3', function () {
-        var validator: Validator = new Validator();
-        var schema: string = Schema.DEPLOY_S3;
+        let validator: Validator = new Validator();
+        let schema: string = Schema.DEPLOY_S3;
 
-        var validData: any[] = [
+        let validData: any[] = [
             {description: 'path', value: 'foo'},
             {description: 'path[]', value: ['foo', 'bar']},
             {description: '{path,base}', value: {path: 'foo'}},

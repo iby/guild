@@ -6,7 +6,7 @@ export abstract class AbstractError extends Error {
     constructor(message?: string) {
         super(message);
 
-        var error: Error = Error.apply(this, [message]);
+        let error: Error = Error.apply(this, [message]);
 
         this.message = error.message;
         this.name = error.name;

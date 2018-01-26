@@ -12,12 +12,12 @@ import help = require('gulp-help');
 require('should');
 
 suite('dependency normalise task factory', function () {
-    var pathConfiguration: PathConfiguration = new PathConfiguration(path.join(__dirname, '../../../../../test/project'));
-    var parameters: any = {};
+    let pathConfiguration: PathConfiguration = new PathConfiguration(path.join(__dirname, '../../../../../test/project'));
+    let parameters: any = {};
 
     test('normalise empty configuration', function () {
-        var factory: NormaliseFactory = new NormaliseFactory();
-        var normaliseConfiguration: any = {};
+        let factory: NormaliseFactory = new NormaliseFactory();
+        let normaliseConfiguration: any = {};
 
         [normaliseConfiguration] = factory.normaliseConfigurations([normaliseConfiguration, pathConfiguration], parameters);
 
@@ -25,8 +25,8 @@ suite('dependency normalise task factory', function () {
     });
 
     test('normalise simple configuration', function () {
-        var factory: NormaliseFactory = new NormaliseFactory();
-        var normaliseConfiguration: any = {'foo': 'script.js'};
+        let factory: NormaliseFactory = new NormaliseFactory();
+        let normaliseConfiguration: any = {'foo': 'script.js'};
 
         [normaliseConfiguration] = factory.normaliseConfigurations([normaliseConfiguration, pathConfiguration], parameters);
 
@@ -38,8 +38,8 @@ suite('dependency normalise task factory', function () {
     });
 
     test('normalise complex configuration', function () {
-        var factory: NormaliseFactory = new NormaliseFactory();
-        var normaliseConfiguration: any = [{source: 'style.css', destination: 'foo'}];
+        let factory: NormaliseFactory = new NormaliseFactory();
+        let normaliseConfiguration: any = [{source: 'style.css', destination: 'foo'}];
 
         [normaliseConfiguration] = factory.normaliseConfigurations([normaliseConfiguration, pathConfiguration], parameters);
 
@@ -51,9 +51,9 @@ suite('dependency normalise task factory', function () {
     });
 
     test('construct css pipeline', function () {
-        var normaliseConfiguration: NormaliseConfiguration = {source: null, destination: 'foo'};
-        var factory: NormaliseFactory = new NormaliseFactory();
-        var [head, tail]: Pipeline = factory.constructPipeline(normaliseConfiguration);
+        let normaliseConfiguration: NormaliseConfiguration = {source: null, destination: 'foo'};
+        let factory: NormaliseFactory = new NormaliseFactory();
+        let [head, tail]: Pipeline = factory.constructPipeline(normaliseConfiguration);
 
         tail.once('data', function (file: SourceFile) {
             path.basename(file.path).should.equal('style.css');
@@ -63,9 +63,9 @@ suite('dependency normalise task factory', function () {
     });
 
     test('construct js pipeline', function () {
-        var normaliseConfiguration: NormaliseConfiguration = {source: null, destination: 'foo'};
-        var factory: NormaliseFactory = new NormaliseFactory();
-        var [head, tail]: Pipeline = factory.constructPipeline(normaliseConfiguration);
+        let normaliseConfiguration: NormaliseConfiguration = {source: null, destination: 'foo'};
+        let factory: NormaliseFactory = new NormaliseFactory();
+        let [head, tail]: Pipeline = factory.constructPipeline(normaliseConfiguration);
 
         tail.once('data', function (file: SourceFile) {
             path.basename(file.path).should.equal('foo');

@@ -14,13 +14,13 @@ import help = require('gulp-help');
 require('should');
 
 suite('build less task factory', function () {
-    var pathConfiguration: PathConfiguration = new PathConfiguration('../../../../../test/project');
+    let pathConfiguration: PathConfiguration = new PathConfiguration('../../../../../test/project');
 
     test('construct pipeline', function () {
-        var lessConfiguration: LessConfiguration = {destination: null, source: null};
-        var configuration: any = [lessConfiguration, pathConfiguration];
-        var factory: LessFactory = new LessFactory();
-        var [head, tail]: Pipeline = factory.constructPipeline(lessConfiguration);
+        let lessConfiguration: LessConfiguration = {destination: null, source: null};
+        let configuration: any = [lessConfiguration, pathConfiguration];
+        let factory: LessFactory = new LessFactory();
+        let [head, tail]: Pipeline = factory.constructPipeline(lessConfiguration);
 
         tail.once('data', function (file: SourceFile) {
             path.basename(file.path).should.equal('style.css');
@@ -30,15 +30,15 @@ suite('build less task factory', function () {
     });
 
     test('construct task', function () {
-        var lessConfiguration: any = {clean: true, destination: null, source: null, watch: true};
-        var configuration: any = [lessConfiguration, pathConfiguration];
-        var factory: LessFactory = new LessFactory();
+        let lessConfiguration: any = {clean: true, destination: null, source: null, watch: true};
+        let configuration: any = [lessConfiguration, pathConfiguration];
+        let factory: LessFactory = new LessFactory();
 
         factory.configuration = configuration;
         factory.gulp = help(require('gulp'));
         factory.parameters = <any>{};
 
-        var [builds, cleans, watches]: Task = factory.construct();
+        let [builds, cleans, watches]: Task = factory.construct();
 
         builds.should.eql([TaskName.BUILD_LESS]);
         cleans.should.eql([TaskName.BUILD_LESS_CLEAN]);

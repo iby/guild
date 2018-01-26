@@ -14,13 +14,13 @@ import help = require('gulp-help');
 require('should');
 
 suite('build twig task factory', function () {
-    var twigConfiguration: TwigConfiguration = {destination: null, source: null};
-    var pathConfiguration: PathConfiguration = new PathConfiguration('../../../../../test/project');
-    var configuration: any = [twigConfiguration, pathConfiguration];
+    let twigConfiguration: TwigConfiguration = {destination: null, source: null};
+    let pathConfiguration: PathConfiguration = new PathConfiguration('../../../../../test/project');
+    let configuration: any = [twigConfiguration, pathConfiguration];
 
     test('construct pipeline', function () {
-        var factory: TwigFactory = new TwigFactory();
-        var [head, tail]: Pipeline = factory.constructPipeline(twigConfiguration);
+        let factory: TwigFactory = new TwigFactory();
+        let [head, tail]: Pipeline = factory.constructPipeline(twigConfiguration);
 
         tail.once('data', function (file: SourceFile) {
             path.basename(file.path).should.equal('template.html');
@@ -30,15 +30,15 @@ suite('build twig task factory', function () {
     });
 
     test('construct task', function () {
-        var twigConfiguration: TwigConfiguration = {clean: true, destination: null, source: null, watch: true};
-        var configuration: any = [twigConfiguration, pathConfiguration];
-        var factory: TwigFactory = new TwigFactory();
+        let twigConfiguration: TwigConfiguration = {clean: true, destination: null, source: null, watch: true};
+        let configuration: any = [twigConfiguration, pathConfiguration];
+        let factory: TwigFactory = new TwigFactory();
 
         factory.configuration = configuration;
         factory.gulp = help(require('gulp'));
         factory.parameters = <any>{};
 
-        var [builds, cleans, watches]: Task = factory.construct();
+        let [builds, cleans, watches]: Task = factory.construct();
 
         builds.should.eql([TaskName.BUILD_TWIG]);
         cleans.should.eql([TaskName.BUILD_TWIG_CLEAN]);

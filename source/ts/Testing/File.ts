@@ -2,12 +2,12 @@ import fs = require('fs');
 import path = require('path');
 import SuperFile = require("vinyl");
 
-var pathJoin = path.join;
-var pathBasename = path.basename;
+let pathJoin = path.join;
+let pathBasename = path.basename;
 
-var basePath: string = pathJoin(__dirname, '../../../test');
-var dependencyPath: string = pathJoin(basePath, 'project/dependency');
-var sourcePath: string = pathJoin(basePath, 'project/source');
+let basePath: string = pathJoin(__dirname, '../../../test');
+let dependencyPath: string = pathJoin(basePath, 'project/dependency');
+let sourcePath: string = pathJoin(basePath, 'project/source');
 
 export abstract class AbstractFile extends SuperFile {
 }

@@ -28,25 +28,25 @@ export class DependencyFactory extends AbstractTaskFactory {
      * @inheritDoc
      */
     public construct() {
-        var parameters: ParsedArgs = this.parameters;
-        var configuration: Configuration = this.normaliseConfiguration(this.configuration, parameters);
-        var [dependencyConfiguration, pathConfiguration] = configuration;
-        var gulp: GulpHelp = this.gulp;
+        let parameters: ParsedArgs = this.parameters;
+        let configuration: Configuration = this.normaliseConfiguration(this.configuration, parameters);
+        let [dependencyConfiguration, pathConfiguration] = configuration;
+        let gulp: GulpHelp = this.gulp;
 
         // Define available subtask factories by configuration key.
 
-        var factories: { [id: string]: typeof AbstractFactory } = {
+        let factories: { [id: string]: typeof AbstractFactory } = {
             normalise: NormaliseFactory
         };
 
         // 
 
-        var options: { [id: string]: string } = {};
-        var tasks: any[] = [];
+        let options: { [id: string]: string } = {};
+        let tasks: any[] = [];
 
         // Gulp help stuff.
 
-        var description: string = 'Clean and build dependencies into local libraries.';
+        let description: string = 'Clean and build dependencies into local libraries.';
 
         options['production'] = 'Build for production, will minify and strip everything it can. Very slow… \uD83D\uDC22';
         options['watch'] = 'Watch files for changes to re-run.';
@@ -56,7 +56,7 @@ export class DependencyFactory extends AbstractTaskFactory {
                 return;
             }
 
-            var factory: AbstractFactory = new (<any>factories[key])();
+            let factory: AbstractFactory = new (<any>factories[key])();
 
             factory.configuration = [dependencyConfiguration[key], pathConfiguration];
             factory.gulp = gulp;

@@ -35,12 +35,12 @@ export class CopyFactory extends AbstractFactory {
      * @inheritDoc
      */
     public normaliseConfigurations(configuration: Configuration, parameters?: ParsedArgs): Configurations {
-        var [copyConfiguration, pathConfiguration]: Configuration = configuration;
-        var copyConfigurations: CopyConfiguration[] = [];
-        var self: CopyFactory = this;
+        let [copyConfiguration, pathConfiguration]: Configuration = configuration;
+        let copyConfigurations: CopyConfiguration[] = [];
+        let self: CopyFactory = this;
 
-        var array: boolean = Array.isArray(copyConfiguration);
-        var object: boolean = typeof copyConfiguration === DataType.OBJECT;
+        let array: boolean = Array.isArray(copyConfiguration);
+        let object: boolean = typeof copyConfiguration === DataType.OBJECT;
 
         if (!object && !array) {
             throw new NormaliseConfigurationError('Expecting either an object or array, received something totally different.');
@@ -65,11 +65,11 @@ export class CopyFactory extends AbstractFactory {
      * @inheritDoc
      */
     public normaliseConfiguration(configuration: CopyConfiguration, parameters?: ParsedArgs): CopyConfiguration {
-        var clean: boolean;
-        var destination: string | string[];
-        var plugins: PluginGenerator;
-        var source: string | string[];
-        var watch: boolean;
+        let clean: boolean;
+        let destination: string | string[];
+        let plugins: PluginGenerator;
+        let source: string | string[];
+        let watch: boolean;
 
         if (typeof configuration === DataType.BOOLEAN) {
         } else {
@@ -100,10 +100,10 @@ export class CopyFactory extends AbstractFactory {
     public construct(): Task {
         super.construct();
 
-        var configurations: Configurations = this.normaliseConfigurations(this.configuration, this.parameters);
-        var [copyConfigurations, pathConfiguration]: Configurations = configurations;
-        var gulp: GulpHelp = this.gulp;
-        var task: string[];
+        let configurations: Configurations = this.normaliseConfigurations(this.configuration, this.parameters);
+        let [copyConfigurations, pathConfiguration]: Configurations = configurations;
+        let gulp: GulpHelp = this.gulp;
+        let task: string[];
 
         return [
             task = this.constructTask(gulp, configurations),
@@ -116,15 +116,15 @@ export class CopyFactory extends AbstractFactory {
      * @inheritDoc
      */
     public constructTask(gulp: GulpHelp, configurations: Configurations): string[] {
-        var [copyConfigurations, pathConfiguration]: Configurations = configurations;
-        var task: string = this.name;
-        var self: CopyFactory = this;
+        let [copyConfigurations, pathConfiguration]: Configurations = configurations;
+        let task: string = this.name;
+        let self: CopyFactory = this;
 
         gulp.task(task, false, function () {
-            var streams: ReadWriteStream[] = [];
+            let streams: ReadWriteStream[] = [];
 
             for (let copyConfiguration of copyConfigurations) {
-                var stream: ReadWriteStream;
+                let stream: ReadWriteStream;
 
                 stream = gulp.src(PathUtility.globalisePath(PathUtility.normalisePath(pathConfiguration.root, copyConfiguration.source), '**/*'));
                 stream = self.constructStream(stream, copyConfiguration);
@@ -143,7 +143,7 @@ export class CopyFactory extends AbstractFactory {
      * @inheritDoc
      */
     public constructPipeline(configuration: CopyConfiguration): Pipeline {
-        var plugins: any[] = this.constructPlugins(configuration.plugins);
+        let plugins: any[] = this.constructPlugins(configuration.plugins);
         return this.pipelineStreams(plugins);
     }
 
@@ -151,8 +151,8 @@ export class CopyFactory extends AbstractFactory {
      * @inheritDoc
      */
     public constructClean(gulp: GulpHelp, configuration: Configurations): string[] {
-        var [copyConfigurations, pathConfiguration]: Configurations = configuration;
-        var task: string;
+        let [copyConfigurations, pathConfiguration]: Configurations = configuration;
+        let task: string;
 
         copyConfigurations = copyConfigurations.filter(function (copyConfiguration: CopyConfiguration) {
             return copyConfiguration.clean === true;
@@ -163,10 +163,10 @@ export class CopyFactory extends AbstractFactory {
         }
 
         gulp.task(task = this.name + '-clean', false, function () {
-            var promises: Promise<void>[] = [];
+            let promises: Promise<void>[] = [];
 
             for (let copyConfiguration of copyConfigurations) {
-                var path: string | string[] = PathUtility.globalisePath(PathUtility.normalisePath(pathConfiguration.root, copyConfiguration.destination), '**/*');
+                let path: string | string[] = PathUtility.globalisePath(PathUtility.normalisePath(pathConfiguration.root, copyConfiguration.destination), '**/*');
                 promises.push(del(path, {force: true}));
             }
 
@@ -180,8 +180,8 @@ export class CopyFactory extends AbstractFactory {
      * @inheritDoc
      */
     public constructWatch(gulp: GulpHelp, configuration: Configurations, tasks: string[]): string[] {
-        var [copyConfigurations, pathConfiguration]: Configurations = configuration;
-        var task: string;
+        let [copyConfigurations, pathConfiguration]: Configurations = configuration;
+        let task: string;
 
         copyConfigurations = copyConfigurations.filter(function (copyConfiguration: CopyConfiguration) {
             return copyConfiguration.watch === true;
@@ -193,7 +193,7 @@ export class CopyFactory extends AbstractFactory {
 
         gulp.task(task = this.name + '-watch', false, function () {
             for (let copyConfiguration of copyConfigurations) {
-                var path: string | string[] = PathUtility.globalisePath(PathUtility.normalisePath(pathConfiguration.root, copyConfiguration.source), '**/*');
+                let path: string | string[] = PathUtility.globalisePath(PathUtility.normalisePath(pathConfiguration.root, copyConfiguration.source), '**/*');
                 gulp.watch(path, tasks);
             }
         });

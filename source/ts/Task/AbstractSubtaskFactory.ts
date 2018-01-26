@@ -60,7 +60,7 @@ export abstract class AbstractSubtaskFactory extends AbstractFactory {
      * Constructs the task stream, relies on `constructPipeline` method to construct the stream pipeline.
      */
     public constructStream(stream: ReadWriteStream, configuration: any): ReadWriteStream {
-        var pipeline: Pipeline = this.constructPipeline(configuration);
+        let pipeline: Pipeline = this.constructPipeline(configuration);
 
         // Yes, pipeline may get not constructed, for example with build copy task, it would return something only
         // when custom plugins are provided.
@@ -69,7 +69,7 @@ export abstract class AbstractSubtaskFactory extends AbstractFactory {
             return stream;
         }
 
-        var [head, tail]: Pipeline = pipeline;
+        let [head, tail]: Pipeline = pipeline;
         stream.pipe(head);
         return tail;
     }
@@ -119,8 +119,8 @@ export abstract class AbstractSubtaskFactory extends AbstractFactory {
             return null;
         }
 
-        var head: ReadWriteStream = null;
-        var tail: ReadWriteStream = null;
+        let head: ReadWriteStream = null;
+        let tail: ReadWriteStream = null;
 
         streams.forEach(function (value: ReadWriteStream) {
             if (head == null && tail == null) {

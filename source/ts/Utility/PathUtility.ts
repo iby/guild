@@ -31,17 +31,17 @@ export class PathUtility {
      * Returns the common extension name.
      */
     static getCommonExtension(path: string | string[]): string {
-        var paths: string[] = Array.isArray(path) ? <string[]>path : [<string>path];
-        var pathCount: number = paths.length;
-        var extension: string = null;
+        let paths: string[] = Array.isArray(path) ? <string[]>path : [<string>path];
+        let pathCount: number = paths.length;
+        let extension: string = null;
 
-        for (var i: number = 0, n: number = pathCount; i < n; i++) {
+        for (let i: number = 0, n: number = pathCount; i < n; i++) {
 
             // The last thing we want to do is to lookup the filesystem, so we first try to get the file extension from the path,
             // then do the lookup. Also, we don't do lookups if count has exceeded the original paths length – in case glob
             // matched any files that have glob patterns within their name, to avoid the endless loop. Smart through the roof…
 
-            var pathExtension: string = pathExtname(path = paths[i]);
+            let pathExtension: string = pathExtname(path = paths[i]);
 
             if (pathExtension !== '' && (pathExtension !== '.*' || i >= pathCount)) {
                 if (extension === null) {
@@ -62,16 +62,16 @@ export class PathUtility {
      * Returns the common directory basename, NOT the full directory path.
      */
     static getCommonDirectory(path: string | string[]): string {
-        var paths: string[] = Array.isArray(path) ? <string[]>path : [<string>path];
-        var pathCount: number = paths.length;
-        var directory: string = null;
+        let paths: string[] = Array.isArray(path) ? <string[]>path : [<string>path];
+        let pathCount: number = paths.length;
+        let directory: string = null;
 
-        for (var i: number = 0, n: number = pathCount; i < n; i++) {
+        for (let i: number = 0, n: number = pathCount; i < n; i++) {
 
             // Do check the relevant extension method. Here we check if the glob has magic and expand them,
             // otherwise / then do all the comparisons.
 
-            var pathDirectory: string;
+            let pathDirectory: string;
 
             path = paths[i];
 
@@ -95,16 +95,16 @@ export class PathUtility {
      * return directories from that.
      */
     static getDirectory(path: string | string[]): string[] {
-        var paths: string[] = Array.isArray(path) ? <string[]>path : [<string>path];
-        var pathCount: number = paths.length;
-        var directories: string[] = [];
+        let paths: string[] = Array.isArray(path) ? <string[]>path : [<string>path];
+        let pathCount: number = paths.length;
+        let directories: string[] = [];
 
-        for (var i: number = 0, n: number = pathCount; i < n; i++) {
+        for (let i: number = 0, n: number = pathCount; i < n; i++) {
 
             // Do check the relevant extension method. Here we check if the glob has magic and expand them,
             // otherwise / then do all the comparisons.
 
-            var pathDirectory: string;
+            let pathDirectory: string;
 
             path = paths[i];
 
@@ -124,11 +124,11 @@ export class PathUtility {
      * to check if directory or not – soft, using extension without fs lookup, and hard, using fs lookup.
      */
     static globalisePath(path: string | string[], glob: string, soft: boolean = false): string | string[] {
-        var array: boolean = Array.isArray(path);
-        var paths: string[] = array ? <string[]>path : [<string>path];
+        let array: boolean = Array.isArray(path);
+        let paths: string[] = array ? <string[]>path : [<string>path];
 
         paths = paths.map(function (path: string): string {
-            var file: boolean;
+            let file: boolean;
 
             // Here we assume that we don't receive glob files, but we still may receive negated / exclusion paths,
             // which will give exceptions.
@@ -156,13 +156,13 @@ export class PathUtility {
     static normalisePath(basePath: string | string[], path?: string | string[], suffix?: string): string | string[] {
         path == null && (path = '');
 
-        var basePathArray: boolean = Array.isArray(basePath);
-        var pathArray: boolean = Array.isArray(path);
-        var paths: string[] = [];
-        var extension: string;
+        let basePathArray: boolean = Array.isArray(basePath);
+        let pathArray: boolean = Array.isArray(path);
+        let paths: string[] = [];
+        let extension: string;
 
         (<string[]>(pathArray ? path : [path])).forEach(function (path: string) {
-            var negate: boolean;
+            let negate: boolean;
 
             // Check if this is a negation.
 
@@ -204,7 +204,7 @@ export class PathUtility {
      * Normalises dependency path.
      */
     static normaliseDependencyPath(configuration: PathConfiguration, dependency?: string | string[]): string | string[] {
-        var basePath: string | string[] = configuration.dependency;
+        let basePath: string | string[] = configuration.dependency;
 
         if (basePath == null) {
             throw new Error('Path configuration must contain `dependency` option to normalise dependency.')
@@ -217,7 +217,7 @@ export class PathUtility {
      * Normalises destination path.
      */
     static normaliseDestinationPath(configuration: PathConfiguration, destination?: string | string[], suffix?: string): string | string[] {
-        var basePath: string | string[] = configuration.destination == null ? configuration.product : configuration.destination;
+        let basePath: string | string[] = configuration.destination == null ? configuration.product : configuration.destination;
 
         if (basePath == null) {
             throw new Error('Path configuration must contain `destination` or `product` option to normalise destination.')
@@ -230,7 +230,7 @@ export class PathUtility {
      * Normalises library path.
      */
     static normaliseLibraryPath(configuration: PathConfiguration, library?: string | string[], suffix?: string): string | string[] {
-        var basePath: string | string[] = configuration.library;
+        let basePath: string | string[] = configuration.library;
 
         if (basePath == null) {
             throw new Error('Path configuration must contain `library` option to normalise library.')
@@ -243,7 +243,7 @@ export class PathUtility {
      * Normalises source path.
      */
     static normaliseSourcePath(configuration: PathConfiguration, source?: string | string[], suffix?: string): string | string[] {
-        var basePath: string = configuration.source;
+        let basePath: string = configuration.source;
 
         if (basePath == null) {
             throw new Error('Path configuration must contain `source` option to normalise source.')
@@ -256,7 +256,7 @@ export class PathUtility {
      * Normalises product path.
      */
     static normaliseProductPath(configuration: PathConfiguration, product?: string | string[], suffix?: string): string | string[] {
-        var basePath: string = configuration.product;
+        let basePath: string = configuration.product;
 
         if (basePath == null) {
             throw new Error('Path configuration must contain `product` option to normalise product.')

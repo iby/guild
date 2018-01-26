@@ -85,12 +85,12 @@ export class S3Factory extends AbstractFactory {
      * @inheritDoc
      */
     public normaliseConfigurations(configuration: Configuration, parameters: ParsedArgs): Configurations {
-        var [s3Configuration, pathConfiguration]: Configuration = configuration;
-        var s3Configurations: S3Configuration[] = [];
-        var self: S3Factory = this;
+        let [s3Configuration, pathConfiguration]: Configuration = configuration;
+        let s3Configurations: S3Configuration[] = [];
+        let self: S3Factory = this;
 
-        var array: boolean = Array.isArray(s3Configuration);
-        var object: boolean = typeof s3Configuration === DataType.OBJECT;
+        let array: boolean = Array.isArray(s3Configuration);
+        let object: boolean = typeof s3Configuration === DataType.OBJECT;
 
         if (!object && !array) {
             throw new NormaliseConfigurationError('Expecting either an object or array, received something totally different.');
@@ -129,16 +129,16 @@ export class S3Factory extends AbstractFactory {
      * @inheritDoc
      */
     public normaliseConfiguration(configuration: S3Configuration, parameters?: ParsedArgs): S3Configuration {
-        var accessKey: string = configuration.accessKey;
-        var baseUrl: string = configuration.baseUrl;
-        var bucket: string = configuration.bucket;
-        var certificateAuthority: string = configuration.certificateAuthority;
-        var pathStyle: string = configuration.pathStyle;
-        var plugins: PluginGenerator = configuration.plugins;
-        var prefix: string = configuration.prefix;
-        var region: string = configuration.region;
-        var secretKey: string = configuration.secretKey;
-        var target: any = configuration.target;
+        let accessKey: string = configuration.accessKey;
+        let baseUrl: string = configuration.baseUrl;
+        let bucket: string = configuration.bucket;
+        let certificateAuthority: string = configuration.certificateAuthority;
+        let pathStyle: string = configuration.pathStyle;
+        let plugins: PluginGenerator = configuration.plugins;
+        let prefix: string = configuration.prefix;
+        let region: string = configuration.region;
+        let secretKey: string = configuration.secretKey;
+        let target: any = configuration.target;
 
         // If required configuration didn't come with the bucket try getting it from parameters.
 
@@ -167,7 +167,7 @@ export class S3Factory extends AbstractFactory {
 
         // Normalise targets, it either is an array of targets or a single object.
 
-        var targets: Target[] = Array.isArray(target) ? target : [target];
+        let targets: Target[] = Array.isArray(target) ? target : [target];
 
         targets = targets.map(function (target: any) {
             if (typeof target === DataType.STRING) {
@@ -183,7 +183,7 @@ export class S3Factory extends AbstractFactory {
         // Create configuration that will be passed to aws publish module, it uses different parameter names
         // and structure that would be more difficult to configure, so we do this manual proxying…
 
-        var awsConfiguration: any = {
+        let awsConfiguration: any = {
             accessKeyId: accessKey,
             secretAccessKey: secretKey,
             params: {Bucket: bucket}
@@ -214,20 +214,20 @@ export class S3Factory extends AbstractFactory {
      * @inheritDoc
      */
     public constructTask(gulp: GulpHelp, configuration: Configurations): string[] {
-        var self: S3Factory = this;
+        let self: S3Factory = this;
 
         gulp.task(TaskName.DEPLOY_S3, false, function () {
-            var [s3Configurations, pathConfiguration]: Configurations = configuration;
-            var streams: ReadWriteStream[] = [];
-            var configurationCount: number = s3Configurations.length;
+            let [s3Configurations, pathConfiguration]: Configurations = configuration;
+            let streams: ReadWriteStream[] = [];
+            let configurationCount: number = s3Configurations.length;
 
             for (let s3Configuration of s3Configurations) {
-                var targets: Target[] = s3Configuration.target;
-                var error: Error = null;
+                let targets: Target[] = s3Configuration.target;
+                let error: Error = null;
 
-                var bucket: string = s3Configuration.configuration.params.Bucket;
-                var accessKey: string = s3Configuration.configuration.accessKeyId;
-                var secretKey: string = s3Configuration.configuration.secretAccessKey;
+                let bucket: string = s3Configuration.configuration.params.Bucket;
+                let accessKey: string = s3Configuration.configuration.accessKeyId;
+                let secretKey: string = s3Configuration.configuration.secretAccessKey;
 
                 if (bucket == null || bucket == '') {
                     error = new Error('Bucket is missing.');
@@ -245,7 +245,7 @@ export class S3Factory extends AbstractFactory {
                 }
 
                 for (let target of targets) {
-                    var stream: ReadWriteStream;
+                    let stream: ReadWriteStream;
 
                     stream = gulp.src(target.path, target.base == null ? {} : {base: target.base}).pipe(self.constructPlumber());
                     stream = self.constructStream(stream, [s3Configuration, target]);
@@ -268,9 +268,9 @@ export class S3Factory extends AbstractFactory {
      * @inheritDoc
      */
     public constructPipeline(configuration: [S3Configuration, Target]): Pipeline {
-        var [s3configuration, target]: [S3Configuration, Target] = configuration;
-        var plugins: any[] = this.constructPlugins(s3configuration.plugins);
-        var index: number;
+        let [s3configuration, target]: [S3Configuration, Target] = configuration;
+        let plugins: any[] = this.constructPlugins(s3configuration.plugins);
+        let index: number;
 
         (plugins == null || (<any[]>plugins).length === 0) && (plugins = [Plugin.DEFAULT]);
         (index = (<any[]>plugins).indexOf(Plugin.DEFAULT)) >= 0 && (<any[]>plugins).splice(index, 1, Plugin.S3);
@@ -299,8 +299,8 @@ export class S3Factory extends AbstractFactory {
      * @inheritDoc
      */
     public construct(): Task {
-        var configurations: Configurations = this.normaliseConfigurations(this.configuration, this.parameters);
-        var gulp: GulpHelp = this.gulp;
+        let configurations: Configurations = this.normaliseConfigurations(this.configuration, this.parameters);
+        let gulp: GulpHelp = this.gulp;
 
         return this.constructTask(gulp, configurations)
     }
