@@ -1,6 +1,3 @@
-/// <reference path="../../../../dependency/typings/reference.d.ts" />
-/// <reference path="../../../dts/reference.d.ts" />
-
 import {Schema} from '../../Constant/Schema';
 import {Validator} from '../../Validator/Validator';
 

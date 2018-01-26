@@ -1,13 +1,9 @@
-/// <reference path='../../../../../dependency/typings/reference.d.ts' />
-/// <reference path='../../../../dts/reference.d.ts' />
-
 import {NormaliseFactory, NormaliseConfiguration} from '../../../Task/Dependency/NormaliseFactory';
 import {PathConfiguration} from '../../../Configuration/PathConfiguration';
 import {Pipeline} from '../../../Stream/Pipeline';
 import {SourceFile, DependencyFile} from '../../../Testing/File';
 
 import path = require('path');
-import help = require('gulp-help');
 
 require('should');
 

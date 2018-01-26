@@ -1,6 +1,3 @@
-/// <reference path='../../../../../dependency/typings/reference.d.ts' />
-/// <reference path='../../../../dts/reference.d.ts' />
-
 import {SourceFile} from '../../../Testing/File';
 import {LessFactory, LessConfiguration} from '../../../Task/Build/LessFactory';
 import {PathConfiguration} from '../../../Configuration/PathConfiguration';

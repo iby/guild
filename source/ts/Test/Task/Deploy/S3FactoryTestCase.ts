@@ -1,12 +1,8 @@
-/// <reference path='../../../../../dependency/typings/reference.d.ts' />
-/// <reference path='../../../../dts/reference.d.ts' />
-
 import {PathConfiguration} from '../../../Configuration/PathConfiguration';
 import {S3Factory} from '../../../Task/Deploy/S3Factory';
 import {Parameter} from '../../../Constant/Parameter';
 
 import path = require('path');
-import help = require('gulp-help');
 
 require('should');
 

@@ -1,6 +1,3 @@
-/// <reference path="../../../../dependency/typings/reference.d.ts" />
-/// <reference path="../../../dts/reference.d.ts" />
-
 import {PathUtility} from '../../Utility/PathUtility';
 
 import path = require('path');

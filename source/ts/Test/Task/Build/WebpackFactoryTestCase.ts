@@ -1,6 +1,3 @@
-/// <reference path='../../../../../dependency/typings/reference.d.ts' />
-/// <reference path='../../../../dts/reference.d.ts' />
-
 import {PathConfiguration} from '../../../Configuration/PathConfiguration';
 import {Pipeline} from '../../../Stream/Pipeline';
 import {SourceFile} from '../../../Testing/File';
