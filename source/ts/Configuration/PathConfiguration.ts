@@ -7,51 +7,51 @@ export class PathConfiguration implements ConfigurationInterface {
     /**
      * Todo: smells like a hack, keep an eye on https://github.com/Microsoft/TypeScript/issues/7633.
      */
-    [key:string]:any;
+    [key: string]: any;
 
     /**
      * Root folder of the project.
      */
-    public root:string;
+    public root: string;
 
     /**
      * Folder with all dependencies, like bower or npm.
      */
-    public dependency:string;
+    public dependency: string;
 
     /**
      * Documentation and documentation assets.
      */
-    public documentation:string;
+    public documentation: string;
 
     /**
      * Entrypoint for a webserver.
      */
-    public entrypoint:string;
+    public entrypoint: string;
 
     /**
      * Libraries that ship with the codebase.
      */
-    public library:string;
+    public library: string;
 
     /**
      * Built products.
      */
-    public product:string;
+    public product: string;
 
     /**
      * Source files.
      */
-    public source:string;
+    public source: string;
 
     /**
      * Default destination location(s), when not specified guild would normally use `product` as
      * default. This is useful for cases when we need to build a product and put something into the
      * entrypoint to make it available for the webserver.
      */
-    public destination:string|string[];
+    public destination: string | string[];
 
-    constructor(root:string) {
+    constructor(root: string) {
         this.root = root;
         this.dependency = path.join(root, 'dependency');
         this.documentation = path.join(root, 'documentation');

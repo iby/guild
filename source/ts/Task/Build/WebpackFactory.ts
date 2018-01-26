@@ -20,13 +20,13 @@ import webpack = require('webpack-stream');
 export type Configuration = [WebpackConfiguration, PathConfiguration];
 
 export interface WebpackConfiguration extends ConfigurationInterface {
-    clean?:boolean;
-    configuration?:any;
-    destination:string|string[];
-    plugins?:PluginGenerator;
-    production?:boolean;
-    source:string|string[];
-    watch?:boolean;
+    clean?: boolean;
+    configuration?: any;
+    destination: string | string[];
+    plugins?: PluginGenerator;
+    production?: boolean;
+    source: string | string[];
+    watch?: boolean;
 }
 
 /**
@@ -36,28 +36,27 @@ export class WebpackFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    protected option:Option = new Option('webpack', 'Build js sources with webpack.');
+    public name: string = TaskName.BUILD_WEBPACK;
+    /**
+     * @inheritDoc
+     */
+    protected option: Option = new Option('webpack', 'Build js sources with webpack.');
 
     /**
      * @inheritDoc
      */
-    public name:string = TaskName.BUILD_WEBPACK;
-
-    /**
-     * @inheritDoc
-     */
-    public normaliseConfiguration(configuration:Configuration, parameters?:ParsedArgs):Configuration {
-        var [webpackConfiguration, pathConfiguration]:Configuration = configuration;
+    public normaliseConfiguration(configuration: Configuration, parameters?: ParsedArgs): Configuration {
+        var [webpackConfiguration, pathConfiguration]: Configuration = configuration;
 
         // Options.
 
-        var clean:boolean;
-        var compilerConfiguration:any;
-        var destination:string|string[];
-        var plugins:PluginGenerator;
-        var production:boolean;
-        var source:string|string[];
-        var watch:boolean;
+        var clean: boolean;
+        var compilerConfiguration: any;
+        var destination: string | string[];
+        var plugins: PluginGenerator;
+        var production: boolean;
+        var source: string | string[];
+        var watch: boolean;
 
         // Normalise configuration.
 
@@ -97,13 +96,13 @@ export class WebpackFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public construct():Task {
+    public construct(): Task {
         super.construct();
 
-        var configuration:Configuration = this.normaliseConfiguration(this.configuration, this.parameters);
-        var [webpackConfiguration, pathConfiguration]:Configuration = configuration;
-        var gulp:GulpHelp = this.gulp;
-        var task:string[];
+        var configuration: Configuration = this.normaliseConfiguration(this.configuration, this.parameters);
+        var [webpackConfiguration, pathConfiguration]: Configuration = configuration;
+        var gulp: GulpHelp = this.gulp;
+        var task: string[];
 
         return [
             task = this.constructTask(gulp, configuration),
@@ -115,12 +114,12 @@ export class WebpackFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public constructTask(gulp:GulpHelp, configuration:Configuration):string[] {
-        var self:WebpackFactory = this;
+    public constructTask(gulp: GulpHelp, configuration: Configuration): string[] {
+        var self: WebpackFactory = this;
 
         gulp.task(TaskName.BUILD_WEBPACK, false, function () {
             var [webpackConfiguration, pathConfiguration] = configuration;
-            var stream:ReadWriteStream;
+            var stream: ReadWriteStream;
 
             stream = gulp.src(PathUtility.globalisePath(PathUtility.normaliseSourcePath(pathConfiguration, webpackConfiguration.source), '**/*.js')).pipe(self.constructPlumber());
             stream = self.constructStream(stream, webpackConfiguration);
@@ -135,9 +134,9 @@ export class WebpackFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public constructPipeline(configuration:WebpackConfiguration):Pipeline {
-        var plugins:any[] = this.constructPlugins(configuration.plugins);
-        var index:number;
+    public constructPipeline(configuration: WebpackConfiguration): Pipeline {
+        var plugins: any[] = this.constructPlugins(configuration.plugins);
+        var index: number;
 
         (plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
         (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.WEBPACK);
@@ -153,16 +152,16 @@ export class WebpackFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public constructClean(gulp:GulpHelp, configuration:Configuration):string[] {
-        var [webpackConfiguration, pathConfiguration]:Configuration = configuration;
-        var task:string;
+    public constructClean(gulp: GulpHelp, configuration: Configuration): string[] {
+        var [webpackConfiguration, pathConfiguration]: Configuration = configuration;
+        var task: string;
 
         if (webpackConfiguration.clean === false) {
             return [];
         }
 
         gulp.task(task = this.name + '-clean', false, function () {
-            var path:string|string[] = PathUtility.globalisePath(PathUtility.normaliseDestinationPath(pathConfiguration, webpackConfiguration.destination), '**/*.js');
+            var path: string | string[] = PathUtility.globalisePath(PathUtility.normaliseDestinationPath(pathConfiguration, webpackConfiguration.destination), '**/*.js');
             return del(path, {force: true});
         });
 
@@ -172,10 +171,10 @@ export class WebpackFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public constructWatch(gulp:GulpHelp, configuration:Configuration, tasks:string[]):string[] {
-        var [webpackConfiguration, pathConfiguration]:Configuration = configuration;
-        var watch:any = webpackConfiguration.watch;
-        var task:string;
+    public constructWatch(gulp: GulpHelp, configuration: Configuration, tasks: string[]): string[] {
+        var [webpackConfiguration, pathConfiguration]: Configuration = configuration;
+        var watch: any = webpackConfiguration.watch;
+        var task: string;
 
         if (watch === false) {
             return [];
@@ -186,7 +185,7 @@ export class WebpackFactory extends AbstractFactory {
             // When no explicit watch paths are given, use default twig source location, otherwise normalise paths
             // relative to the root directory. Todo: must take into account `configuration.source`…
 
-            var path:string|string[] = watch === true
+            var path: string | string[] = watch === true
                 ? PathUtility.normaliseSourcePath(pathConfiguration, 'js/**/*.js')
                 : PathUtility.normalisePath(pathConfiguration.root, watch);
 

@@ -7,7 +7,7 @@ import plumber = require('gulp-plumber');
 import util = require('gulp-util');
 
 export interface Handler {
-    (error:any):void;
+    (error: any): void;
 }
 
 export class NormaliseConfigurationError extends AbstractError {
@@ -15,7 +15,7 @@ export class NormaliseConfigurationError extends AbstractError {
     /**
      * @inheritDoc
      */
-    constructor(message?:string) {
+    constructor(message?: string) {
         super('Cannot normalise configuration.' + (message == null || message.length === 0 ? '' : ' ' + message));
     }
 }
@@ -26,29 +26,29 @@ export abstract class AbstractFactory {
      * Factory/task-specific configuration that will be used during the construction, inheriting
      * methods should redefine this with a more appropriate type.
      */
-    public configuration:any;
+    public configuration: any;
 
     /**
      * Gulp-help plugin instance, which will be updated with the tasks during the construction.
      */
-    public gulp:GulpHelp;
+    public gulp: GulpHelp;
 
     /**
      * Task name under which it will be registered with gulp.
      */
-    public name:string;
+    public name: string;
 
     /**
      * Parameters received on the cli in case some are needed during the task construction.
      */
-    public parameters:ParsedArgs;
+    public parameters: ParsedArgs;
 
     /**
      * @param gulp
      * @param configuration
      * @param parameters
      */
-    constructor(gulp?:GulpHelp, configuration?:any, parameters?:ParsedArgs) {
+    constructor(gulp?: GulpHelp, configuration?: any, parameters?: ParsedArgs) {
         this.gulp = gulp;
         this.configuration = configuration;
         this.parameters = parameters;
@@ -57,15 +57,15 @@ export abstract class AbstractFactory {
     /**
      * Constructs a new instance of class this gets called on.
      */
-    public static construct(...args:any[]):AbstractFactory {
+    public static construct(...args: any[]): AbstractFactory {
         return new (<any>this)(...args);
     }
 
     /**
      * Creates gulp plumber stream with pre-configured error handler.
      */
-    public constructPlumber(handler?:Handler):ReadWriteStream {
-        return plumber(function (error:any) {
+    public constructPlumber(handler?: Handler): ReadWriteStream {
+        return plumber(function (error: any) {
             if (handler == null) {
 
                 // This prints only basic error info, todo: if we do a debug mode, we want to print more details…
@@ -90,11 +90,11 @@ export abstract class AbstractFactory {
      * to take whatever value is available and normalise it to a point where it can be safely used without
      * worrying about alternative variations.
      */
-    public abstract normaliseConfiguration(configuration:any):any;
+    public abstract normaliseConfiguration(configuration: any): any;
 
     /**
      * Constructs the task and registers it with gulp.
      */
-    public abstract construct():any;
+    public abstract construct(): any;
 
 }

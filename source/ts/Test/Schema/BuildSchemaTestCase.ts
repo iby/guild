@@ -8,10 +8,10 @@ require('should');
 
 suite('build schema', function () {
     suite('less', function () {
-        var validator:Validator = new Validator();
-        var schema:string = Schema.BUILD_LESS;
+        var validator: Validator = new Validator();
+        var schema: string = Schema.BUILD_LESS;
 
-        var validData:any[] = [
+        var validData: any[] = [
             {description: 'true', value: true},
             {description: '{source}', value: {source: 'foo'}},
             {description: '{destination}', value: {destination: 'foo'}},
@@ -19,7 +19,7 @@ suite('build schema', function () {
             {description: '{source, destination}', value: {source: 'foo', destination: 'bar'}}
         ];
 
-        validData.forEach(function (data:any) {
+        validData.forEach(function (data: any) {
             test(data.description, function () {
                 validator.validate(data.value, schema).errors.should.be.empty();
             });
@@ -27,10 +27,10 @@ suite('build schema', function () {
     });
 
     suite('twig', function () {
-        var validator:Validator = new Validator();
-        var schema:string = Schema.BUILD_TWIG;
+        var validator: Validator = new Validator();
+        var schema: string = Schema.BUILD_TWIG;
 
-        var validData:any[] = [
+        var validData: any[] = [
             {description: 'true', value: true},
             {description: '{data}', value: {data: {}}},
             {description: '{source}', value: {source: 'foo'}},
@@ -39,7 +39,7 @@ suite('build schema', function () {
             {description: '{data, source, destination}', value: {data: {}, source: 'foo', destination: 'bar'}}
         ];
 
-        validData.forEach(function (data:any) {
+        validData.forEach(function (data: any) {
             test(data.description, function () {
                 validator.validate(data.value, schema).errors.should.be.empty();
             });
@@ -47,10 +47,10 @@ suite('build schema', function () {
     });
 
     suite('webpack', function () {
-        var validator:Validator = new Validator();
-        var schema:string = Schema.BUILD_WEBPACK;
+        var validator: Validator = new Validator();
+        var schema: string = Schema.BUILD_WEBPACK;
 
-        var validData:any[] = [
+        var validData: any[] = [
             {description: '{configuration}', value: {configuration: {}}},
             {description: '{source}', value: {source: 'foo'}},
             {description: '{destination}', value: {destination: 'foo'}},
@@ -58,7 +58,7 @@ suite('build schema', function () {
             {description: '{configuration, source, destination}', value: {configuration: {}, source: 'foo', destination: 'bar'}}
         ];
 
-        validData.forEach(function (data:any) {
+        validData.forEach(function (data: any) {
             test(data.description, function () {
                 validator.validate(data.value, schema).errors.should.be.empty();
             });

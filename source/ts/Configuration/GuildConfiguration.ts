@@ -6,7 +6,7 @@ import {DeployConfiguration} from '../Task/DeployFactory';
 // Guild configuration.
 
 export interface GuildConfiguration extends ConfigurationInterface {
-    build?:BuildConfiguration;
-    dependency?:DependencyConfiguration;
-    deploy?:DeployConfiguration;
+    build?: BuildConfiguration;
+    dependency?: DependencyConfiguration;
+    deploy?: DeployConfiguration;
 }

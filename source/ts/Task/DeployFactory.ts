@@ -12,7 +12,7 @@ import sequence = require('run-sequence');
 export type Configuration = [DeployConfiguration, PathConfiguration];
 
 export interface DeployConfiguration extends ConfigurationInterface {
-    s3?:S3Configuration;
+    s3?: S3Configuration;
 }
 
 export class DeployFactory extends AbstractTaskFactory {
@@ -20,7 +20,7 @@ export class DeployFactory extends AbstractTaskFactory {
     /**
      * @inheritDoc
      */
-    public normaliseConfiguration(configuration:Configuration, parameters?:ParsedArgs):Configuration {
+    public normaliseConfiguration(configuration: Configuration, parameters?: ParsedArgs): Configuration {
         return configuration;
     }
 
@@ -28,34 +28,34 @@ export class DeployFactory extends AbstractTaskFactory {
      * @inheritDoc
      */
     public construct() {
-        var parameters:ParsedArgs = this.parameters;
+        var parameters: ParsedArgs = this.parameters;
         var [deployConfiguration, pathConfiguration] = this.normaliseConfiguration(this.configuration, parameters);
-        var gulp:GulpHelp = this.gulp;
+        var gulp: GulpHelp = this.gulp;
 
         // Define available subtask factories by configuration key.
 
-        var factories:{[id:string]:typeof AbstractFactory} = {
+        var factories: { [id: string]: typeof AbstractFactory } = {
             s3: S3Factory
         };
 
         // 
 
-        var options:{[id:string]:string} = {};
-        var tasks:any[] = [];
+        var options: { [id: string]: string } = {};
+        var tasks: any[] = [];
 
         // Gulp help stuff.
 
-        var description:string = 'Clean and build dependencies into local libraries.';
+        var description: string = 'Clean and build dependencies into local libraries.';
 
         options['production'] = 'Build for production, will minify and strip everything it can. Very slow… \uD83D\uDC22';
         options['watch'] = 'Watch files for changes to re-run.';
 
-        Object.keys(deployConfiguration).forEach(function (key:string) {
+        Object.keys(deployConfiguration).forEach(function (key: string) {
             if (factories[key] == null) {
                 return;
             }
 
-            var factory:AbstractFactory = new (<any>factories[key])();
+            var factory: AbstractFactory = new (<any>factories[key])();
 
             factory.configuration = [deployConfiguration[key], pathConfiguration];
             factory.gulp = gulp;

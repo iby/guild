@@ -25,39 +25,39 @@ export type Configuration = [S3Configuration, PathConfiguration];
 export type Configurations = [S3Configuration[], PathConfiguration];
 
 export interface Target {
-    path:string;
-    base?:string;
+    path: string;
+    base?: string;
 
     /**
      * Target specific prefix, if prefix option is specified in configuration, target prefix will be appended
      * after it, otherwise only target prefix will be used.
      */
-    prefix?:string;
+    prefix?: string;
 }
 
 export interface S3Configuration extends ConfigurationInterface {
-    accessKey?:string;
-    baseUrl?:string;
-    bucket?:string;
-    certificateAuthority?:string;
-    configuration?:{
-        accessKeyId:string;
-        secretAccessKey:string;
-        params:{
-            Bucket:string;
+    accessKey?: string;
+    baseUrl?: string;
+    bucket?: string;
+    certificateAuthority?: string;
+    configuration?: {
+        accessKeyId: string;
+        secretAccessKey: string;
+        params: {
+            Bucket: string;
         }
     }
-    pathStyle?:string;
-    plugins?:PluginGenerator,
+    pathStyle?: string;
+    plugins?: PluginGenerator,
 
     /**
      * Global prefix for all targets, also configurable via parameters, useful when all targets must be deployed
      * to a specific location within the bucket.
      */
-    prefix?:string,
-    region?:string;
-    secretKey?:string;
-    target:Target[];
+    prefix?: string,
+    region?: string;
+    secretKey?: string;
+    target: Target[];
 }
 
 export class S3Factory extends AbstractFactory {
@@ -65,32 +65,32 @@ export class S3Factory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    protected option:Option = new Option('normalise', 'Normalise dependencies.');
+    protected option: Option = new Option('normalise', 'Normalise dependencies.');
 
     /**
      * Soft-checks whether the object is a `Target` interface.
      */
-    protected static isTarget(object:any) {
+    protected static isTarget(object: any) {
         return object.path != null;
     }
 
     /**
      * Soft-checks whether the object is a `S3Configuration` interface.
      */
-    protected static isConfiguration(object:any) {
+    protected static isConfiguration(object: any) {
         return object.target != null;
     }
 
     /**
      * @inheritDoc
      */
-    public normaliseConfigurations(configuration:Configuration, parameters:ParsedArgs):Configurations {
-        var [s3Configuration, pathConfiguration]:Configuration = configuration;
-        var s3Configurations:S3Configuration[] = [];
-        var self:S3Factory = this;
+    public normaliseConfigurations(configuration: Configuration, parameters: ParsedArgs): Configurations {
+        var [s3Configuration, pathConfiguration]: Configuration = configuration;
+        var s3Configurations: S3Configuration[] = [];
+        var self: S3Factory = this;
 
-        var array:boolean = Array.isArray(s3Configuration);
-        var object:boolean = typeof s3Configuration === DataType.OBJECT;
+        var array: boolean = Array.isArray(s3Configuration);
+        var object: boolean = typeof s3Configuration === DataType.OBJECT;
 
         if (!object && !array) {
             throw new NormaliseConfigurationError('Expecting either an object or array, received something totally different.');
@@ -100,7 +100,7 @@ export class S3Factory extends AbstractFactory {
             s3Configurations = [s3Configuration];
         }
 
-        s3Configurations = s3Configurations.map(function (configuration:S3Configuration):S3Configuration {
+        s3Configurations = s3Configurations.map(function (configuration: S3Configuration): S3Configuration {
 
             // If configuration is already an object, we inject target into it if necessary. If not, we turn it
             // into object. In both cases some normalisation takes place.
@@ -128,17 +128,17 @@ export class S3Factory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public normaliseConfiguration(configuration:S3Configuration, parameters?:ParsedArgs):S3Configuration {
-        var accessKey:string = configuration.accessKey;
-        var baseUrl:string = configuration.baseUrl;
-        var bucket:string = configuration.bucket;
-        var certificateAuthority:string = configuration.certificateAuthority;
-        var pathStyle:string = configuration.pathStyle;
-        var plugins:PluginGenerator = configuration.plugins;
-        var prefix:string = configuration.prefix;
-        var region:string = configuration.region;
-        var secretKey:string = configuration.secretKey;
-        var target:any = configuration.target;
+    public normaliseConfiguration(configuration: S3Configuration, parameters?: ParsedArgs): S3Configuration {
+        var accessKey: string = configuration.accessKey;
+        var baseUrl: string = configuration.baseUrl;
+        var bucket: string = configuration.bucket;
+        var certificateAuthority: string = configuration.certificateAuthority;
+        var pathStyle: string = configuration.pathStyle;
+        var plugins: PluginGenerator = configuration.plugins;
+        var prefix: string = configuration.prefix;
+        var region: string = configuration.region;
+        var secretKey: string = configuration.secretKey;
+        var target: any = configuration.target;
 
         // If required configuration didn't come with the bucket try getting it from parameters.
 
@@ -167,9 +167,9 @@ export class S3Factory extends AbstractFactory {
 
         // Normalise targets, it either is an array of targets or a single object.
 
-        var targets:Target[] = Array.isArray(target) ? target : [target];
+        var targets: Target[] = Array.isArray(target) ? target : [target];
 
-        targets = targets.map(function (target:any) {
+        targets = targets.map(function (target: any) {
             if (typeof target === DataType.STRING) {
                 return {path: target, prefix: prefix};
             } else if (typeof target === DataType.OBJECT && S3Factory.isTarget(target)) {
@@ -183,7 +183,7 @@ export class S3Factory extends AbstractFactory {
         // Create configuration that will be passed to aws publish module, it uses different parameter names
         // and structure that would be more difficult to configure, so we do this manual proxying…
 
-        var awsConfiguration:any = {
+        var awsConfiguration: any = {
             accessKeyId: accessKey,
             secretAccessKey: secretKey,
             params: {Bucket: bucket}
@@ -213,21 +213,21 @@ export class S3Factory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public constructTask(gulp:GulpHelp, configuration:Configurations):string[] {
-        var self:S3Factory = this;
+    public constructTask(gulp: GulpHelp, configuration: Configurations): string[] {
+        var self: S3Factory = this;
 
         gulp.task(TaskName.DEPLOY_S3, false, function () {
-            var [s3Configurations, pathConfiguration]:Configurations = configuration;
-            var streams:ReadWriteStream[] = [];
-            var configurationCount:number = s3Configurations.length;
+            var [s3Configurations, pathConfiguration]: Configurations = configuration;
+            var streams: ReadWriteStream[] = [];
+            var configurationCount: number = s3Configurations.length;
 
             for (let s3Configuration of s3Configurations) {
-                var targets:Target[] = s3Configuration.target;
-                var error:Error = null;
+                var targets: Target[] = s3Configuration.target;
+                var error: Error = null;
 
-                var bucket:string = s3Configuration.configuration.params.Bucket;
-                var accessKey:string = s3Configuration.configuration.accessKeyId;
-                var secretKey:string = s3Configuration.configuration.secretAccessKey;
+                var bucket: string = s3Configuration.configuration.params.Bucket;
+                var accessKey: string = s3Configuration.configuration.accessKeyId;
+                var secretKey: string = s3Configuration.configuration.secretAccessKey;
 
                 if (bucket == null || bucket == '') {
                     error = new Error('Bucket is missing.');
@@ -245,7 +245,7 @@ export class S3Factory extends AbstractFactory {
                 }
 
                 for (let target of targets) {
-                    var stream:ReadWriteStream;
+                    var stream: ReadWriteStream;
 
                     stream = gulp.src(target.path, target.base == null ? {} : {base: target.base}).pipe(self.constructPlumber());
                     stream = self.constructStream(stream, [s3Configuration, target]);
@@ -267,10 +267,10 @@ export class S3Factory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public constructPipeline(configuration:[S3Configuration, Target]):Pipeline {
+    public constructPipeline(configuration: [S3Configuration, Target]): Pipeline {
         var [s3configuration, target]: [S3Configuration, Target] = configuration;
-        var plugins:any[] = this.constructPlugins(s3configuration.plugins);
-        var index:number;
+        var plugins: any[] = this.constructPlugins(s3configuration.plugins);
+        var index: number;
 
         (plugins == null || (<any[]>plugins).length === 0) && (plugins = [Plugin.DEFAULT]);
         (index = (<any[]>plugins).indexOf(Plugin.DEFAULT)) >= 0 && (<any[]>plugins).splice(index, 1, Plugin.S3);
@@ -298,9 +298,9 @@ export class S3Factory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public construct():Task {
-        var configurations:Configurations = this.normaliseConfigurations(this.configuration, this.parameters);
-        var gulp:GulpHelp = this.gulp;
+    public construct(): Task {
+        var configurations: Configurations = this.normaliseConfigurations(this.configuration, this.parameters);
+        var gulp: GulpHelp = this.gulp;
 
         return this.constructTask(gulp, configurations)
     }

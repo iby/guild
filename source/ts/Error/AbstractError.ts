@@ -3,10 +3,10 @@
  * todo: into mess into ES6, I didn't fully understand the problem there. Sorry future generations…
  */
 export abstract class AbstractError extends Error {
-    constructor(message?:string) {
+    constructor(message?: string) {
         super(message);
 
-        var error:Error = Error.apply(this, [message]);
+        var error: Error = Error.apply(this, [message]);
 
         this.message = error.message;
         this.name = error.name;

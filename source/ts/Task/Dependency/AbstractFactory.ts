@@ -7,5 +7,5 @@ export abstract class AbstractFactory extends AbstractSubtaskFactory {
     /**
      * @inheritDoc
      */
-    public abstract construct():Task;
+    public abstract construct(): Task;
 }

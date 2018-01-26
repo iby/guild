@@ -19,11 +19,11 @@ export type Configuration = [CopyConfiguration, PathConfiguration];
 export type Configurations = [CopyConfiguration[], PathConfiguration];
 
 export interface CopyConfiguration extends ConfigurationInterface {
-    clean?:boolean;
-    destination:string|string[];
-    plugins?:PluginGenerator;
-    source:string|string[];
-    watch?:boolean;
+    clean?: boolean;
+    destination: string | string[];
+    plugins?: PluginGenerator;
+    source: string | string[];
+    watch?: boolean;
 }
 
 /**
@@ -34,13 +34,13 @@ export class CopyFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public normaliseConfigurations(configuration:Configuration, parameters?:ParsedArgs):Configurations {
-        var [copyConfiguration, pathConfiguration]:Configuration = configuration;
-        var copyConfigurations:CopyConfiguration[] = [];
-        var self:CopyFactory = this;
+    public normaliseConfigurations(configuration: Configuration, parameters?: ParsedArgs): Configurations {
+        var [copyConfiguration, pathConfiguration]: Configuration = configuration;
+        var copyConfigurations: CopyConfiguration[] = [];
+        var self: CopyFactory = this;
 
-        var array:boolean = Array.isArray(copyConfiguration);
-        var object:boolean = typeof copyConfiguration === DataType.OBJECT;
+        var array: boolean = Array.isArray(copyConfiguration);
+        var object: boolean = typeof copyConfiguration === DataType.OBJECT;
 
         if (!object && !array) {
             throw new NormaliseConfigurationError('Expecting either an object or array, received something totally different.');
@@ -50,7 +50,7 @@ export class CopyFactory extends AbstractFactory {
             copyConfigurations = [copyConfiguration];
         }
 
-        copyConfigurations = copyConfigurations.map(function (configuration:CopyConfiguration):CopyConfiguration {
+        copyConfigurations = copyConfigurations.map(function (configuration: CopyConfiguration): CopyConfiguration {
             if (typeof configuration !== DataType.OBJECT) {
                 throw new NormaliseConfigurationError('Unexpected object format.');
             }
@@ -64,12 +64,12 @@ export class CopyFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public normaliseConfiguration(configuration:CopyConfiguration, parameters?:ParsedArgs):CopyConfiguration {
-        var clean:boolean;
-        var destination:string|string[];
-        var plugins:PluginGenerator;
-        var source:string|string[];
-        var watch:boolean;
+    public normaliseConfiguration(configuration: CopyConfiguration, parameters?: ParsedArgs): CopyConfiguration {
+        var clean: boolean;
+        var destination: string | string[];
+        var plugins: PluginGenerator;
+        var source: string | string[];
+        var watch: boolean;
 
         if (typeof configuration === DataType.BOOLEAN) {
         } else {
@@ -97,13 +97,13 @@ export class CopyFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public construct():Task {
+    public construct(): Task {
         super.construct();
 
-        var configurations:Configurations = this.normaliseConfigurations(this.configuration, this.parameters);
-        var [copyConfigurations, pathConfiguration]:Configurations = configurations;
-        var gulp:GulpHelp = this.gulp;
-        var task:string[];
+        var configurations: Configurations = this.normaliseConfigurations(this.configuration, this.parameters);
+        var [copyConfigurations, pathConfiguration]: Configurations = configurations;
+        var gulp: GulpHelp = this.gulp;
+        var task: string[];
 
         return [
             task = this.constructTask(gulp, configurations),
@@ -115,16 +115,16 @@ export class CopyFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public constructTask(gulp:GulpHelp, configurations:Configurations):string[] {
-        var [copyConfigurations, pathConfiguration]:Configurations = configurations;
-        var task:string = this.name;
-        var self:CopyFactory = this;
+    public constructTask(gulp: GulpHelp, configurations: Configurations): string[] {
+        var [copyConfigurations, pathConfiguration]: Configurations = configurations;
+        var task: string = this.name;
+        var self: CopyFactory = this;
 
         gulp.task(task, false, function () {
-            var streams:ReadWriteStream[] = [];
+            var streams: ReadWriteStream[] = [];
 
             for (let copyConfiguration of copyConfigurations) {
-                var stream:ReadWriteStream;
+                var stream: ReadWriteStream;
 
                 stream = gulp.src(PathUtility.globalisePath(PathUtility.normalisePath(pathConfiguration.root, copyConfiguration.source), '**/*'));
                 stream = self.constructStream(stream, copyConfiguration);
@@ -142,19 +142,19 @@ export class CopyFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public constructPipeline(configuration:CopyConfiguration):Pipeline {
-        var plugins:any[] = this.constructPlugins(configuration.plugins);
+    public constructPipeline(configuration: CopyConfiguration): Pipeline {
+        var plugins: any[] = this.constructPlugins(configuration.plugins);
         return this.pipelineStreams(plugins);
     }
 
     /**
      * @inheritDoc
      */
-    public constructClean(gulp:GulpHelp, configuration:Configurations):string[] {
-        var [copyConfigurations, pathConfiguration]:Configurations = configuration;
-        var task:string;
+    public constructClean(gulp: GulpHelp, configuration: Configurations): string[] {
+        var [copyConfigurations, pathConfiguration]: Configurations = configuration;
+        var task: string;
 
-        copyConfigurations = copyConfigurations.filter(function (copyConfiguration:CopyConfiguration) {
+        copyConfigurations = copyConfigurations.filter(function (copyConfiguration: CopyConfiguration) {
             return copyConfiguration.clean === true;
         });
 
@@ -163,10 +163,10 @@ export class CopyFactory extends AbstractFactory {
         }
 
         gulp.task(task = this.name + '-clean', false, function () {
-            var promises:Promise<void>[] = [];
+            var promises: Promise<void>[] = [];
 
             for (let copyConfiguration of copyConfigurations) {
-                var path:string|string[] = PathUtility.globalisePath(PathUtility.normalisePath(pathConfiguration.root, copyConfiguration.destination), '**/*');
+                var path: string | string[] = PathUtility.globalisePath(PathUtility.normalisePath(pathConfiguration.root, copyConfiguration.destination), '**/*');
                 promises.push(del(path, {force: true}));
             }
 
@@ -179,11 +179,11 @@ export class CopyFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public constructWatch(gulp:GulpHelp, configuration:Configurations, tasks:string[]):string[] {
-        var [copyConfigurations, pathConfiguration]:Configurations = configuration;
-        var task:string;
+    public constructWatch(gulp: GulpHelp, configuration: Configurations, tasks: string[]): string[] {
+        var [copyConfigurations, pathConfiguration]: Configurations = configuration;
+        var task: string;
 
-        copyConfigurations = copyConfigurations.filter(function (copyConfiguration:CopyConfiguration) {
+        copyConfigurations = copyConfigurations.filter(function (copyConfiguration: CopyConfiguration) {
             return copyConfiguration.watch === true;
         });
 
@@ -193,7 +193,7 @@ export class CopyFactory extends AbstractFactory {
 
         gulp.task(task = this.name + '-watch', false, function () {
             for (let copyConfiguration of copyConfigurations) {
-                var path:string|string[] = PathUtility.globalisePath(PathUtility.normalisePath(pathConfiguration.root, copyConfiguration.source), '**/*');
+                var path: string | string[] = PathUtility.globalisePath(PathUtility.normalisePath(pathConfiguration.root, copyConfiguration.source), '**/*');
                 gulp.watch(path, tasks);
             }
         });

@@ -8,7 +8,7 @@ import should = require('should');
 
 suite('path utility', function () {
     test('get common extension', function () {
-        var sourcePath:string = path.join(__dirname, '../../../../test/project/source');
+        var sourcePath: string = path.join(__dirname, '../../../../test/project/source');
 
         PathUtility.getCommonExtension(path.join(sourcePath, 'js/*')).should.equal('js');
         PathUtility.getCommonExtension(['foo.js', 'bar.js']).should.equal('js');

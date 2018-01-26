@@ -11,7 +11,7 @@ export abstract class AbstractFactory extends AbstractSubtaskFactory {
     /**
      * @inheritDoc
      */
-    public construct():Task {
+    public construct(): Task {
 
         // Basic prevalidation that we have everything that we need to start constructing the task.
 

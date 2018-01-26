@@ -5,7 +5,7 @@ export class NotImplementedError extends AbstractError {
     /**
      * @inheritDoc
      */
-    constructor(message?:string) {
+    constructor(message?: string) {
         super(message == null ? 'The invoked block is not implemented… Y U CALL ME!!!' : message);
     }
 }

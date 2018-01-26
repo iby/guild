@@ -22,9 +22,9 @@ export type Configuration = [NormaliseConfiguration, PathConfiguration];
 export type Configurations = [NormaliseConfiguration[], PathConfiguration];
 
 export interface NormaliseConfiguration extends ConfigurationInterface {
-    destination:string|string[];
-    plugins?:PluginGenerator;
-    source:string|string[];
+    destination: string | string[];
+    plugins?: PluginGenerator;
+    source: string | string[];
 }
 
 export class NormaliseFactory extends AbstractFactory {
@@ -32,36 +32,36 @@ export class NormaliseFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    protected option:Option = new Option('normalise', 'Normalise dependencies.');
+    protected option: Option = new Option('normalise', 'Normalise dependencies.');
 
     /**
      * @inheritDoc
      */
-    public normaliseConfigurations(configuration:Configuration, parameters:ParsedArgs):Configurations {
-        var [normaliseConfiguration, pathConfiguration]:Configuration = configuration;
-        var normaliseConfigurations:NormaliseConfiguration[] = [];
-        var self:NormaliseFactory = this;
+    public normaliseConfigurations(configuration: Configuration, parameters: ParsedArgs): Configurations {
+        var [normaliseConfiguration, pathConfiguration]: Configuration = configuration;
+        var normaliseConfigurations: NormaliseConfiguration[] = [];
+        var self: NormaliseFactory = this;
 
-        var array:boolean = Array.isArray(normaliseConfiguration);
-        var object:boolean = typeof normaliseConfiguration === DataType.OBJECT;
+        var array: boolean = Array.isArray(normaliseConfiguration);
+        var object: boolean = typeof normaliseConfiguration === DataType.OBJECT;
 
         if (!array && !object) {
             throw new NormaliseConfigurationError('Expecting either an object or array, received something totally different.');
         } else if (array) {
-            normaliseConfigurations = (<any[]><any>normaliseConfiguration).map(function (configuration:NormaliseConfiguration) {
+            normaliseConfigurations = (<any[]><any>normaliseConfiguration).map(function (configuration: NormaliseConfiguration) {
                 return self.normaliseConfiguration([configuration, pathConfiguration]);
             });
         } else {
-            normaliseConfigurations = Object.keys(normaliseConfiguration).map(function (key:string) {
-                var configuration:NormaliseConfiguration;
-                var source:string;
-                var destination:string;
+            normaliseConfigurations = Object.keys(normaliseConfiguration).map(function (key: string) {
+                var configuration: NormaliseConfiguration;
+                var source: string;
+                var destination: string;
 
                 // If configuration is already an object, we inject destination into it if necessary. If not,
                 // we turn it into object. In both cases some normalisation takes place.
 
-                var array:boolean = Array.isArray(normaliseConfiguration[key]);
-                var object:boolean = typeof normaliseConfiguration[key] === DataType.OBJECT;
+                var array: boolean = Array.isArray(normaliseConfiguration[key]);
+                var object: boolean = typeof normaliseConfiguration[key] === DataType.OBJECT;
 
                 if (array && object || !array && !object) {
                     configuration = {destination: key, source: normaliseConfiguration[key]};
@@ -107,12 +107,12 @@ export class NormaliseFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public normaliseConfiguration(configuration:Configuration):NormaliseConfiguration {
-        var [normaliseConfiguration, pathConfiguration]:Configuration = configuration;
+    public normaliseConfiguration(configuration: Configuration): NormaliseConfiguration {
+        var [normaliseConfiguration, pathConfiguration]: Configuration = configuration;
 
-        var source:string|string[] = normaliseConfiguration.source;
-        var destination:string|string[] = normaliseConfiguration.destination;
-        var plugins:PluginGenerator = normaliseConfiguration.plugins;
+        var source: string | string[] = normaliseConfiguration.source;
+        var destination: string | string[] = normaliseConfiguration.destination;
+        var plugins: PluginGenerator = normaliseConfiguration.plugins;
 
         // Todo: why are we doing path normalisation here?
 
@@ -120,9 +120,9 @@ export class NormaliseFactory extends AbstractFactory {
         destination = PathUtility.normaliseLibraryPath(pathConfiguration, destination);
         plugins == null && (plugins = null);
 
-        var extension:string;
-        var directory:string;
-        var basename:string;
+        var extension: string;
+        var directory: string;
+        var basename: string;
 
         // If destination has no extension, but source does…
 
@@ -148,15 +148,15 @@ export class NormaliseFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public constructTask(gulp:GulpHelp, configuration:Configurations):string[] {
-        var self:NormaliseFactory = this;
+    public constructTask(gulp: GulpHelp, configuration: Configurations): string[] {
+        var self: NormaliseFactory = this;
 
         gulp.task(TaskName.DEPENDENCY_NORMALISE, false, function () {
-            var [normaliseConfigurations, pathConfiguration]:Configurations = configuration;
-            var streams:ReadWriteStream[] = [];
+            var [normaliseConfigurations, pathConfiguration]: Configurations = configuration;
+            var streams: ReadWriteStream[] = [];
 
             for (let normaliseConfiguration of normaliseConfigurations) {
-                var stream:ReadWriteStream;
+                var stream: ReadWriteStream;
 
                 // We rename file inside the task, otherwise we'll end up with same destination
                 // folder name as the filename.
@@ -177,9 +177,9 @@ export class NormaliseFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public constructPipeline(configuration:NormaliseConfiguration):Pipeline {
-        var plugins:any = this.constructPlugins(configuration.plugins);
-        var index:number;
+    public constructPipeline(configuration: NormaliseConfiguration): Pipeline {
+        var plugins: any = this.constructPlugins(configuration.plugins);
+        var index: number;
 
         (plugins == null || plugins.length === 0) && (plugins = [Plugin.DEFAULT]);
         (index = plugins.indexOf(Plugin.DEFAULT)) >= 0 && plugins.splice(index, 1, Plugin.NORMALISE);
@@ -199,10 +199,10 @@ export class NormaliseFactory extends AbstractFactory {
     /**
      * @inheritDoc
      */
-    public construct():Task {
-        var configuration:Configurations = this.normaliseConfigurations(this.configuration, this.parameters);
-        var [normaliseConfiguration, pathConfiguration]:Configurations = configuration;
-        var gulp:GulpHelp = this.gulp;
+    public construct(): Task {
+        var configuration: Configurations = this.normaliseConfigurations(this.configuration, this.parameters);
+        var [normaliseConfiguration, pathConfiguration]: Configurations = configuration;
+        var gulp: GulpHelp = this.gulp;
 
         return this.constructTask(gulp, configuration)
     }

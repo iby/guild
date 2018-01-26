@@ -2,7 +2,7 @@
  * Can and probably should be used as a base interface for all configurations.
  */
 export interface ConfigurationInterface {
-    [key:string]:any;
+    [key: string]: any;
 }
 
 /**
@@ -16,4 +16,4 @@ export type PluginGenerator = () => any[]
 /**
  * A set / array of plugins, see `PluginGenerator` type.
  */
-export type PluginGenerators = string[]|PluginGenerator
+export type PluginGenerators = string[] | PluginGenerator

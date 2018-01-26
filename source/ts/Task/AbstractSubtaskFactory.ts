@@ -25,24 +25,24 @@ export abstract class AbstractSubtaskFactory extends AbstractFactory {
     /**
      * Single schema validator.
      */
-    protected static validator:Validator = new Validator();
-
-    /**
-     * Task-specific option, should be overridden by inheriting classes.
-     */
-    protected option:Option;
-
+    protected static validator: Validator = new Validator();
     /**
      * Already defined gulp task options, newly constructed task may add it's own options here.
      */
-    public options:{[id:string]:string};
+    public options: { [id: string]: string };
+    /**
+     * Task-specific option, should be overridden by inheriting classes.
+     */
+    protected option: Option;
 
     /**
      * Constructs write stream using `gulp.dest` to given destination.
      */
-    public constructDestination(stream:ReadWriteStream, gulp:Gulp, destination:string|string[]):ReadWriteStream {
+    public constructDestination(stream: ReadWriteStream, gulp: Gulp, destination: string | string[]): ReadWriteStream {
         if (Array.isArray(destination)) {
-            (<string[]>destination).forEach(function (destination:string) { stream = stream.pipe(gulp.dest(destination)); });
+            (<string[]>destination).forEach(function (destination: string) {
+                stream = stream.pipe(gulp.dest(destination));
+            });
         } else {
             stream = stream.pipe(gulp.dest(<string>destination));
         }
@@ -54,13 +54,13 @@ export abstract class AbstractSubtaskFactory extends AbstractFactory {
      * Constructs main task from the given configuration registering it with the gulp and returns the name of
      * all constructed tasks, normally just one.
      */
-    public abstract constructTask(gulp:GulpHelp, configuration:any):string[];
+    public abstract constructTask(gulp: GulpHelp, configuration: any): string[];
 
     /**
      * Constructs the task stream, relies on `constructPipeline` method to construct the stream pipeline.
      */
-    public constructStream(stream:ReadWriteStream, configuration:any):ReadWriteStream {
-        var pipeline:Pipeline = this.constructPipeline(configuration);
+    public constructStream(stream: ReadWriteStream, configuration: any): ReadWriteStream {
+        var pipeline: Pipeline = this.constructPipeline(configuration);
 
         // Yes, pipeline may get not constructed, for example with build copy task, it would return something only
         // when custom plugins are provided.
@@ -69,7 +69,7 @@ export abstract class AbstractSubtaskFactory extends AbstractFactory {
             return stream;
         }
 
-        var [head, tail]:Pipeline = pipeline;
+        var [head, tail]: Pipeline = pipeline;
         stream.pipe(head);
         return tail;
     }
@@ -78,28 +78,28 @@ export abstract class AbstractSubtaskFactory extends AbstractFactory {
      * Constructs task-specific stream pipeline, this being a standalone method allows easier testing of streams
      * without touching gulp internals.
      */
-    public constructPipeline(configuration:any):Pipeline {
+    public constructPipeline(configuration: any): Pipeline {
         throw new NotImplementedError();
     }
 
     /**
      * Constructs and registers new clean task.
      */
-    public constructClean(gulp:GulpHelp, configuration:any):string[] {
+    public constructClean(gulp: GulpHelp, configuration: any): string[] {
         throw new NotImplementedError();
     }
 
     /**
      * Constructs and registers new watch task, invokes tasks specified in `tasks` array when files change.
      */
-    public constructWatch(gulp:GulpHelp, configuration:any, tasks:string[]):string[] {
+    public constructWatch(gulp: GulpHelp, configuration: any, tasks: string[]): string[] {
         throw new NotImplementedError();
     }
 
     /**
      * Normalises plugins and returns plugin generator function.
      */
-    protected constructPlugins(plugins:any):any[] {
+    protected constructPlugins(plugins: any): any[] {
         if (plugins == null) {
             return [];
         } else if (Array.isArray(plugins)) {
@@ -114,15 +114,15 @@ export abstract class AbstractSubtaskFactory extends AbstractFactory {
     /**
      * Pipes streams into a pipeline object, returns `null` when `streams` is not provided or empty.
      */
-    protected pipelineStreams(streams:ReadWriteStream[]):Pipeline {
+    protected pipelineStreams(streams: ReadWriteStream[]): Pipeline {
         if (streams == null || streams.length === 0) {
             return null;
         }
 
-        var head:ReadWriteStream = null;
-        var tail:ReadWriteStream = null;
+        var head: ReadWriteStream = null;
+        var tail: ReadWriteStream = null;
 
-        streams.forEach(function (value:ReadWriteStream) {
+        streams.forEach(function (value: ReadWriteStream) {
             if (head == null && tail == null) {
                 head = tail = value;
             } else {
@@ -136,7 +136,7 @@ export abstract class AbstractSubtaskFactory extends AbstractFactory {
     /**
      * Validates configuration using the given schema.
      */
-    protected validate(data:any, schema:string) {
+    protected validate(data: any, schema: string) {
         AbstractSubtaskFactory.validator.validate(data, schema, {throwError: true});
     }
 }

@@ -16,7 +16,7 @@ export class PathUtility {
      * Checks if a given path configuration exists, like `product` or `library`. Comes handy when need
      * working with relative paths.
      */
-    static doesPathConfigurationExist(configuration:PathConfiguration, path:string, throwError?:boolean):boolean {
+    static doesPathConfigurationExist(configuration: PathConfiguration, path: string, throwError?: boolean): boolean {
         if (configuration == null || configuration[path] == null) {
             if (throwError !== false) {
                 throw new Error('`path.' + path + '` must be configured to use simple target form.')
@@ -30,18 +30,18 @@ export class PathUtility {
     /**
      * Returns the common extension name.
      */
-    static getCommonExtension(path:string|string[]):string {
-        var paths:string[] = Array.isArray(path) ? <string[]>path : [<string>path];
-        var pathCount:number = paths.length;
-        var extension:string = null;
+    static getCommonExtension(path: string | string[]): string {
+        var paths: string[] = Array.isArray(path) ? <string[]>path : [<string>path];
+        var pathCount: number = paths.length;
+        var extension: string = null;
 
-        for (var i:number = 0, n:number = pathCount; i < n; i++) {
+        for (var i: number = 0, n: number = pathCount; i < n; i++) {
 
             // The last thing we want to do is to lookup the filesystem, so we first try to get the file extension from the path,
             // then do the lookup. Also, we don't do lookups if count has exceeded the original paths length – in case glob
             // matched any files that have glob patterns within their name, to avoid the endless loop. Smart through the roof…
 
-            var pathExtension:string = pathExtname(path = paths[i]);
+            var pathExtension: string = pathExtname(path = paths[i]);
 
             if (pathExtension !== '' && (pathExtension !== '.*' || i >= pathCount)) {
                 if (extension === null) {
@@ -61,17 +61,17 @@ export class PathUtility {
     /**
      * Returns the common directory basename, NOT the full directory path.
      */
-    static getCommonDirectory(path:string|string[]):string {
-        var paths:string[] = Array.isArray(path) ? <string[]>path : [<string>path];
-        var pathCount:number = paths.length;
-        var directory:string = null;
+    static getCommonDirectory(path: string | string[]): string {
+        var paths: string[] = Array.isArray(path) ? <string[]>path : [<string>path];
+        var pathCount: number = paths.length;
+        var directory: string = null;
 
-        for (var i:number = 0, n:number = pathCount; i < n; i++) {
+        for (var i: number = 0, n: number = pathCount; i < n; i++) {
 
             // Do check the relevant extension method. Here we check if the glob has magic and expand them,
             // otherwise / then do all the comparisons.
 
-            var pathDirectory:string;
+            var pathDirectory: string;
 
             path = paths[i];
 
@@ -94,17 +94,17 @@ export class PathUtility {
      * Returns path directory of the given file / files. If path is a glob, attempts to expand it using fs lookup and
      * return directories from that.
      */
-    static getDirectory(path:string|string[]):string[] {
-        var paths:string[] = Array.isArray(path) ? <string[]>path : [<string>path];
-        var pathCount:number = paths.length;
-        var directories:string[] = [];
+    static getDirectory(path: string | string[]): string[] {
+        var paths: string[] = Array.isArray(path) ? <string[]>path : [<string>path];
+        var pathCount: number = paths.length;
+        var directories: string[] = [];
 
-        for (var i:number = 0, n:number = pathCount; i < n; i++) {
+        for (var i: number = 0, n: number = pathCount; i < n; i++) {
 
             // Do check the relevant extension method. Here we check if the glob has magic and expand them,
             // otherwise / then do all the comparisons.
 
-            var pathDirectory:string;
+            var pathDirectory: string;
 
             path = paths[i];
 
@@ -123,12 +123,12 @@ export class PathUtility {
      * Appends glob to a path if it's a directory, if it's not a directory, returns the path untouched. Two modes
      * to check if directory or not – soft, using extension without fs lookup, and hard, using fs lookup.
      */
-    static globalisePath(path:string|string[], glob:string, soft:boolean = false):string|string[] {
-        var array:boolean = Array.isArray(path);
-        var paths:string[] = array ? <string[]>path : [<string>path];
+    static globalisePath(path: string | string[], glob: string, soft: boolean = false): string | string[] {
+        var array: boolean = Array.isArray(path);
+        var paths: string[] = array ? <string[]>path : [<string>path];
 
-        paths = paths.map(function (path:string):string {
-            var file:boolean;
+        paths = paths.map(function (path: string): string {
+            var file: boolean;
 
             // Here we assume that we don't receive glob files, but we still may receive negated / exclusion paths,
             // which will give exceptions.
@@ -153,16 +153,16 @@ export class PathUtility {
      * Normalises the given path in relation to the base path and appends the suffix. Normalisation involves
      * checking if the path is absolute and, if not, appending it to the base path.
      */
-    static normalisePath(basePath:string|string[], path?:string|string[], suffix?:string):string|string[] {
+    static normalisePath(basePath: string | string[], path?: string | string[], suffix?: string): string | string[] {
         path == null && (path = '');
 
-        var basePathArray:boolean = Array.isArray(basePath);
-        var pathArray:boolean = Array.isArray(path);
-        var paths:string[] = [];
-        var extension:string;
+        var basePathArray: boolean = Array.isArray(basePath);
+        var pathArray: boolean = Array.isArray(path);
+        var paths: string[] = [];
+        var extension: string;
 
-        (<string[]>(pathArray ? path : [path])).forEach(function (path:string) {
-            var negate:boolean;
+        (<string[]>(pathArray ? path : [path])).forEach(function (path: string) {
+            var negate: boolean;
 
             // Check if this is a negation.
 
@@ -176,7 +176,7 @@ export class PathUtility {
                 path = pathJoin(basePath, path);
             }
 
-            (<string[]>(basePathArray ? basePath : [basePath])).forEach(function (basePath:string) {
+            (<string[]>(basePathArray ? basePath : [basePath])).forEach(function (basePath: string) {
 
 
                 // Suffix gets appended only when we're dealing with folders and it doesn't already end with suffix. The
@@ -203,8 +203,8 @@ export class PathUtility {
     /**
      * Normalises dependency path.
      */
-    static normaliseDependencyPath(configuration:PathConfiguration, dependency?:string|string[]):string|string[] {
-        var basePath:string|string[] = configuration.dependency;
+    static normaliseDependencyPath(configuration: PathConfiguration, dependency?: string | string[]): string | string[] {
+        var basePath: string | string[] = configuration.dependency;
 
         if (basePath == null) {
             throw new Error('Path configuration must contain `dependency` option to normalise dependency.')
@@ -216,8 +216,8 @@ export class PathUtility {
     /**
      * Normalises destination path.
      */
-    static normaliseDestinationPath(configuration:PathConfiguration, destination?:string|string[], suffix?:string):string|string[] {
-        var basePath:string|string[] = configuration.destination == null ? configuration.product : configuration.destination;
+    static normaliseDestinationPath(configuration: PathConfiguration, destination?: string | string[], suffix?: string): string | string[] {
+        var basePath: string | string[] = configuration.destination == null ? configuration.product : configuration.destination;
 
         if (basePath == null) {
             throw new Error('Path configuration must contain `destination` or `product` option to normalise destination.')
@@ -229,8 +229,8 @@ export class PathUtility {
     /**
      * Normalises library path.
      */
-    static normaliseLibraryPath(configuration:PathConfiguration, library?:string|string[], suffix?:string):string|string[] {
-        var basePath:string|string[] = configuration.library;
+    static normaliseLibraryPath(configuration: PathConfiguration, library?: string | string[], suffix?: string): string | string[] {
+        var basePath: string | string[] = configuration.library;
 
         if (basePath == null) {
             throw new Error('Path configuration must contain `library` option to normalise library.')
@@ -242,8 +242,8 @@ export class PathUtility {
     /**
      * Normalises source path.
      */
-    static normaliseSourcePath(configuration:PathConfiguration, source?:string|string[], suffix?:string):string|string[] {
-        var basePath:string = configuration.source;
+    static normaliseSourcePath(configuration: PathConfiguration, source?: string | string[], suffix?: string): string | string[] {
+        var basePath: string = configuration.source;
 
         if (basePath == null) {
             throw new Error('Path configuration must contain `source` option to normalise source.')
@@ -255,8 +255,8 @@ export class PathUtility {
     /**
      * Normalises product path.
      */
-    static normaliseProductPath(configuration:PathConfiguration, product?:string|string[], suffix?:string):string|string[] {
-        var basePath:string = configuration.product;
+    static normaliseProductPath(configuration: PathConfiguration, product?: string | string[], suffix?: string): string | string[] {
+        var basePath: string = configuration.product;
 
         if (basePath == null) {
             throw new Error('Path configuration must contain `product` option to normalise product.')
