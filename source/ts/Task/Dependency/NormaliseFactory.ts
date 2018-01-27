@@ -10,8 +10,6 @@ import {PathUtility} from '../../Utility/PathUtility';
 import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
 import {Plugin} from '../../Constant/Plugin';
 import {Task as TaskName} from '../../Constant/Task';
-
-import clone = require("clone");
 import concat = require('gulp-concat');
 import gulpif = require('gulp-if');
 import merge = require('merge-stream');

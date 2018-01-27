@@ -2,7 +2,6 @@ import {AbstractError} from '../Error/AbstractError';
 import {GulpHelp} from 'gulp-help';
 import {ParsedArgs} from 'minimist';
 import {ReadWriteStream} from '../Stream/Pipeline';
-
 import plumber = require('gulp-plumber');
 import util = require('gulp-util');
 

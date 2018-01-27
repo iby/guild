@@ -10,13 +10,10 @@ import {PathConfiguration} from '../../Configuration/PathConfiguration';
 import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
 import {Plugin} from '../../Constant/Plugin';
 import {Task as TaskName} from '../../Constant/Task';
-
 import awspublish = require('gulp-awspublish');
-import clone = require("clone");
 import merge = require('merge-stream');
 import path = require('path');
 import rename = require('gulp-rename');
-import sequence = require('run-sequence');
 import url = require('url');
 
 import pathJoin = path.join;

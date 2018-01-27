@@ -10,10 +10,7 @@ import {PathUtility} from '../../Utility/PathUtility';
 import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
 import {Plugin} from '../../Constant/Plugin';
 import {Task as TaskName} from '../../Constant/Task';
-
-import clone = require('clone');
 import del = require('del');
-import path = require('path');
 import twig = require('gulp-twig');
 
 // Internal configuration format.
@@ -189,7 +186,7 @@ export class TwigFactory extends AbstractFactory {
                 ? PathUtility.normaliseSourcePath(pathConfiguration, 'twig/**/*.twig')
                 : PathUtility.normalisePath(pathConfiguration.root, watch);
 
-            return gulp.watch(path, tasks);
+            return gulp.watch(path, tasks as any);
         });
 
         return [task];

@@ -7,9 +7,7 @@ import {Parameter} from '../../Constant/Parameter';
 import {ParsedArgs} from 'minimist';
 import {PathConfiguration} from '../../Configuration/PathConfiguration';
 import {PathUtility} from '../../Utility/PathUtility';
-import {ReadWriteStream, Pipeline} from '../../Stream/Pipeline';
-
-import clone = require('clone');
+import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
 import del = require('del');
 import merge = require("merge-stream");
 
@@ -194,7 +192,7 @@ export class CopyFactory extends AbstractFactory {
         gulp.task(task = this.name + '-watch', false, function () {
             for (let copyConfiguration of copyConfigurations) {
                 let path: string | string[] = PathUtility.globalisePath(PathUtility.normalisePath(pathConfiguration.root, copyConfiguration.source), '**/*');
-                gulp.watch(path, tasks);
+                gulp.watch(path, tasks as any);
             }
         });
 

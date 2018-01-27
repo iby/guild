@@ -2,14 +2,13 @@ import {AbstractFactory, Task} from './Build/AbstractFactory';
 import {AbstractTaskFactory} from './AbstractTaskFactory';
 import {ConfigurationInterface} from '../Configuration/Configuration';
 import {GulpHelp} from 'gulp-help';
-import {LessFactory, LessConfiguration} from './Build/LessFactory';
+import {LessConfiguration, LessFactory} from './Build/LessFactory';
 import {ParsedArgs} from 'minimist';
 import {PathConfiguration} from '../Configuration/PathConfiguration';
 import {Task as TaskName} from '../Constant/Task';
-import {TwigFactory, TwigConfiguration} from './Build/TwigFactory';
-import {WebpackFactory, WebpackConfiguration} from './Build/WebpackFactory';
+import {TwigConfiguration, TwigFactory} from './Build/TwigFactory';
+import {WebpackConfiguration, WebpackFactory} from './Build/WebpackFactory';
 import {CopyFactory} from './Build/CopyFactory';
-
 import sequence = require('run-sequence');
 
 export type Configuration = [BuildConfiguration, PathConfiguration];
@@ -98,7 +97,7 @@ export class BuildFactory extends AbstractTaskFactory {
                 tasks.push(callback);
             }
 
-            return sequence.use(gulp)(...tasks);
+            return sequence.use(gulp as any)(...tasks);
         }, {options: options});
     }
 }

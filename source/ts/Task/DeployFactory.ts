@@ -1,12 +1,11 @@
 import {AbstractFactory} from './Deploy/AbstractFactory';
 import {AbstractTaskFactory} from './AbstractTaskFactory';
 import {GulpHelp} from 'gulp-help';
-import {S3Factory, S3Configuration} from './Deploy/S3Factory';
+import {S3Configuration, S3Factory} from './Deploy/S3Factory';
 import {ParsedArgs} from 'minimist';
 import {PathConfiguration} from '../Configuration/PathConfiguration';
 import {Task as TaskName} from '../Constant/Task';
 import {ConfigurationInterface} from '../Configuration/Configuration';
-
 import sequence = require('run-sequence');
 
 export type Configuration = [DeployConfiguration, PathConfiguration];
@@ -72,7 +71,7 @@ export class DeployFactory extends AbstractTaskFactory {
                 tasks.push(callback);
             }
 
-            return sequence.use(gulp).apply(null, tasks);
+            return sequence.use(gulp as any).apply(null, tasks);
         }, {options: options});
     }
 }

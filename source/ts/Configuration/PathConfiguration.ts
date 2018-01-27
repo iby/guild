@@ -1,5 +1,4 @@
 import {ConfigurationInterface} from './Configuration';
-
 import path = require('path');
 
 export class PathConfiguration implements ConfigurationInterface {

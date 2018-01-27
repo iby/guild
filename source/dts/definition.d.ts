@@ -37,9 +37,3 @@ declare module 'jsonschema' {
         validate(instance:any, schema:any, options?:any, context?:any):Validation;
     }
 }
-
-declare module 'webpack-stream' {
-    import {Webpack} from "webpack";
-    function webpack(options:any, webpack?:Webpack):any;
-    export = webpack;
-}

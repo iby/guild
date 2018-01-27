@@ -10,8 +10,6 @@ import {PathUtility} from '../../Utility/PathUtility';
 import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
 import {Plugin} from '../../Constant/Plugin';
 import {Task as TaskName} from '../../Constant/Task';
-
-import clone = require('clone');
 import del = require('del');
 import less = require('gulp-less');
 import postcss = require('gulp-postcss');
@@ -190,7 +188,7 @@ export class LessFactory extends AbstractFactory {
                 ? PathUtility.normaliseSourcePath(pathConfiguration, 'less/**/*.less')
                 : PathUtility.normalisePath(pathConfiguration.root, watch);
 
-            return gulp.watch(path, tasks);
+            return gulp.watch(path, tasks as any);
         });
 
         return [task];

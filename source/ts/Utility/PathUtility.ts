@@ -1,5 +1,4 @@
 import {PathConfiguration} from '../Configuration/PathConfiguration';
-
 import fs = require('fs');
 import glob = require('glob');
 import path = require('path');
@@ -156,12 +155,12 @@ export class PathUtility {
     static normalisePath(basePath: string | string[], path?: string | string[], suffix?: string): string | string[] {
         path == null && (path = '');
 
-        let basePathArray: boolean = Array.isArray(basePath);
-        let pathArray: boolean = Array.isArray(path);
+        let isBasePathArray: boolean = Array.isArray(basePath);
+        let isPathArray: boolean = Array.isArray(path);
         let paths: string[] = [];
         let extension: string;
 
-        (<string[]>(pathArray ? path : [path])).forEach(function (path: string) {
+        (<string[]>(isPathArray ? path : [path])).forEach(function (path: string) {
             let negate: boolean;
 
             // Check if this is a negation.
@@ -173,10 +172,10 @@ export class PathUtility {
             // Join target path with the group path if target path path is not absolute.
 
             if (!pathIsAbsolute(path)) {
-                path = pathJoin(basePath, path);
+                path = pathJoin(basePath as any, path);
             }
 
-            (<string[]>(basePathArray ? basePath : [basePath])).forEach(function (basePath: string) {
+            (<string[]>(isBasePathArray ? basePath : [basePath])).forEach(function (basePath: string) {
 
 
                 // Suffix gets appended only when we're dealing with folders and it doesn't already end with suffix. The
@@ -197,7 +196,7 @@ export class PathUtility {
 
         // Try to return a single path if only a single item was supplied.
 
-        return basePathArray || pathArray ? paths : paths.pop();
+        return isBasePathArray || isPathArray ? paths : paths.pop();
     }
 
     /**

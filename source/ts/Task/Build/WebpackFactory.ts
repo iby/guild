@@ -9,8 +9,6 @@ import {PathUtility} from '../../Utility/PathUtility';
 import {Pipeline, ReadWriteStream} from '../../Stream/Pipeline';
 import {Plugin} from '../../Constant/Plugin';
 import {Task as TaskName} from '../../Constant/Task';
-
-import clone = require('clone');
 import del = require('del');
 import uglify = require('gulp-uglify');
 import webpack = require('webpack-stream');
@@ -189,7 +187,7 @@ export class WebpackFactory extends AbstractFactory {
                 ? PathUtility.normaliseSourcePath(pathConfiguration, 'js/**/*.js')
                 : PathUtility.normalisePath(pathConfiguration.root, watch);
 
-            return gulp.watch(path, tasks);
+            return gulp.watch(path, tasks as any);
         });
 
         return [task];

@@ -1,5 +1,4 @@
 import {AbstractSubtaskFactory} from '../AbstractSubtaskFactory';
-import {Schema} from '../../Constant/Schema';
 
 /**
  * Construction result tuple represents build, clean and watch task names constructed by the factory.

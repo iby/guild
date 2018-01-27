@@ -1,7 +1,8 @@
+import 'mocha';
+import 'should';
+
 import {Schema} from '../../Constant/Schema';
 import {Validator} from '../../Validator/Validator';
-
-require('should');
 
 suite('build schema', function () {
     suite('less', function () {

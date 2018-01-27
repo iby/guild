@@ -1,14 +1,14 @@
+import 'mocha';
+import 'should';
+
 import {SourceFile} from '../../../Testing/File';
-import {LessFactory, LessConfiguration} from '../../../Task/Build/LessFactory';
+import {LessConfiguration, LessFactory} from '../../../Task/Build/LessFactory';
 import {PathConfiguration} from '../../../Configuration/PathConfiguration';
 import {Pipeline} from '../../../Stream/Pipeline';
 import {Task as TaskName} from '../../../Constant/Task';
 import {Task} from '../../../Task/Build/AbstractFactory';
-
 import path = require('path');
 import help = require('gulp-help');
-
-require('should');
 
 suite('build less task factory', function () {
     let pathConfiguration: PathConfiguration = new PathConfiguration('../../../../../test/project');

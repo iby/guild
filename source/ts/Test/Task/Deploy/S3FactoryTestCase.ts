@@ -1,10 +1,10 @@
+import 'mocha';
+import 'should';
+
 import {PathConfiguration} from '../../../Configuration/PathConfiguration';
 import {S3Factory} from '../../../Task/Deploy/S3Factory';
 import {Parameter} from '../../../Constant/Parameter';
-
 import path = require('path');
-
-require('should');
 
 suite('s3 task factory', function () {
     let pathConfiguration: PathConfiguration = new PathConfiguration(path.join(__dirname, '../../../../../test/project'));

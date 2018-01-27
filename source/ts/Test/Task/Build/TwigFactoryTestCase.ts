@@ -1,14 +1,14 @@
+import 'mocha';
+import 'should';
+
 import {SourceFile} from '../../../Testing/File';
 import {PathConfiguration} from '../../../Configuration/PathConfiguration';
 import {Pipeline} from '../../../Stream/Pipeline';
 import {Task as TaskName} from '../../../Constant/Task';
 import {Task} from '../../../Task/Build/AbstractFactory';
-import {TwigFactory, TwigConfiguration} from '../../../Task/Build/TwigFactory';
-
+import {TwigConfiguration, TwigFactory} from '../../../Task/Build/TwigFactory';
 import path = require('path');
 import help = require('gulp-help');
-
-require('should');
 
 suite('build twig task factory', function () {
     let twigConfiguration: TwigConfiguration = {destination: null, source: null};

@@ -1,13 +1,9 @@
 import {AbstractFactory, NormaliseConfigurationError} from './AbstractFactory';
 import {GulpHelp} from 'gulp-help';
-import {Gulp} from 'gulp';
 import {Option} from './Option';
-import {ReadWriteStream, Pipeline} from '../Stream/Pipeline';
+import {Pipeline, ReadWriteStream} from '../Stream/Pipeline';
 import {Validator} from '../Validator/Validator';
 import {NotImplementedError} from '../Error/NotImplementedError';
-
-import del = require('del');
-import merge = require("merge-stream");
 import clone = require("clone");
 
 /**
@@ -38,7 +34,7 @@ export abstract class AbstractSubtaskFactory extends AbstractFactory {
     /**
      * Constructs write stream using `gulp.dest` to given destination.
      */
-    public constructDestination(stream: ReadWriteStream, gulp: Gulp, destination: string | string[]): ReadWriteStream {
+    public constructDestination(stream: ReadWriteStream, gulp: GulpHelp, destination: string | string[]): ReadWriteStream {
         if (Array.isArray(destination)) {
             (<string[]>destination).forEach(function (destination: string) {
                 stream = stream.pipe(gulp.dest(destination));

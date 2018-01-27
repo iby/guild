@@ -4,7 +4,6 @@ import {DeployFactory} from './Task/DeployFactory';
 import {Gulp} from 'gulp';
 import {ParsedArgs} from 'minimist';
 import {PathConfiguration} from './Configuration/PathConfiguration';
-
 import clone = require('clone');
 import help = require('gulp-help');
 import minimist = require('minimist');
@@ -31,7 +30,7 @@ export function guild(gulp: Gulp, configuration: any) {
 
     guildConfiguration = clone(guildConfiguration);
     pathConfiguration = clone(pathConfiguration);
-    gulp = help(gulp);
+    gulp = help(gulp) as any;
 
     guildConfiguration.dependency == null || DependencyFactory.construct(gulp, [guildConfiguration.dependency, pathConfiguration], parameters).construct();
     guildConfiguration.build == null || BuildFactory.construct(gulp, [guildConfiguration.build, pathConfiguration], parameters).construct();

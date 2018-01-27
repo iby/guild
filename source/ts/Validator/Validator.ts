@@ -1,5 +1,4 @@
 import {Validation} from 'jsonschema';
-
 import jsonschema = require('jsonschema');
 
 export class Validator extends jsonschema.Validator {

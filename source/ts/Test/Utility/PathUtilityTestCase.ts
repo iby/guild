@@ -1,5 +1,6 @@
-import {PathUtility} from '../../Utility/PathUtility';
+import 'mocha';
 
+import {PathUtility} from '../../Utility/PathUtility';
 import path = require('path');
 import should = require('should');
 

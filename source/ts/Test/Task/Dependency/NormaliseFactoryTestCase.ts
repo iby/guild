@@ -1,11 +1,11 @@
-import {NormaliseFactory, NormaliseConfiguration} from '../../../Task/Dependency/NormaliseFactory';
+import 'mocha';
+import 'should';
+
+import {NormaliseConfiguration, NormaliseFactory} from '../../../Task/Dependency/NormaliseFactory';
 import {PathConfiguration} from '../../../Configuration/PathConfiguration';
 import {Pipeline} from '../../../Stream/Pipeline';
-import {SourceFile, DependencyFile} from '../../../Testing/File';
-
+import {DependencyFile, SourceFile} from '../../../Testing/File';
 import path = require('path');
-
-require('should');
 
 suite('dependency normalise task factory', function () {
     let pathConfiguration: PathConfiguration = new PathConfiguration(path.join(__dirname, '../../../../../test/project'));
