@@ -5,8 +5,12 @@
       <w>extname</w>
       <w>gulpif</w>
       <w>jsonschema</w>
+      <w>minify</w>
+      <w>minimist</w>
+      <w>prevalidation</w>
       <w>subtask</w>
       <w>typings</w>
+      <w>uglify</w>
       <w>webserver</w>
     </words>
   </dictionary>
