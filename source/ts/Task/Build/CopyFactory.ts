@@ -161,7 +161,7 @@ export class CopyFactory extends AbstractFactory {
         }
 
         gulp.task(task = this.name + '-clean', false, function () {
-            let promises: Promise<void>[] = [];
+            let promises: Promise<string[]>[] = [];
 
             for (let copyConfiguration of copyConfigurations) {
                 let path: string | string[] = PathUtility.globalisePath(PathUtility.normalisePath(pathConfiguration.root, copyConfiguration.destination), '**/*');

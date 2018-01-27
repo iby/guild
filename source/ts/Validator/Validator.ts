@@ -1,4 +1,4 @@
-import {Validation} from 'jsonschema';
+import {ValidatorResult} from 'jsonschema';
 import jsonschema = require('jsonschema');
 
 export class Validator extends jsonschema.Validator {
@@ -14,7 +14,7 @@ export class Validator extends jsonschema.Validator {
         this.addSchema(require('../../json/Schema/PathSchema.json'));
     }
 
-    validate(instance: any, schema: any, options?: any, context?: any): Validation {
+    validate(instance: any, schema: any, options?: any, context?: any): ValidatorResult {
         let throwError: boolean = false;
 
         if (options != null && options.throwError) {
@@ -22,7 +22,7 @@ export class Validator extends jsonschema.Validator {
             options.throwError = false;
         }
 
-        let result: Validation = super.validate(instance, schema, options, context);
+        let result: ValidatorResult = super.validate(instance, schema, options, context);
 
         if (throwError && result.errors.length > 0) {
             throw Error(String(result.errors));
